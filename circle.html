@@ -156,7 +156,7 @@
             <!-- 計算過程方框 -->
             <div class="bg-black/35 p-3.5 rounded-2xl border border-white/15 shadow-md space-y-2.5">
               <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-1.5">
-                <span>計算過程：</span>
+                <span>計算過程 (不完整 2 格折 1 格)：</span>
               </div>
 
               <!-- 第一步：不完整方格除法計算 (B ÷ 2) -->
@@ -168,12 +168,12 @@
                 <span class="text-sm">格</span>
               </div>
 
-              <!-- 第二步：加法計算 (A + 不完整格) = 最終估算面積 -->
+              <!-- 第二步：加法計算 (A + 不完整格折半) = 最終估算面積 -->
               <div class="flex items-center gap-2 text-base font-mono text-slate-200 flex-wrap pt-2 border-t border-white/10">
                 <span class="text-slate-300 font-bold text-sm">總計：</span>
                 <span id="disp-a-val" class="text-amber-300 font-black text-lg">A</span>
                 <span class="font-bold">+</span>
-                <span id="disp-half-preview" class="text-sky-300 font-bold">(不完整)</span>
+                <span id="disp-half-preview" class="text-sky-300 font-bold">(不完整方格)</span>
                 <span class="font-bold">=</span>
                 <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-28 bg-white/20 border-2 border-emerald-400/80 rounded-xl px-2 py-1 text-center font-black text-emerald-300 text-lg focus:outline-none focus:border-emerald-300">
                 <span class="text-emerald-300 font-black text-sm">cm²</span>
