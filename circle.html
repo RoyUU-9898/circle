@@ -178,7 +178,7 @@
       </div>
     </main>
 
-    <!-- ==================== 模式二：圓面積推算（修復寬度顯示、加入動畫與答題解鎖） ==================== -->
+    <!-- ==================== 模式二：圓面積推算（全扇形完整展開動畫版） ==================== -->
     <main id="section-split-mode" class="hidden grid grid-cols-12 gap-6 flex-1 w-full items-stretch">
       
       <!-- 左側互動 Canvas 畫布區 -->
@@ -240,7 +240,7 @@
           </div>
         </div>
 
-        <!-- 卡片 2：幾何意義思考選擇區（初始鎖定，拼合後才解鎖可點選） -->
+        <!-- 卡片 2：幾何意義思考選擇區（初始鎖定，拼合後才解鎖） -->
         <div id="quiz-panel" class="glass-panel p-4 rounded-3xl space-y-2.5 border border-white/15 opacity-40 pointer-events-none transition-all duration-300">
           <div class="flex items-center justify-between">
             <h2 class="text-xs font-black text-sky-300 flex items-center gap-1">
@@ -319,7 +319,7 @@
   </div>
 
   <script>
-    // ==================== 平板等比例縮放 ====================
+    // ==================== 1. 平板等比例縮放 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
       const scale = Math.min(window.innerWidth / 1024, window.innerHeight / 700) * 0.96;
@@ -331,7 +331,7 @@
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('touchmove', e => { if (e.scale !== 1) e.preventDefault(); }, { passive: false });
 
-    // ==================== 頁籤切換 ====================
+    // ==================== 2. 頁籤切換 ====================
     const tabGrid = document.getElementById('tab-grid');
     const tabSplit = document.getElementById('tab-split');
     const secGrid = document.getElementById('section-grid-mode');
@@ -352,7 +352,7 @@
       initSplitWorkflow();
     });
 
-    // ==================== 模式一：數格子程式邏輯（完全保留） ====================
+    // ==================== 3. 模式一：數格子程式邏輯（完全保留） ====================
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
     const gridSize = 10;
@@ -534,17 +534,17 @@
 
     drawGridCanvas();
 
-    // ==================== 模式二：圓面積的推算（自適應寬度、流暢動畫、題目解鎖） ====================
+    // ==================== 模式二：圓面積的推算（全扇形等大 + 平滑展開動畫） ====================
     const sCanvas = document.getElementById('splitCanvas');
     const sCtx = sCanvas.getContext('2d');
 
-    // 0: 圓形, 1: 上下分開, 2: 展開排平, 3: 拼合成形
+    // 0: 圓形, 1: 上下分開, 2: 展開中/已排平, 3: 拼合成形
     let stage = 0;
     let currentSlices = 16;
     let radiusCm = 4;
     const PI = 3.14;
 
-    // 動畫補間進度（0.0 ~ 1.0）
+    // 動畫進度 (0.0 ~ 1.0)
     let animProgress = 0;
     let animId = null;
 
@@ -552,7 +552,7 @@
     let isDragging = false;
     let dragCurrentY = 0;
     let dragStartY = 0;
-    const INITIAL_GAP = 120; // 展開時上下間距
+    const INITIAL_GAP = 120; // 上下齒排初始垂直間隙
 
     // 題目狀態
     let quizWidthAns = null;
@@ -618,22 +618,44 @@
       document.getElementById('card-val-area').textContent = `${area} cm²`;
     }
 
-    // 核心繪圖邏輯（加入自動縮放防出界計算）
+    // 繪製單一完整等大扇形的通用函式
+    function drawWedge(ctx, r, theta) {
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(r * Math.cos(-theta / 2), r * Math.sin(-theta / 2));
+      ctx.arc(0, 0, r, -theta / 2, theta / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 核心繪圖函式
     function renderSplitCanvas() {
       sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
       const cx = sCanvas.width / 2;
       const cy = sCanvas.height / 2;
 
-      // 依當前半徑計算基準長度
       const baseR = 100 + (radiusCm - 2) * 12; // 像素半徑
+      const halfN = currentSlices / 2;
+      const sliceAngle = (Math.PI * 2) / currentSlices; // 每一塊的圓心角
+
+      // 自動縮放以避免底邊過長切掉右側標註線
+      const naturalTotalW = halfN * (baseR * sliceAngle);
+      const maxAvailableW = sCanvas.width - 135; // 預留 135px 給右邊標註
+      const autoScaleFactor = Math.min(1.0, maxAvailableW / naturalTotalW);
+
+      const rPx = baseR * autoScaleFactor;
+      const arcW = rPx * sliceAngle; // 弧長底邊
+      const totalW = halfN * arcW;
+      const startX = (sCanvas.width - totalW - 60) / 2 + 10;
+      const baseBottomY = 275;
 
       if (stage === 0) {
         // ========== 階段 0：完整圓形 ==========
-        const sliceAngle = (Math.PI * 2) / currentSlices;
         for (let i = 0; i < currentSlices; i++) {
           const startA = i * sliceAngle - Math.PI;
           const endA = (i + 1) * sliceAngle - Math.PI;
-          const isTop = (i < currentSlices / 2);
+          const isTop = (i < halfN);
           sCtx.fillStyle = isTop ? '#f97316' : '#10b981';
           sCtx.strokeStyle = isTop ? '#7c2d12' : '#064e3b';
           sCtx.lineWidth = 1.2;
@@ -654,13 +676,11 @@
         sCtx.fillText(`半徑 r = ${radiusCm} cm`, cx + baseR / 2, cy - 8);
 
       } else if (stage === 1) {
-        // ========== 階段 1：上下平滑分開動畫 ==========
-        const sliceAngle = (Math.PI * 2) / currentSlices;
-        // 動畫進度控制位移：0 -> 36px
+        // ========== 階段 1：上下分開動畫 (0 -> 36px) ==========
         const currentSplit = 36 * animProgress;
 
         // 上半圓（橘色）
-        for (let i = 0; i < currentSlices / 2; i++) {
+        for (let i = 0; i < halfN; i++) {
           const startA = i * sliceAngle - Math.PI;
           const endA = (i + 1) * sliceAngle - Math.PI;
           sCtx.fillStyle = '#f97316'; sCtx.strokeStyle = '#7c2d12'; sCtx.lineWidth = 1.2;
@@ -672,7 +692,7 @@
         }
 
         // 下半圓（綠色）
-        for (let i = currentSlices / 2; i < currentSlices; i++) {
+        for (let i = halfN; i < currentSlices; i++) {
           const startA = i * sliceAngle - Math.PI;
           const endA = (i + 1) * sliceAngle - Math.PI;
           sCtx.fillStyle = '#10b981'; sCtx.strokeStyle = '#064e3b'; sCtx.lineWidth = 1.2;
@@ -683,79 +703,101 @@
           sCtx.fill(); sCtx.stroke();
         }
 
-      } else if (stage === 2 || stage === 3) {
-        // ========== 階段 2 & 3：展開排平與拼合（含智慧縮放防裁切） ==========
-        const halfN = currentSlices / 2;
+      } else if (stage === 2 && animProgress < 1.0) {
+        // ========== 階段 2A：展開排平「變形動畫」中 (插值過渡) ==========
+        const p = animProgress; // 0.0 -> 1.0
 
-        // 計算未縮放時的底邊總長度：π * r
-        const naturalTotalW = Math.PI * baseR;
-        // 為右側「寬」預留至少 85px 標註空間，左右保留邊界
-        const maxAvailableW = sCanvas.width - 130; 
-        // 計算自動縮放比率，徹底解決截圖中右側被吃掉的問題
-        const autoScaleFactor = Math.min(1.0, maxAvailableW / naturalTotalW);
-
-        // 縮放後的幾何數值
-        const rPx = baseR * autoScaleFactor;
-        const arcW = (Math.PI * rPx) / halfN;
-        const totalW = halfN * arcW;
-
-        // 畫布置中偏左一點，預留右側標記寬度空間
-        const startX = (sCanvas.width - totalW - 60) / 2 + 10;
-        const baseBottomY = 275;
-
-        // 下半組（綠色齒列，尖端朝上）
+        // 下半圓（綠色）從圓弧位置插值到水平直線位置
         sCtx.fillStyle = '#10b981'; sCtx.strokeStyle = '#064e3b'; sCtx.lineWidth = 1.2;
         for (let i = 0; i < halfN; i++) {
-          const bx = startX + i * arcW;
-          sCtx.beginPath();
-          sCtx.moveTo(bx + arcW / 2, baseBottomY - rPx);
-          sCtx.lineTo(bx, baseBottomY);
-          sCtx.quadraticCurveTo(bx + arcW / 2, baseBottomY + arcW * 0.12, bx + arcW, baseBottomY);
-          sCtx.closePath();
-          sCtx.fill(); sCtx.stroke();
+          // 起始圓弧位置
+          const origAngle = (halfN + i + 0.5) * sliceAngle - Math.PI;
+          const startXPos = cx + (baseR * 0.15) * Math.cos(origAngle);
+          const startYPos = cy + 36 + (baseR * 0.15) * Math.sin(origAngle);
+          const startRot = origAngle;
+
+          // 目標平排位置 (尖端朝上)
+          const targetXPos = startX + (i + 0.5) * arcW;
+          const targetYPos = baseBottomY - rPx;
+          const targetRot = Math.PI / 2;
+
+          // 線性插值
+          const curX = startXPos + (targetXPos - startXPos) * p;
+          const curY = startYPos + (targetYPos - startYPos) * p;
+          const curR = startRot + (targetRot - startRot) * p;
+          const curRadius = baseR + (rPx - baseR) * p;
+
+          sCtx.save();
+          sCtx.translate(curX, curY);
+          sCtx.rotate(curR);
+          drawWedge(sCtx, curRadius, sliceAngle);
+          sCtx.restore();
         }
 
-        // 上半組（橘色齒列，尖端朝下）
-        const currentGap = (stage === 3) ? 0 : Math.max(0, INITIAL_GAP - dragCurrentY);
-        const topY = baseBottomY - rPx - currentGap;
-
-        sCtx.save();
+        // 上半圓（橘色）從圓弧位置插值到平排齒列位置 (尖端朝下)
         sCtx.fillStyle = '#f97316'; sCtx.strokeStyle = '#7c2d12'; sCtx.lineWidth = 1.2;
+        const currentGap = INITIAL_GAP;
+        for (let i = 0; i < halfN; i++) {
+          const origAngle = (i + 0.5) * sliceAngle - Math.PI;
+          const startXPos = cx + (baseR * 0.15) * Math.cos(origAngle);
+          const startYPos = cy - 36 + (baseR * 0.15) * Math.sin(origAngle);
+          const startRot = origAngle;
 
-        // 1. 最左半塊
-        sCtx.beginPath();
-        sCtx.moveTo(startX, topY + rPx);
-        sCtx.lineTo(startX, topY);
-        sCtx.quadraticCurveTo(startX + arcW * 0.25, topY - arcW * 0.1, startX + arcW / 2, topY);
-        sCtx.closePath();
-        sCtx.fill(); sCtx.stroke();
+          const targetXPos = startX + (i + 1.0) * arcW; // 咬合錯開半格
+          const targetYPos = baseBottomY - currentGap;
+          const targetRot = -Math.PI / 2;
 
-        // 2. 中間各整塊
-        for (let i = 0; i < halfN - 1; i++) {
-          const tx = startX + arcW / 2 + i * arcW;
-          sCtx.beginPath();
-          sCtx.moveTo(tx + arcW / 2, topY + rPx);
-          sCtx.lineTo(tx, topY);
-          sCtx.quadraticCurveTo(tx + arcW / 2, topY - arcW * 0.12, tx + arcW, topY);
-          sCtx.closePath();
-          sCtx.fill(); sCtx.stroke();
+          const curX = startXPos + (targetXPos - startXPos) * p;
+          const curY = startYPos + (targetYPos - startYPos) * p;
+          const curR = startRot + (targetRot - startRot) * p;
+          const curRadius = baseR + (rPx - baseR) * p;
+
+          sCtx.save();
+          sCtx.translate(curX, curY);
+          sCtx.rotate(curR);
+          drawWedge(sCtx, curRadius, sliceAngle);
+          sCtx.restore();
         }
 
-        // 3. 最右半塊
-        const rx = startX + totalW - arcW / 2;
-        sCtx.beginPath();
-        sCtx.moveTo(startX + totalW, topY + rPx);
-        sCtx.lineTo(rx, topY);
-        sCtx.quadraticCurveTo(rx + arcW * 0.25, topY - arcW * 0.1, startX + totalW, topY);
-        sCtx.closePath();
-        sCtx.fill(); sCtx.stroke();
-        sCtx.restore();
+      } else if (stage === 2 || stage === 3) {
+        // ========== 階段 2B & 3：展開排平完成 / 拖曳拼合（完整扇形交錯咬合） ==========
+        
+        // 1. 下半組（綠色齒列：halfN 個完整扇形，尖端朝上，固定在下方）
+        sCtx.fillStyle = '#10b981'; sCtx.strokeStyle = '#064e3b'; sCtx.lineWidth = 1.2;
+        for (let i = 0; i < halfN; i++) {
+          sCtx.save();
+          // 尖端中心點
+          sCtx.translate(startX + (i + 0.5) * arcW, baseBottomY - rPx);
+          sCtx.rotate(Math.PI / 2); // 旋轉使扇形朝下展開（尖端在頂部）
+          drawWedge(sCtx, rPx, sliceAngle);
+          sCtx.restore();
+        }
 
-        // 拼合後的標註尺寸線條（長度與寬度）
+        // 2. 上半組（橘色齒列：halfN 個完整扇形，尖端朝下，隨拖曳向下移動）
+        const currentGap = (stage === 3) ? 0 : Math.max(0, INITIAL_GAP - dragCurrentY);
+        const topTipY = baseBottomY - currentGap;
+
+        sCtx.fillStyle = '#f97316'; sCtx.strokeStyle = '#7c2d12'; sCtx.lineWidth = 1.2;
+        for (let i = 0; i < halfN; i++) {
+          sCtx.save();
+          // 橘色扇形尖端朝下，水平錯開剛好嵌入綠色扇形的夾角
+          sCtx.translate(startX + (i + 1.0) * arcW, topTipY);
+          sCtx.rotate(-Math.PI / 2); // 朝上展開（尖端在底部）
+          drawWedge(sCtx, rPx, sliceAngle);
+          sCtx.restore();
+        }
+
+        // 3. 拼合後的幾何標註（平行四邊形/近似長方形輪廓）
         if (stage === 3) {
-          // 長方形外框虛線
+          // 標記底邊長度的輔助虛線
           sCtx.strokeStyle = '#38bdf8'; sCtx.lineWidth = 2.2; sCtx.setLineDash([5, 5]);
-          sCtx.strokeRect(startX, baseBottomY - rPx, totalW, rPx);
+          sCtx.beginPath();
+          // 下底邊
+          sCtx.moveTo(startX, baseBottomY); sCtx.lineTo(startX + totalW, baseBottomY);
+          // 上頂邊 (錯開半個扇形)
+          sCtx.moveTo(startX + arcW * 0.5, baseBottomY - rPx); 
+          sCtx.lineTo(startX + totalW + arcW * 0.5, baseBottomY - rPx);
+          sCtx.stroke();
           sCtx.setLineDash([]);
 
           // 1. 長度標註線（水平底邊）
@@ -770,11 +812,11 @@
           sCtx.stroke();
           sCtx.font = 'bold 12px sans-serif'; sCtx.textAlign = 'center';
           const halfC = (radiusCm * PI).toFixed(2);
-          const lText = (quizLengthAns === true) ? `長 ＝ 圓周長的一半 (${halfC} cm)` : `長 ＝ ？`;
+          const lText = (quizLengthAns === true) ? `底 (長) ＝ 圓周長的一半 (${halfC} cm)` : `長 ＝ ？`;
           sCtx.fillText(lText, startX + totalW / 2, markY + 16);
 
-          // 2. 寬度標註線（右側邊，保證完整看見不被截掉）
-          const markX = startX + totalW + 18;
+          // 2. 寬度標註線（右側高，預留空間充足，100% 完整顯示）
+          const markX = startX + totalW + arcW * 0.5 + 22;
           sCtx.strokeStyle = (quizWidthAns === true) ? '#34d399' : '#facc15';
           sCtx.fillStyle = sCtx.strokeStyle;
           sCtx.lineWidth = 2;
@@ -784,65 +826,79 @@
           sCtx.moveTo(markX - 5, baseBottomY); sCtx.lineTo(markX + 5, baseBottomY);
           sCtx.stroke();
           sCtx.textAlign = 'left';
-          const wText = (quizWidthAns === true) ? `寬 ＝ 半徑 (${radiusCm} cm)` : `寬 ＝ ？`;
+          const wText = (quizWidthAns === true) ? `高 (寬) ＝ 半徑 (${radiusCm} cm)` : `寬 ＝ ？`;
           sCtx.fillText(wText, markX + 8, baseBottomY - rPx / 2 + 4);
 
         } else {
-          // 展開尚未吸附提示
+          // 展開後的拖曳手勢指引
           sCtx.fillStyle = '#38bdf8'; sCtx.font = 'bold 13px sans-serif'; sCtx.textAlign = 'center';
-          sCtx.fillText('👆 請按住橘色上半部向下拖曳，與綠色組咬合！', cx, topY - 14);
+          sCtx.fillText('👆 請按住橘色齒列向下拖曳，與綠色齒列咬合拼合！', cx, topTipY - rPx - 14);
         }
       }
     }
 
-    // ========== 動畫函式庫 ==========
+    // ========== 動畫控制 ==========
 
     // 1. 上下分開動畫
     document.getElementById('btn-action-split').addEventListener('click', () => {
       stage = 1;
       animProgress = 0;
-      document.getElementById('stage-guide-text').textContent = "正在分開...請稍候";
+      document.getElementById('stage-guide-text').textContent = "正在切開圓形...請稍候";
       document.getElementById('btn-action-split').disabled = true;
       document.getElementById('btn-action-split').className = "text-xs bg-slate-700 text-slate-400 font-bold px-4 py-2 rounded-xl cursor-not-allowed";
 
       const start = performance.now();
-      const duration = 600; // 0.6 秒
+      const duration = 500; // 0.5 秒
 
-      function animateSplit(time) {
-        const elapsed = time - start;
+      function stepSplit(now) {
+        const elapsed = now - start;
         const t = Math.min(1, elapsed / duration);
-        // easeOutQuad
-        animProgress = t * (2 - t);
+        animProgress = t * (2 - t); // easeOutQuad
         renderSplitCanvas();
-
         if (t < 1) {
-          animId = requestAnimationFrame(animateSplit);
+          animId = requestAnimationFrame(stepSplit);
         } else {
-          document.getElementById('stage-guide-text').textContent = "步驟 2：圓形已分開！請點擊「2. 展開排平」";
+          document.getElementById('stage-guide-text').textContent = "步驟 2：圓形已分開！請點擊「2. 展開排平」觀看展開動畫";
           document.getElementById('btn-action-unfold').disabled = false;
           document.getElementById('btn-action-unfold').className = "text-xs bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-4 py-2 rounded-xl shadow active:scale-95 transition-all";
         }
       }
-      animId = requestAnimationFrame(animateSplit);
+      animId = requestAnimationFrame(stepSplit);
     });
 
-    // 2. 展開排平動畫
+    // 2. 展開排平動畫（全新加入）
     document.getElementById('btn-action-unfold').addEventListener('click', () => {
       stage = 2;
+      animProgress = 0;
       dragCurrentY = 0;
       document.getElementById('btn-action-unfold').disabled = true;
       document.getElementById('btn-action-unfold').className = "text-xs bg-slate-700 text-slate-400 font-bold px-4 py-2 rounded-xl cursor-not-allowed";
-      document.getElementById('stage-guide-text').textContent = "步驟 3：已展開成齒列！請用手指按住橘色組「向下拖曳咬合」";
-      sCanvas.style.cursor = "grab";
-      renderSplitCanvas();
+      document.getElementById('stage-guide-text').textContent = "扇形展開排平中...";
+
+      const start = performance.now();
+      const duration = 750; // 0.75 秒
+
+      function stepUnfold(now) {
+        const elapsed = now - start;
+        const t = Math.min(1, elapsed / duration);
+        animProgress = t * (2 - t);
+        renderSplitCanvas();
+        if (t < 1) {
+          animId = requestAnimationFrame(stepUnfold);
+        } else {
+          document.getElementById('stage-guide-text').textContent = "步驟 3：已展開排平！請用手指按住橘色組「向下拖曳咬合」";
+          sCanvas.style.cursor = "grab";
+        }
+      }
+      animId = requestAnimationFrame(stepUnfold);
     });
 
-    // 3. 還原成圓形
+    // 3. 還原按鈕
     document.getElementById('btn-action-reset').addEventListener('click', resetToCircle);
 
     // ========== 觸控拖曳咬合 (Drag & Snap) ==========
     sCanvas.addEventListener('pointerdown', (e) => {
-      if (stage !== 2) return;
+      if (stage !== 2 || animProgress < 1.0) return;
       isDragging = true;
       dragStartY = e.clientY;
       sCanvas.setPointerCapture(e.pointerId);
@@ -852,13 +908,9 @@
     sCanvas.addEventListener('pointermove', (e) => {
       if (!isDragging || stage !== 2) return;
       const deltaY = e.clientY - dragStartY;
-      if (deltaY > 0) {
-        dragCurrentY = deltaY;
-      } else {
-        dragCurrentY = 0;
-      }
+      dragCurrentY = Math.max(0, deltaY);
 
-      // 接近 35px 觸發磁吸
+      // 距離咬合小於 35px 觸發磁吸
       if (INITIAL_GAP - dragCurrentY <= 35) {
         snapToRectangle();
       } else {
@@ -893,7 +945,7 @@
       renderSplitCanvas();
     }
 
-    // ========== 題目互動邏輯 ==========
+    // ========== 診斷題目按鈕監聽 ==========
     document.getElementById('opt-w-radius').addEventListener('click', () => {
       quizWidthAns = true;
       document.getElementById('badge-width-status').textContent = "✓ 答對了！";
@@ -930,7 +982,7 @@
       renderSplitCanvas();
     });
 
-    // 參數調整事件
+    // 參數調整
     document.getElementById('splitRadiusSlider').addEventListener('input', (e) => {
       radiusCm = parseInt(e.target.value, 10);
       updateCalculatedCards();
