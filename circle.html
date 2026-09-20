@@ -52,22 +52,22 @@
     <!-- 頂部導覽與頁籤切換區 -->
     <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl">
       <!-- 回首頁 -->
-      <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
+      <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-base bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
       </a>
 
       <!-- 模式切換頁籤 -->
       <div class="flex items-center bg-black/30 p-1.5 rounded-xl border border-white/15">
-        <button id="tab-grid" class="px-6 py-2 rounded-lg font-black text-sm tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all">
+        <button id="tab-grid" class="px-6 py-2 rounded-lg font-black text-base tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all">
           數格子估算
         </button>
-        <button id="tab-split" onclick="alert('圓面積的推算即將在下一步加入！')" class="px-6 py-2 rounded-lg font-bold text-sm tracking-wide text-sky-200 hover:text-white transition-all">
+        <button id="tab-split" onclick="alert('圓面積的推算即將在下一步加入！')" class="px-6 py-2 rounded-lg font-bold text-base tracking-wide text-sky-200 hover:text-white transition-all">
           圓面積的推算
         </button>
       </div>
 
       <!-- 右側留白佔位，讓中央頁籤維持視覺水平置中 -->
-      <div class="w-[100px]"></div>
+      <div class="w-[110px]"></div>
     </header>
 
     <!-- 主體內容區（左：方格畫布，右：控制與自主計算面板） -->
@@ -75,7 +75,7 @@
 
       <!-- 左側畫布區（佔 7 格） -->
       <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
-        <div class="w-full flex justify-between items-center text-xs text-sky-200 font-medium px-2">
+        <div class="w-full flex justify-between items-center text-sm text-sky-200 font-medium px-2">
           <span>提示：每格為 1 cm × 1 cm</span>
           <span id="canvas-hint" class="text-amber-300 font-bold">請先點選右側要數的方格類型</span>
         </div>
@@ -87,100 +87,100 @@
 
         <!-- 畫布底部工具列 -->
         <div class="w-full flex justify-between items-center px-2">
-          <button id="btn-random-circle" class="flex items-center gap-1.5 text-xs bg-indigo-500/80 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl shadow border border-indigo-400/40 active:scale-95 transition-all">
+          <button id="btn-random-circle" class="flex items-center gap-1.5 text-sm bg-indigo-500/80 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl shadow border border-indigo-400/40 active:scale-95 transition-all">
             <span>🎲 隨機產生不同的圓</span>
           </button>
 
-          <button id="btn-clear-count" class="text-xs bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 px-3 py-2 rounded-xl border border-rose-400/30 active:scale-95 transition-all">
+          <button id="btn-clear-count" class="text-sm bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 px-4 py-2 rounded-xl border border-rose-400/30 active:scale-95 transition-all">
             重數當前題目
           </button>
         </div>
       </div>
 
-      <!-- 右側控制與自主答題面板（佔 5 格） -->
-      <div class="col-span-5 h-full flex flex-col justify-between gap-3">
+      <!-- 右側控制與自主答題面板（佔 5 格，加大卡片上下間距至 gap-5） -->
+      <div class="col-span-5 h-full flex flex-col justify-between gap-5">
 
-        <!-- 卡片 1：點選數數模式切換 -->
-        <div class="glass-panel p-4 rounded-3xl text-white">
-          <h2 class="text-base font-black text-amber-400 mb-2 flex items-center gap-2">
+        <!-- 卡片 1：步驟 1 點選數數模式切換（加大內距與文字） -->
+        <div class="glass-panel p-5 rounded-3xl text-white">
+          <h2 class="text-lg font-black text-amber-400 mb-3 flex items-center gap-2">
             <span>步驟 1</span> 選擇方格進行點數
           </h2>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-3">
             <!-- 數完整方格 -->
-            <label id="label-mode-full" class="flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all">
+            <label id="label-mode-full" class="flex flex-col p-3.5 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all">
               <div class="flex items-center justify-between">
-                <span class="w-4 h-4 rounded-md bg-amber-400 inline-block"></span>
-                <input type="radio" name="countMode" value="full" checked class="w-4 h-4 accent-amber-500">
+                <span class="w-5 h-5 rounded-md bg-amber-400 inline-block"></span>
+                <input type="radio" name="countMode" value="full" checked class="w-5 h-5 accent-amber-500">
               </div>
-              <span class="font-bold text-sm text-amber-200 mt-1">完整方格</span>
-              <span id="label-full-current" class="text-xs text-slate-300 mt-0.5">已數：0 格</span>
+              <span class="font-bold text-base text-amber-200 mt-2">完整方格</span>
+              <span id="label-full-current" class="text-sm text-slate-300 mt-0.5">已數：0 格</span>
             </label>
 
             <!-- 數不完整方格 -->
-            <label id="label-mode-partial" class="flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
+            <label id="label-mode-partial" class="flex flex-col p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
               <div class="flex items-center justify-between">
-                <span class="w-4 h-4 rounded-md bg-orange-400 inline-block"></span>
-                <input type="radio" name="countMode" value="partial" class="w-4 h-4 accent-orange-500">
+                <span class="w-5 h-5 rounded-md bg-orange-400 inline-block"></span>
+                <input type="radio" name="countMode" value="partial" class="w-5 h-5 accent-orange-500">
               </div>
-              <span class="font-bold text-sm text-slate-200 mt-1">不完整方格</span>
-              <span id="label-partial-current" class="text-xs text-slate-300 mt-0.5">已數：0 格</span>
+              <span class="font-bold text-base text-slate-200 mt-2">不完整方格</span>
+              <span id="label-partial-current" class="text-sm text-slate-300 mt-0.5">已數：0 格</span>
             </label>
           </div>
         </div>
 
-        <!-- 卡片 2：學生自己動手計算算式 -->
-        <div class="glass-panel p-4 rounded-3xl text-white flex-1 flex flex-col justify-between">
-          <div class="space-y-3">
-            <h2 class="text-base font-black text-amber-400 flex items-center gap-2">
+        <!-- 卡片 2：步驟 2 學生自己動手計算算式（加大上下間距與各級文字） -->
+        <div class="glass-panel p-5 rounded-3xl text-white flex-1 flex flex-col justify-between">
+          <div class="space-y-4">
+            <h2 class="text-lg font-black text-amber-400 flex items-center gap-2">
               <span>步驟 2</span> 填入格數並自己動手算
             </h2>
 
-            <!-- 格數輸入欄位 -->
-            <div class="grid grid-cols-2 gap-2.5">
-              <div class="bg-black/20 p-2 rounded-xl border border-white/10">
-                <label class="text-[11px] text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
-                <input type="number" id="input-full" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-center font-mono font-bold text-base text-white focus:outline-none focus:border-amber-400">
+            <!-- 格數輸入欄位（加大文字與內距） -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-black/20 p-3 rounded-2xl border border-white/10">
+                <label class="text-xs text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
+                <input type="number" id="input-full" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-xl px-2 py-1.5 text-center font-mono font-black text-lg text-white focus:outline-none focus:border-amber-400">
               </div>
-              <div class="bg-black/20 p-2 rounded-xl border border-white/10">
-                <label class="text-[11px] text-orange-300 font-bold block mb-1">不完整方格數 (B)</label>
-                <input type="number" id="input-partial" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-center font-mono font-bold text-base text-white focus:outline-none focus:border-orange-400">
+              <div class="bg-black/20 p-3 rounded-2xl border border-white/10">
+                <label class="text-xs text-orange-300 font-bold block mb-1">不完整方格數 (B)</label>
+                <input type="number" id="input-partial" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-xl px-2 py-1.5 text-center font-mono font-black text-lg text-white focus:outline-none focus:border-orange-400">
               </div>
             </div>
 
-            <!-- 學生動手做除法與加法算式區塊（文字放大約 2pt / 採用 text-sm） -->
-            <div class="bg-black/30 p-3 rounded-2xl border border-white/10 space-y-2.5">
-              <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-1.5">
+            <!-- 學生動手做除法與加法算式區塊（整體文字加大並拉開間距） -->
+            <div class="bg-black/30 p-4 rounded-2xl border border-white/10 space-y-3">
+              <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-2">
                 <span>計算過程 (不完整 2 格折 1 格)：</span>
               </div>
 
               <!-- 第一步：不完整方格除法計算 (B ÷ 2) -->
-              <div class="flex items-center gap-2 text-sm font-mono text-slate-200 flex-wrap">
-                <span class="text-slate-300 font-bold">不完整方格：</span>
-                <span id="disp-b-val" class="text-orange-300 font-bold text-base">B</span>
+              <div class="flex items-center gap-2 text-base font-mono text-slate-200 flex-wrap">
+                <span class="text-slate-300 font-bold text-sm">不完整方格：</span>
+                <span id="disp-b-val" class="text-orange-300 font-black text-lg">B</span>
                 <span class="font-bold">÷ 2 =</span>
-                <input type="number" step="any" id="input-half" placeholder="自行計算" class="w-20 bg-white/15 border border-white/30 rounded-lg px-2 py-0.5 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400 text-sm">
-                <span class="text-xs">格</span>
+                <input type="number" step="any" id="input-half" placeholder="自行計算" class="w-24 bg-white/15 border border-white/30 rounded-xl px-2 py-1 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400 text-base">
+                <span class="text-sm">格</span>
               </div>
 
               <!-- 第二步：加法計算 (A + 不完整格折半) = 最終估算面積 -->
-              <div class="flex items-center gap-2 text-sm font-mono text-slate-200 flex-wrap pt-1.5 border-t border-white/5">
-                <span class="text-slate-300 font-bold">總計：</span>
-                <span id="disp-a-val" class="text-amber-300 font-bold text-base">A</span>
+              <div class="flex items-center gap-2 text-base font-mono text-slate-200 flex-wrap pt-2.5 border-t border-white/5">
+                <span class="text-slate-300 font-bold text-sm">總計：</span>
+                <span id="disp-a-val" class="text-amber-300 font-black text-lg">A</span>
                 <span class="font-bold">+</span>
                 <span id="disp-half-preview" class="text-sky-300 font-bold">(折半)</span>
                 <span class="font-bold">=</span>
-                <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-24 bg-white/20 border-2 border-emerald-400/80 rounded-lg px-2 py-0.5 text-center font-bold text-emerald-300 text-base focus:outline-none focus:border-emerald-300">
-                <span class="text-emerald-300 font-bold text-xs">cm²</span>
+                <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-28 bg-white/20 border-2 border-emerald-400/80 rounded-xl px-2 py-1 text-center font-black text-emerald-300 text-lg focus:outline-none focus:border-emerald-300">
+                <span class="text-emerald-300 font-black text-sm">cm²</span>
               </div>
             </div>
           </div>
 
-          <!-- 核對結果回饋與按鈕 -->
-          <div class="pt-2">
-            <div id="feedback-box" class="hidden text-center text-xs font-bold py-2 px-3 rounded-xl mb-2"></div>
+          <!-- 核對結果回饋與按鈕（加大按鈕厚度與字體） -->
+          <div class="pt-3">
+            <div id="feedback-box" class="hidden text-center text-sm font-bold py-2 px-3 rounded-xl mb-2.5"></div>
             
-            <button id="btn-check-ans" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl shadow-lg border border-emerald-300/40 active:scale-95 transition-all text-sm tracking-wider">
+            <button id="btn-check-ans" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3 rounded-xl shadow-lg border border-emerald-300/40 active:scale-95 transition-all text-base tracking-wider">
               送出核對答案 ➜
             </button>
           </div>
@@ -409,13 +409,13 @@
         const hint = document.getElementById('canvas-hint');
 
         if (isFull) {
-          labelFull.className = "flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all";
-          labelPartial.className = "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
+          labelFull.className = "flex flex-col p-3.5 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all";
+          labelPartial.className = "flex flex-col p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
           hint.textContent = "目前模式：點擊【黃色完整方格】計數";
           hint.className = "text-amber-300 font-bold";
         } else {
-          labelFull.className = "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
-          labelPartial.className = "flex flex-col p-3 rounded-2xl bg-orange-500/20 border-2 border-orange-400 cursor-pointer transition-all";
+          labelFull.className = "flex flex-col p-3.5 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
+          labelPartial.className = "flex flex-col p-3.5 rounded-2xl bg-orange-500/20 border-2 border-orange-400 cursor-pointer transition-all";
           hint.textContent = "目前模式：點擊【橘色不完整方格】計數";
           hint.className = "text-orange-300 font-bold";
         }
@@ -483,7 +483,7 @@
 
       // 1. 檢查是否漏填
       if (valA === '' || valB === '' || valHalf === '' || valFinal === '') {
-        fb.className = "text-center text-xs font-bold py-2 px-3 rounded-xl mb-2 bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
+        fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2.5 bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
         fb.textContent = "每個空格都要填寫喔！請填寫格數、折半計算與最終面積！";
         return;
       }
@@ -494,8 +494,6 @@
       const numFinal = parseFloat(valFinal);
 
       const { sysFull, sysPartial } = getSystemCounts();
-      const correctHalf = sysPartial / 2;
-      const correctTotal = sysFull + correctHalf;
 
       // 2. 逐步判定錯誤環節
       let errors = [];
@@ -515,10 +513,10 @@
 
       // 3. 顯示回饋
       if (errors.length === 0) {
-        fb.className = "text-center text-xs font-bold py-2.5 px-3 rounded-xl mb-2 bg-emerald-500/30 text-emerald-200 border border-emerald-400/50 block";
+        fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2.5 bg-emerald-500/30 text-emerald-200 border border-emerald-400/50 block";
         fb.innerHTML = `🎉 太厲害了！完全正確！<br>格數與計算步驟全都答對了，估算圓面積為 <strong>${numFinal} cm²</strong>！`;
       } else {
-        fb.className = "text-center text-xs font-bold py-2.5 px-3 rounded-xl mb-2 bg-rose-500/25 text-rose-200 border border-rose-400/50 block text-left";
+        fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2.5 bg-rose-500/25 text-rose-200 border border-rose-400/50 block text-left";
         fb.innerHTML = `⚠️ 有些步驟需要再檢查一下喔：<br><ul class="list-disc list-inside mt-1 space-y-0.5">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`;
       }
     });
