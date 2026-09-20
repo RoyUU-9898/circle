@@ -49,8 +49,8 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-6">
 
-    <!-- 頂部導覽與頁籤切換區 -->
-    <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl">
+    <!-- 頂部導覽與頁籤切換區（加大下方間距 mb-6，與下方內容拉開） -->
+    <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl mb-6 flex-shrink-0">
       <!-- 回首頁 -->
       <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-base bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
@@ -71,7 +71,7 @@
     </header>
 
     <!-- 主體內容區（左：方格畫布，右：控制與自主計算面板） -->
-    <main class="grid grid-cols-12 gap-6 my-auto h-[575px] w-full items-center">
+    <main class="grid grid-cols-12 gap-6 my-auto h-[560px] w-full items-center">
 
       <!-- 左側畫布區（佔 7 格） -->
       <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
@@ -82,7 +82,7 @@
 
         <!-- 互動 Canvas 畫布 -->
         <div class="relative flex items-center justify-center flex-1 my-1">
-          <canvas id="gridCanvas" width="440" height="440" class="rounded-2xl shadow-lg cursor-pointer bg-white"></canvas>
+          <canvas id="gridCanvas" width="430" height="430" class="rounded-2xl shadow-lg cursor-pointer bg-white"></canvas>
         </div>
 
         <!-- 畫布底部工具列 -->
@@ -137,7 +137,7 @@
             </h2>
 
             <!-- 上方方框：格數輸入欄位 -->
-            <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="grid grid-cols-2 gap-3 mb-4">
               <div class="bg-black/25 p-3 rounded-2xl border border-white/15 shadow-inner">
                 <label class="text-xs text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
                 <input type="number" id="input-full" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-xl px-2 py-1.5 text-center font-mono font-black text-lg text-white focus:outline-none focus:border-amber-400">
@@ -148,10 +148,10 @@
               </div>
             </div>
 
-            <!-- 下方方框：計算過程（加大了與上方格子的間隙 mb-5，並以獨立微光外框區隔） -->
+            <!-- 下方方框：計算過程 -->
             <div class="bg-black/35 p-4 rounded-2xl border border-white/15 shadow-md space-y-3">
               <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-2">
-                <span>計算過程 (不完整 2 格折 1 格)：</span>
+                <span>計算過程：</span>
               </div>
 
               <!-- 第一步：不完整方格除法計算 (B ÷ 2) -->
@@ -163,12 +163,12 @@
                 <span class="text-sm">格</span>
               </div>
 
-              <!-- 第二步：加法計算 (A + 不完整格折半) = 最終估算面積 -->
+              <!-- 第二步：加法計算 (A + 不完整格) = 最終估算面積 -->
               <div class="flex items-center gap-2 text-base font-mono text-slate-200 flex-wrap pt-2.5 border-t border-white/10">
                 <span class="text-slate-300 font-bold text-sm">總計：</span>
                 <span id="disp-a-val" class="text-amber-300 font-black text-lg">A</span>
                 <span class="font-bold">+</span>
-                <span id="disp-half-preview" class="text-sky-300 font-bold">(折半)</span>
+                <span id="disp-half-preview" class="text-sky-300 font-bold">(不完整方格)</span>
                 <span class="font-bold">=</span>
                 <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-28 bg-white/20 border-2 border-emerald-400/80 rounded-xl px-2 py-1 text-center font-black text-emerald-300 text-lg focus:outline-none focus:border-emerald-300">
                 <span class="text-emerald-300 font-black text-sm">cm²</span>
@@ -466,7 +466,7 @@
 
       document.getElementById('disp-a-val').textContent = a !== '' ? a : 'A';
       document.getElementById('disp-b-val').textContent = b !== '' ? b : 'B';
-      document.getElementById('disp-half-preview').textContent = half !== '' ? half : '(折半)';
+      document.getElementById('disp-half-preview').textContent = half !== '' ? half : '(不完整方格)';
     }
 
     document.getElementById('input-full').addEventListener('input', syncInputsToEquation);
@@ -484,7 +484,7 @@
       // 1. 檢查是否漏填
       if (valA === '' || valB === '' || valHalf === '' || valFinal === '') {
         fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2.5 bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
-        fb.textContent = "每個空格都要填寫喔！請填寫格數、折半計算與最終面積！";
+        fb.textContent = "每個空格都要填寫喔！請填寫格數、不完整方格除法與最終面積！";
         return;
       }
 
