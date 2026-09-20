@@ -2,12 +2,10 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <!-- 鎖定平板視窗，防止雙指誤觸縮放與滑動回彈 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>圓面積探索</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 全螢幕背景與觸控限制 */
     html, body {
       width: 100%;
       height: 100%;
@@ -22,7 +20,6 @@
       background-color: #1a2a47; /* 純素色深藍 */
     }
 
-    /* 平板置中與自適應縮放容器 */
     #app-wrapper {
       position: absolute;
       top: 50%;
@@ -41,11 +38,28 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    /* 數字輸入框隱藏原生微調箭頭，保持介面簡潔 */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
       margin: 0; 
+    }
+
+    /* 滑桿樣式美化 */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      height: 8px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
     }
   </style>
 </head>
@@ -54,7 +68,7 @@
   <!-- 自動縮放主容器 -->
   <div id="app-wrapper" class="flex flex-col justify-between p-6">
 
-    <!-- 頂部導覽列 -->
+    <!-- 頂部導覽列與模式切換 -->
     <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl mb-3 flex-shrink-0">
       <!-- 回首頁 -->
       <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-base bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
@@ -66,53 +80,44 @@
         <button id="tab-grid" class="px-6 py-2 rounded-lg font-black text-base tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all">
           數格子估算
         </button>
-        <button id="tab-split" onclick="alert('圓面積的推算即將在下一步加入！')" class="px-6 py-2 rounded-lg font-bold text-base tracking-wide text-sky-200 hover:text-white transition-all">
+        <button id="tab-split" class="px-6 py-2 rounded-lg font-bold text-base tracking-wide text-sky-200 hover:text-white transition-all">
           圓面積的推算
         </button>
       </div>
 
-      <!-- 佔位平衡區塊 -->
       <div class="w-[110px]"></div>
     </header>
 
-    <!-- 主體內容區（左：方格畫布，右：控制與自主計算面板） -->
-    <main class="grid grid-cols-12 gap-6 flex-1 w-full items-stretch">
-
-      <!-- 左側畫布區（佔 7 格） -->
+    <!-- ==================== 模式一：數格子估算 ==================== -->
+    <main id="section-grid-mode" class="grid grid-cols-12 gap-6 flex-1 w-full items-stretch">
+      <!-- 左側畫布區 -->
       <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-sm text-sky-200 font-medium px-2">
           <span>提示：每格為 1 cm × 1 cm</span>
           <span id="canvas-hint" class="text-amber-300 font-bold">請先點選右側要數的方格類型</span>
         </div>
 
-        <!-- 互動 Canvas 畫布 -->
         <div class="relative flex items-center justify-center flex-1 my-1">
           <canvas id="gridCanvas" width="430" height="430" class="rounded-2xl shadow-lg cursor-pointer bg-white"></canvas>
         </div>
 
-        <!-- 畫布底部工具列 -->
         <div class="w-full flex justify-between items-center px-2">
           <button id="btn-random-circle" class="flex items-center gap-1.5 text-sm bg-indigo-500/80 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl shadow border border-indigo-400/40 active:scale-95 transition-all">
             <span>🎲 隨機產生不同的圓</span>
           </button>
-
           <button id="btn-clear-count" class="text-sm bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 px-4 py-2 rounded-xl border border-rose-400/30 active:scale-95 transition-all">
             重數當前題目
           </button>
         </div>
       </div>
 
-      <!-- 右側控制與自主答題面板（佔 5 格） -->
+      <!-- 右側答題面板 -->
       <div class="col-span-5 h-full flex flex-col justify-between gap-4">
-
-        <!-- 卡片 1：步驟 1 點選數數模式切換 -->
         <div class="glass-panel p-4 rounded-3xl text-white">
           <h2 class="text-lg font-black text-amber-400 mb-2.5 flex items-center gap-2">
             <span>步驟 1</span> 選擇方格進行點數
           </h2>
-
           <div class="grid grid-cols-2 gap-3">
-            <!-- 數完整方格 -->
             <label id="label-mode-full" class="flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all">
               <div class="flex items-center justify-between">
                 <span class="w-5 h-5 rounded-md bg-amber-400 inline-block"></span>
@@ -121,8 +126,6 @@
               <span class="font-bold text-base text-amber-200 mt-1.5">完整方格</span>
               <span id="label-full-current" class="text-sm text-slate-300 mt-0.5">已數：0 格</span>
             </label>
-
-            <!-- 數不完整方格 -->
             <label id="label-mode-partial" class="flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
               <div class="flex items-center justify-between">
                 <span class="w-5 h-5 rounded-md bg-orange-400 inline-block"></span>
@@ -134,14 +137,11 @@
           </div>
         </div>
 
-        <!-- 卡片 2：步驟 2 學生自己動手計算算式 -->
         <div class="glass-panel p-4 rounded-3xl text-white flex-1 flex flex-col justify-between">
           <div class="flex flex-col">
             <h2 class="text-lg font-black text-amber-400 mb-2.5 flex items-center gap-2">
               <span>步驟 2</span> 填入格數並自己動手算
             </h2>
-
-            <!-- 格數輸入欄位 -->
             <div class="grid grid-cols-2 gap-3 mb-3">
               <div class="bg-black/25 p-2.5 rounded-2xl border border-white/15 shadow-inner">
                 <label class="text-xs text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
@@ -153,14 +153,10 @@
               </div>
             </div>
 
-            <!-- 計算過程方框 -->
             <div class="bg-black/35 p-3.5 rounded-2xl border border-white/15 shadow-md space-y-2.5">
-              <!-- 移除括號備註，保持乾淨簡潔 -->
               <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-1.5">
                 <span>計算過程：</span>
               </div>
-
-              <!-- 第一步：不完整方格除法計算 (B ÷ 2) -->
               <div class="flex items-center gap-1.5 text-base font-mono text-slate-200 flex-nowrap whitespace-nowrap">
                 <span class="text-slate-300 font-bold text-sm">不完整方格：</span>
                 <span id="disp-b-val" class="text-orange-300 font-black text-base">B</span>
@@ -168,8 +164,6 @@
                 <input type="number" step="any" id="input-half" placeholder="自算" class="w-16 bg-white/15 border border-white/30 rounded-xl px-1.5 py-1 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400 text-base">
                 <span class="text-sm">格</span>
               </div>
-
-              <!-- 第二步：加法計算，鎖定單行防折行 -->
               <div class="flex items-center gap-1.5 text-base font-mono text-slate-200 flex-nowrap whitespace-nowrap pt-2 border-t border-white/10">
                 <span class="text-slate-300 font-bold text-sm">總計：</span>
                 <span id="disp-a-val" class="text-amber-300 font-black text-base">A</span>
@@ -182,13 +176,102 @@
             </div>
           </div>
 
-          <!-- 核對結果回饋與按鈕 -->
           <div class="pt-2">
             <div id="feedback-box" class="hidden text-center text-sm font-bold py-2 px-3 rounded-xl mb-2"></div>
-            
             <button id="btn-check-ans" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl shadow-lg border border-emerald-300/40 active:scale-95 transition-all text-base tracking-wider">
               送出核對答案 ➜
             </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== 模式二：圓面積的推算（拖曳拼合與連動展示） ==================== -->
+    <main id="section-split-mode" class="hidden grid grid-cols-12 gap-6 flex-1 w-full items-stretch">
+      
+      <!-- 左側：拖曳拼合 Canvas 畫布區 -->
+      <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
+        <div class="w-full flex justify-between items-center text-sm px-2">
+          <span class="text-sky-200 font-bold">動手拼合：請按住上方扇形向下拖曳</span>
+          <span id="snap-status-badge" class="text-xs bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full font-bold">
+            尚未拼合（拖曳接近即可吸附）
+          </span>
+        </div>
+
+        <!-- 拖曳互動 Canvas -->
+        <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
+          <canvas id="splitCanvas" width="540" height="430" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 cursor-grab active:cursor-grabbing"></canvas>
+        </div>
+
+        <!-- 底部輔助按鈕 -->
+        <div class="w-full flex justify-between items-center px-2">
+          <button id="btn-auto-snap" class="text-sm bg-sky-500/80 hover:bg-sky-500 text-white font-bold px-4 py-2 rounded-xl shadow border border-sky-400/40 active:scale-95 transition-all">
+            ⚡ 一鍵拼合長方形
+          </button>
+          <button id="btn-reset-snap" class="text-sm bg-slate-600/60 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
+            還原分開
+          </button>
+        </div>
+      </div>
+
+      <!-- 右側：控制拉桿與 LoiLoNote 截圖觀測卡 -->
+      <div class="col-span-5 h-full flex flex-col justify-between gap-3 text-white">
+        
+        <!-- 卡片 A：等分數與半徑控制 -->
+        <div class="glass-panel p-4 rounded-3xl space-y-3">
+          <!-- 等分數切換 -->
+          <div>
+            <label class="text-xs text-amber-300 font-bold block mb-1.5">切割等分數：</label>
+            <div class="grid grid-cols-4 gap-2" id="split-buttons">
+              <button data-slices="8" class="slice-btn py-1.5 rounded-xl text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20">8等分</button>
+              <button data-slices="16" class="slice-btn py-1.5 rounded-xl text-sm font-bold bg-amber-500 text-slate-950 shadow-md">16等分</button>
+              <button data-slices="32" class="slice-btn py-1.5 rounded-xl text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20">32等分</button>
+              <button data-slices="64" class="slice-btn py-1.5 rounded-xl text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20">64等分</button>
+            </div>
+          </div>
+
+          <!-- 半徑調整滑桿 -->
+          <div>
+            <div class="flex justify-between items-center text-xs mb-1">
+              <span class="text-sky-200 font-bold">半徑調整 (r)：</span>
+              <span id="disp-radius-slider" class="text-base font-black text-amber-400 font-mono">4 cm</span>
+            </div>
+            <input type="range" id="radiusSlider" min="3" max="7" step="1" value="4" class="w-full cursor-pointer">
+          </div>
+        </div>
+
+        <!-- 卡片 B：專為 LoiLoNote 截圖驗證設計的數值觀測卡 -->
+        <div class="glass-panel p-4 rounded-3xl flex-1 flex flex-col justify-between border-2 border-sky-400/40 shadow-xl bg-slate-900/50">
+          <div>
+            <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
+              <h2 class="text-base font-black text-sky-300 flex items-center gap-1.5">
+                <span>📸</span> 數據觀測卡 (LoiLoNote 截圖專用)
+              </h2>
+              <span class="text-[11px] text-sky-200/60 font-mono">π ≈ 3.14</span>
+            </div>
+
+            <!-- 即時連動尺寸數值 -->
+            <div class="space-y-2 text-sm font-mono">
+              <div class="flex justify-between items-center bg-black/30 px-3 py-2 rounded-xl border border-white/10">
+                <span class="text-slate-300 text-xs">長方形的寬 (半徑 r)：</span>
+                <span id="data-width" class="text-amber-400 font-black text-base">4 cm</span>
+              </div>
+              <div class="flex justify-between items-center bg-black/30 px-3 py-2 rounded-xl border border-white/10">
+                <span class="text-slate-300 text-xs">長方形的長 (圓周長的一半)：</span>
+                <span id="data-length" class="text-orange-400 font-black text-base">12.56 cm</span>
+              </div>
+              <div class="flex justify-between items-center bg-black/40 px-3 py-2 rounded-xl border border-emerald-400/40">
+                <span class="text-emerald-300 font-bold text-xs">長方形測量面積 (長 × 寬)：</span>
+                <span id="data-area" class="text-emerald-300 font-black text-base">50.24 cm²</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 課堂探索任務提示框（直接讓學生在截圖上做筆記與計算） -->
+          <div class="bg-amber-400/10 border border-amber-400/30 p-2.5 rounded-xl text-xs text-amber-200 mt-2 space-y-1">
+            <div class="font-bold text-amber-300">💡 課堂思考與驗證任務：</div>
+            <div>1. 算算看：<strong>長 ÷ 半徑</strong> 是多少？（<span id="task-calc-preview">12.56 ÷ 4 = ?</span>）</div>
+            <div>2. 發現了嗎？長方形的長就是 <strong>半徑 × 3.14</strong>！</div>
           </div>
         </div>
 
@@ -198,51 +281,58 @@
 
   </div>
 
-  <!-- 核心互動邏輯與平板等比例適配縮放 -->
+  <!-- 核心腳本 -->
   <script>
-    // 平板精準等比例自適應縮放（包含 iOS Safari 網址列適配）
+    // ==================== 平板等比例自適應縮放 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
       const baseWidth = 1024;
       const baseHeight = 700;
-
       const windowWidth = document.documentElement.clientWidth || window.innerWidth;
       const windowHeight = document.documentElement.clientHeight || window.innerHeight;
-
-      const scaleX = windowWidth / baseWidth;
-      const scaleY = windowHeight / baseHeight;
-      const scale = Math.min(scaleX, scaleY) * 0.96;
-
+      const scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight) * 0.96;
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
-
     window.addEventListener('resize', autoScale);
     window.addEventListener('orientationchange', autoScale);
     window.addEventListener('DOMContentLoaded', autoScale);
-
     document.addEventListener('gesturestart', e => e.preventDefault());
-    document.addEventListener('touchmove', e => {
-      if (e.scale !== 1) e.preventDefault();
-    }, { passive: false });
+    document.addEventListener('touchmove', e => { if (e.scale !== 1) e.preventDefault(); }, { passive: false });
 
-    // 畫布參數
+    // ==================== 頁籤切換邏輯 ====================
+    const tabGrid = document.getElementById('tab-grid');
+    const tabSplit = document.getElementById('tab-split');
+    const secGrid = document.getElementById('section-grid-mode');
+    const secSplit = document.getElementById('section-split-mode');
+
+    tabGrid.addEventListener('click', () => {
+      tabGrid.className = "px-6 py-2 rounded-lg font-black text-base tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all";
+      tabSplit.className = "px-6 py-2 rounded-lg font-bold text-base tracking-wide text-sky-200 hover:text-white transition-all";
+      secGrid.classList.remove('hidden');
+      secSplit.classList.add('hidden');
+    });
+
+    tabSplit.addEventListener('click', () => {
+      tabSplit.className = "px-6 py-2 rounded-lg font-black text-base tracking-wide bg-sky-500 text-slate-950 shadow-md transition-all";
+      tabGrid.className = "px-6 py-2 rounded-lg font-bold text-base tracking-wide text-sky-200 hover:text-white transition-all";
+      secSplit.classList.remove('hidden');
+      secGrid.classList.add('hidden');
+      initSplitMode(); // 初始化切割模式
+    });
+
+    // ==================== 模式一：數格子估算邏輯 ====================
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
     const gridSize = 10;
     const cellSize = canvas.width / gridSize;
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
-
-    // 當前圓半徑（格數）
     let currentRadiusCells = 4.0;
-
-    // 學生點選計數紀錄陣列
     let fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
     let partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
     let fullCounter = 0;
     let partialCounter = 0;
 
-    // 方格幾何相交判定 (1: 內, 2: 邊, 0: 外)
     function getCellType(col, row, rCells) {
       const rPx = rCells * cellSize;
       const corners = [
@@ -251,26 +341,20 @@
         { x: col * cellSize, y: (row + 1) * cellSize },
         { x: (col + 1) * cellSize, y: (row + 1) * cellSize }
       ];
-
       const insideCount = corners.filter(pt => {
         const dx = pt.x - centerX;
         const dy = pt.y - centerY;
         return (dx * dx + dy * dy) <= (rPx * rPx);
       }).length;
-
       if (insideCount === 4) return 1;
       if (insideCount > 0 && insideCount < 4) return 2;
-
       const cx = (col + 0.5) * cellSize;
       const cy = (row + 0.5) * cellSize;
       const distSq = (cx - centerX)**2 + (cy - centerY)**2;
-      if (distSq < (rPx + cellSize*0.7)**2 && distSq > (rPx - cellSize*0.7)**2) {
-        return 2;
-      }
+      if (distSq < (rPx + cellSize*0.7)**2 && distSq > (rPx - cellSize*0.7)**2) return 2;
       return 0;
     }
 
-    // 計算系統正確數量
     function getSystemCounts() {
       let sysFull = 0, sysPartial = 0;
       for (let r = 0; r < gridSize; r++) {
@@ -283,86 +367,62 @@
       return { sysFull, sysPartial };
     }
 
-    // 繪製畫布
-    function draw() {
+    function drawGridCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 1. 底層顏色
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
           const type = getCellType(c, r, currentRadiusCells);
           if (type === 1) {
-            ctx.fillStyle = '#fef08a'; // 完整格黃色
+            ctx.fillStyle = '#fef08a';
             ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           } else if (type === 2) {
-            ctx.fillStyle = '#fed7aa'; // 不完整格橘色
+            ctx.fillStyle = '#fed7aa';
             ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           }
         }
       }
-
-      // 2. 網格線條
       ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1;
       for (let i = 0; i <= gridSize; i++) {
         ctx.beginPath();
-        ctx.moveTo(i * cellSize, 0);
-        ctx.lineTo(i * cellSize, canvas.height);
-        ctx.stroke();
-
+        ctx.moveTo(i * cellSize, 0); ctx.lineTo(i * cellSize, canvas.height); ctx.stroke();
         ctx.beginPath();
-        ctx.moveTo(0, i * cellSize);
-        ctx.lineTo(canvas.width, i * cellSize);
-        ctx.stroke();
+        ctx.moveTo(0, i * cellSize); ctx.lineTo(canvas.width, i * cellSize); ctx.stroke();
       }
-
-      // 3. 圓形輪廓
       ctx.beginPath();
       ctx.arc(centerX, centerY, currentRadiusCells * cellSize, 0, Math.PI * 2);
       ctx.strokeStyle = '#ea580c';
       ctx.lineWidth = 3.5;
       ctx.stroke();
-
-      // 圓心
       ctx.beginPath();
       ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
       ctx.fillStyle = '#0f172a';
       ctx.fill();
 
-      // 4. 繪製邊點邊數數字
       ctx.font = 'bold 15px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
           const fx = (c + 0.5) * cellSize;
           const fy = (r + 0.5) * cellSize;
-
           if (fullMarks[r][c] > 0) {
             ctx.beginPath();
             ctx.arc(fx, fy, 12, 0, Math.PI * 2);
-            ctx.fillStyle = '#1e3a8a';
-            ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(fullMarks[r][c], fx, fy + 1);
+            ctx.fillStyle = '#1e3a8a'; ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillText(fullMarks[r][c], fx, fy + 1);
           } else if (partialMarks[r][c] > 0) {
             ctx.beginPath();
             ctx.arc(fx, fy, 12, 0, Math.PI * 2);
-            ctx.fillStyle = '#c2410c';
-            ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(partialMarks[r][c], fx, fy + 1);
+            ctx.fillStyle = '#c2410c'; ctx.fill();
+            ctx.fillStyle = '#ffffff'; ctx.fillText(partialMarks[r][c], fx, fy + 1);
           }
         }
       }
-
-      // 更新側邊計數文字
       document.getElementById('label-full-current').textContent = `已數：${fullCounter} 格`;
       document.getElementById('label-partial-current').textContent = `已數：${partialCounter} 格`;
     }
 
-    // 重新排序序號
     function resequenceMarks() {
       let fNum = 1;
       for (let r = 0; r < gridSize; r++) {
@@ -371,7 +431,6 @@
         }
       }
       fullCounter = fNum - 1;
-
       let pNum = 1;
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
@@ -381,167 +440,342 @@
       partialCounter = pNum - 1;
     }
 
-    // 畫布觸控/點擊精準座標判定
     canvas.addEventListener('pointerdown', (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
-      const x = (e.clientX - rect.left) * scaleX;
-      const y = (e.clientY - rect.top) * scaleY;
-
-      const col = Math.floor(x / cellSize);
-      const row = Math.floor(y / cellSize);
-
+      const col = Math.floor(((e.clientX - rect.left) * scaleX) / cellSize);
+      const row = Math.floor(((e.clientY - rect.top) * scaleY) / cellSize);
       if (col < 0 || col >= gridSize || row < 0 || row >= gridSize) return;
 
       const currentMode = document.querySelector('input[name="countMode"]:checked').value;
       const cellType = getCellType(col, row, currentRadiusCells);
-
       if (currentMode === 'full') {
         if (cellType !== 1) return;
-        if (fullMarks[row][col] > 0) {
-          fullMarks[row][col] = 0;
-          resequenceMarks();
-        } else {
-          fullCounter++;
-          fullMarks[row][col] = fullCounter;
-        }
-      } else if (currentMode === 'partial') {
+        if (fullMarks[row][col] > 0) { fullMarks[row][col] = 0; resequenceMarks(); }
+        else { fullCounter++; fullMarks[row][col] = fullCounter; }
+      } else {
         if (cellType !== 2) return;
-        if (partialMarks[row][col] > 0) {
-          partialMarks[row][col] = 0;
-          resequenceMarks();
-        } else {
-          partialCounter++;
-          partialMarks[row][col] = partialCounter;
-        }
+        if (partialMarks[row][col] > 0) { partialMarks[row][col] = 0; resequenceMarks(); }
+        else { partialCounter++; partialMarks[row][col] = partialCounter; }
       }
-
-      draw();
+      drawGridCanvas();
     });
 
-    // 模式切換樣式
     document.querySelectorAll('input[name="countMode"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         const isFull = e.target.value === 'full';
-        const labelFull = document.getElementById('label-mode-full');
-        const labelPartial = document.getElementById('label-mode-partial');
-        const hint = document.getElementById('canvas-hint');
-
-        if (isFull) {
-          labelFull.className = "flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all";
-          labelPartial.className = "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
-          hint.textContent = "目前模式：點擊【黃色完整方格】計數";
-          hint.className = "text-amber-300 font-bold";
-        } else {
-          labelFull.className = "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
-          labelPartial.className = "flex flex-col p-3 rounded-2xl bg-orange-500/20 border-2 border-orange-400 cursor-pointer transition-all";
-          hint.textContent = "目前模式：點擊【橘色不完整方格】計數";
-          hint.className = "text-orange-300 font-bold";
-        }
+        document.getElementById('label-mode-full').className = isFull ? "flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all" : "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
+        document.getElementById('label-mode-partial').className = !isFull ? "flex flex-col p-3 rounded-2xl bg-orange-500/20 border-2 border-orange-400 cursor-pointer transition-all" : "flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all";
       });
     });
 
-    // 隨機產生圓形
-    function generateRandomCircle() {
+    document.getElementById('btn-random-circle').addEventListener('click', () => {
       const possibleRadii = [3.0, 3.2, 3.5, 3.8, 4.0, 4.2, 4.5];
-      let newR;
-      do {
-        newR = possibleRadii[Math.floor(Math.random() * possibleRadii.length)];
-      } while (newR === currentRadiusCells && possibleRadii.length > 1);
-
-      currentRadiusCells = newR;
-      resetCurrentCounters();
-      
-      // 清空輸入框
+      currentRadiusCells = possibleRadii[Math.floor(Math.random() * possibleRadii.length)];
+      fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+      partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+      fullCounter = 0; partialCounter = 0;
       document.getElementById('input-full').value = '';
       document.getElementById('input-partial').value = '';
       document.getElementById('input-half').value = '';
       document.getElementById('input-final-area').value = '';
       document.getElementById('feedback-box').className = 'hidden';
       syncInputsToEquation();
-      draw();
-    }
-
-    // 重設計數
-    function resetCurrentCounters() {
-      fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
-      partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
-      fullCounter = 0;
-      partialCounter = 0;
-      draw();
-    }
-
-    document.getElementById('btn-random-circle').addEventListener('click', generateRandomCircle);
-    document.getElementById('btn-clear-count').addEventListener('click', () => {
-      resetCurrentCounters();
-      document.getElementById('feedback-box').className = 'hidden';
+      drawGridCanvas();
     });
 
-    // 動態帶入算式提示
+    document.getElementById('btn-clear-count').addEventListener('click', () => {
+      fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+      partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
+      fullCounter = 0; partialCounter = 0;
+      document.getElementById('feedback-box').className = 'hidden';
+      drawGridCanvas();
+    });
+
     function syncInputsToEquation() {
       const a = document.getElementById('input-full').value.trim();
       const b = document.getElementById('input-partial').value.trim();
       const half = document.getElementById('input-half').value.trim();
-
       document.getElementById('disp-a-val').textContent = a !== '' ? a : 'A';
       document.getElementById('disp-b-val').textContent = b !== '' ? b : 'B';
       document.getElementById('disp-half-preview').textContent = half !== '' ? half : '(不完整格)';
     }
-
     document.getElementById('input-full').addEventListener('input', syncInputsToEquation);
     document.getElementById('input-partial').addEventListener('input', syncInputsToEquation);
     document.getElementById('input-half').addEventListener('input', syncInputsToEquation);
 
-    // 核對答案
     document.getElementById('btn-check-ans').addEventListener('click', () => {
       const valA = document.getElementById('input-full').value.trim();
       const valB = document.getElementById('input-partial').value.trim();
       const valHalf = document.getElementById('input-half').value.trim();
       const valFinal = document.getElementById('input-final-area').value.trim();
       const fb = document.getElementById('feedback-box');
-
-      // 檢查漏填
-      if (valA === '' || valB === '' || valHalf === '' || valFinal === '') {
+      if (!valA || !valB || !valHalf || !valFinal) {
         fb.className = "text-center text-sm font-bold py-2 px-3 rounded-xl mb-2 bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
-        fb.textContent = "每個空格都要填寫喔！請填寫格數、不完整方格除法與最終面積！";
+        fb.textContent = "每個空格都要填寫喔！";
         return;
       }
-
-      const numA = parseFloat(valA);
-      const numB = parseFloat(valB);
-      const numHalf = parseFloat(valHalf);
-      const numFinal = parseFloat(valFinal);
-
+      const numA = parseFloat(valA), numB = parseFloat(valB), numHalf = parseFloat(valHalf), numFinal = parseFloat(valFinal);
       const { sysFull, sysPartial } = getSystemCounts();
-
-      // 檢查各步驟
       let errors = [];
-
-      if (numA !== sysFull) {
-        errors.push(`完整方格數算錯了（應為 ${sysFull} 格）`);
-      }
-      if (numB !== sysPartial) {
-        errors.push(`不完整方格數算錯了（應為 ${sysPartial} 格）`);
-      }
-      if (numHalf !== (numB / 2)) {
-        errors.push(`不完整方格除以 2 算錯了（${numB} ÷ 2 應該是 ${numB / 2}）`);
-      }
-      if (numFinal !== (numA + numHalf)) {
-        errors.push(`最後的加法總和算錯了（${numA} + ${numHalf} 應該是 ${numA + numHalf}）`);
-      }
+      if (numA !== sysFull) errors.push(`完整方格數應為 ${sysFull} 格`);
+      if (numB !== sysPartial) errors.push(`不完整方格數應為 ${sysPartial} 格`);
+      if (numHalf !== (numB / 2)) errors.push(`除以 2 應為 ${numB / 2}`);
+      if (numFinal !== (numA + numHalf)) errors.push(`總和應為 ${numA + numHalf}`);
 
       if (errors.length === 0) {
         fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2 bg-emerald-500/30 text-emerald-200 border border-emerald-400/50 block";
-        fb.innerHTML = `🎉 太厲害了！完全正確！<br>格數與計算步驟全都答對了，估算圓面積為 <strong>${numFinal} cm²</strong>！`;
+        fb.innerHTML = `🎉 完全正確！估算圓面積為 <strong>${numFinal} cm²</strong>！`;
       } else {
         fb.className = "text-center text-sm font-bold py-2.5 px-3 rounded-xl mb-2 bg-rose-500/25 text-rose-200 border border-rose-400/50 block text-left";
-        fb.innerHTML = `⚠️ 有些步驟需要再檢查一下喔：<br><ul class="list-disc list-inside mt-1 space-y-0.5">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`;
+        fb.innerHTML = `⚠️ 檢查看看：<ul class="list-disc list-inside mt-0.5">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`;
       }
     });
 
-    // 初始繪製
-    draw();
+    drawGridCanvas();
+
+    // ==================== 模式二：圓面積推算（拖曳拼合 & 連動） ====================
+    const sCanvas = document.getElementById('splitCanvas');
+    const sCtx = sCanvas.getContext('2d');
+    let numSlices = 16;
+    let actualRadiusCm = 4; // 3~7 cm
+    const PI_CONST = 3.14;
+
+    // 拖曳狀態
+    let isSnapped = false;
+    let isDragging = false;
+    let dragStartY = 0;
+    let topPieceOffsetY = -130; // 初始未拼合向上浮動距離
+    const SNAP_TARGET_Y = 0; // 拼合目標
+    const SNAP_THRESHOLD = 30; // 吸附閾值
+
+    function initSplitMode() {
+      updateSplitData();
+      drawSplitCanvas();
+    }
+
+    // 更新右側觀測卡數值
+    function updateSplitData() {
+      const halfCircumference = (actualRadiusCm * PI_CONST).toFixed(2);
+      const area = (halfCircumference * actualRadiusCm).toFixed(2);
+
+      document.getElementById('disp-radius-slider').textContent = `${actualRadiusCm} cm`;
+      document.getElementById('data-width').textContent = `${actualRadiusCm} cm`;
+      document.getElementById('data-length').textContent = `${halfCircumference} cm`;
+      document.getElementById('data-area').textContent = `${area} cm²`;
+      document.getElementById('task-calc-preview').textContent = `${halfCircumference} ÷ ${actualRadiusCm} = ?`;
+    }
+
+    // 繪製拖曳拼合畫布
+    function drawSplitCanvas() {
+      sCtx.clearRect(0, 0, sCanvas.width, sCanvas.height);
+
+      // 基準繪製尺寸依半徑調整
+      const rPx = 110 + (actualRadiusCm - 3) * 15; // 像素半徑
+      const arcWidth = (Math.PI * rPx) / (numSlices / 2); // 每個全扇形的底邊弧長像素
+      const totalWidth = (numSlices / 2) * arcWidth;
+      const startX = (sCanvas.width - totalWidth) / 2;
+      const baseCenterY = 275;
+
+      // 繪製下半排扇形（綠色組，尖端朝上，固定）
+      sCtx.fillStyle = '#10b981'; // 翠綠
+      sCtx.strokeStyle = '#064e3b';
+      sCtx.lineWidth = 1.5;
+
+      const halfN = numSlices / 2;
+      // 下半部由 halfN 個尖端朝上的扇形組成
+      for (let i = 0; i < halfN; i++) {
+        const bx = startX + i * arcWidth;
+        sCtx.beginPath();
+        sCtx.moveTo(bx + arcWidth / 2, baseCenterY - rPx); // 頂部尖端
+        sCtx.lineTo(bx, baseCenterY); // 左下角
+        sCtx.quadraticCurveTo(bx + arcWidth / 2, baseCenterY + (arcWidth * 0.15), bx + arcWidth, baseCenterY); // 底部微弧
+        sCtx.closePath();
+        sCtx.fill();
+        sCtx.stroke();
+      }
+
+      // 繪製上半排扇形（橘色組，尖端朝下，隨拖曳移動）
+      const topY = baseCenterY + topPieceOffsetY;
+      sCtx.save();
+      sCtx.fillStyle = '#f97316'; // 亮橘
+      sCtx.strokeStyle = '#7c2d12';
+      sCtx.lineWidth = 1.5;
+
+      // 上半部兩端各有半塊扇形，中間有 (halfN - 1) 塊全扇形，拼合後形成平直矩形
+      // 1. 最左邊半塊
+      sCtx.beginPath();
+      sCtx.moveTo(startX, topY);
+      sCtx.lineTo(startX, topY - rPx);
+      sCtx.quadraticCurveTo(startX + (arcWidth * 0.25), topY - rPx - (arcWidth * 0.1), startX + arcWidth / 2, topY - rPx);
+      sCtx.closePath();
+      sCtx.fill();
+      sCtx.stroke();
+
+      // 2. 中間各塊
+      for (let i = 0; i < halfN - 1; i++) {
+        const tx = startX + arcWidth / 2 + i * arcWidth;
+        sCtx.beginPath();
+        sCtx.moveTo(tx + arcWidth / 2, topY); // 底部尖端
+        sCtx.lineTo(tx, topY - rPx);
+        sCtx.quadraticCurveTo(tx + arcWidth / 2, topY - rPx - (arcWidth * 0.15), tx + arcWidth, topY - rPx);
+        sCtx.closePath();
+        sCtx.fill();
+        sCtx.stroke();
+      }
+
+      // 3. 最右邊半塊
+      const rx = startX + totalWidth - arcWidth / 2;
+      sCtx.beginPath();
+      sCtx.moveTo(startX + totalWidth, topY);
+      sCtx.lineTo(rx, topY - rPx);
+      sCtx.quadraticCurveTo(rx + (arcWidth * 0.25), topY - rPx - (arcWidth * 0.1), startX + totalWidth, topY - rPx);
+      sCtx.closePath();
+      sCtx.fill();
+      sCtx.stroke();
+      sCtx.restore();
+
+      // 拼合後繪製標註尺寸線
+      if (isSnapped) {
+        // 長方形外框虛線
+        sCtx.strokeStyle = '#38bdf8';
+        sCtx.lineWidth = 2.5;
+        sCtx.setLineDash([6, 6]);
+        sCtx.strokeRect(startX, baseCenterY - rPx, totalWidth, rPx);
+        sCtx.setLineDash([]);
+
+        // 長度標註線（底邊：圓周長的一半）
+        sCtx.strokeStyle = '#facc15';
+        sCtx.fillStyle = '#facc15';
+        sCtx.lineWidth = 2;
+        const lineY = baseCenterY + 28;
+        sCtx.beginPath();
+        sCtx.moveTo(startX, lineY); sCtx.lineTo(startX + totalWidth, lineY);
+        sCtx.moveTo(startX, lineY - 6); sCtx.lineTo(startX, lineY + 6);
+        sCtx.moveTo(startX + totalWidth, lineY - 6); sCtx.lineTo(startX + totalWidth, lineY + 6);
+        sCtx.stroke();
+
+        sCtx.font = 'bold 13px sans-serif';
+        sCtx.textAlign = 'center';
+        const halfC = (actualRadiusCm * PI_CONST).toFixed(2);
+        sCtx.fillText(`長 ＝ 圓周長的一半 (${halfC} cm)`, startX + totalWidth / 2, lineY + 20);
+
+        // 寬度標註線（右側邊：半徑）
+        const lineX = startX + totalWidth + 24;
+        sCtx.beginPath();
+        sCtx.moveTo(lineX, baseCenterY - rPx); sCtx.lineTo(lineX, baseCenterY);
+        sCtx.moveTo(lineX - 6, baseCenterY - rPx); sCtx.lineTo(lineX + 6, baseCenterY - rPx);
+        sCtx.moveTo(lineX - 6, baseCenterY); sCtx.lineTo(lineX + 6, baseCenterY);
+        sCtx.stroke();
+
+        sCtx.textAlign = 'left';
+        sCtx.fillText(`寬 ＝ 半徑 (${actualRadiusCm} cm)`, lineX + 10, baseCenterY - rPx / 2 + 5);
+      } else {
+        // 未拼合時的引導箭頭與手勢提示
+        sCtx.fillStyle = '#38bdf8';
+        sCtx.font = 'bold 14px sans-serif';
+        sCtx.textAlign = 'center';
+        sCtx.fillText('👆 按住橘色扇形向下拖曳拼合', startX + totalWidth / 2, topY - rPx - 25);
+      }
+    }
+
+    // 觸控拖曳事件處理（支援平板觸控 pointer）
+    sCanvas.addEventListener('pointerdown', (e) => {
+      const rect = sCanvas.getBoundingClientRect();
+      const scaleY = sCanvas.height / rect.height;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      // 檢查是否點擊在上半部橘色組範圍內
+      isDragging = true;
+      dragStartY = y - topPieceOffsetY;
+      sCanvas.setPointerCapture(e.pointerId);
+    });
+
+    sCanvas.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const rect = sCanvas.getBoundingClientRect();
+      const scaleY = sCanvas.height / rect.height;
+      const currentY = (e.clientY - rect.top) * scaleY;
+
+      let newOffset = currentY - dragStartY;
+      // 限制拖曳範圍：從 -150 到 0 (不能拖超過底部)
+      if (newOffset > 0) newOffset = 0;
+      if (newOffset < -160) newOffset = -160;
+
+      topPieceOffsetY = newOffset;
+
+      // 判斷是否進入吸附閾值
+      if (Math.abs(topPieceOffsetY - SNAP_TARGET_Y) < SNAP_THRESHOLD) {
+        topPieceOffsetY = SNAP_TARGET_Y;
+        isSnapped = true;
+        updateSnapBadge(true);
+      } else {
+        isSnapped = false;
+        updateSnapBadge(false);
+      }
+      drawSplitCanvas();
+    });
+
+    sCanvas.addEventListener('pointerup', (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      sCanvas.releasePointerCapture(e.pointerId);
+
+      // 放開時如果接近就自動吸附，否則彈回
+      if (Math.abs(topPieceOffsetY - SNAP_TARGET_Y) < 45) {
+        topPieceOffsetY = SNAP_TARGET_Y;
+        isSnapped = true;
+        updateSnapBadge(true);
+      }
+      drawSplitCanvas();
+    });
+
+    function updateSnapBadge(snapped) {
+      const badge = document.getElementById('snap-status-badge');
+      if (snapped) {
+        badge.className = "text-xs bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 px-3 py-1 rounded-full font-bold";
+        badge.textContent = "✓ 已緊密拼合成近似長方形！";
+      } else {
+        badge.className = "text-xs bg-amber-400/20 text-amber-300 border border-amber-400/40 px-3 py-1 rounded-full font-bold";
+        badge.textContent = "尚未拼合（拖曳接近即可吸附）";
+      }
+    }
+
+    // 一鍵拼合
+    document.getElementById('btn-auto-snap').addEventListener('click', () => {
+      topPieceOffsetY = SNAP_TARGET_Y;
+      isSnapped = true;
+      updateSnapBadge(true);
+      drawSplitCanvas();
+    });
+
+    // 還原分開
+    document.getElementById('btn-reset-snap').addEventListener('click', () => {
+      topPieceOffsetY = -130;
+      isSnapped = false;
+      updateSnapBadge(false);
+      drawSplitCanvas();
+    });
+
+    // 等分數按鈕點擊
+    document.querySelectorAll('.slice-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.slice-btn').forEach(b => {
+          b.className = "slice-btn py-1.5 rounded-xl text-sm font-bold bg-white/10 border border-white/20 hover:bg-white/20";
+        });
+        e.target.className = "slice-btn py-1.5 rounded-xl text-sm font-bold bg-amber-500 text-slate-950 shadow-md";
+        numSlices = parseInt(e.target.getAttribute('data-slices'), 10);
+        drawSplitCanvas();
+      });
+    });
+
+    // 半徑拉桿變動
+    document.getElementById('radiusSlider').addEventListener('input', (e) => {
+      actualRadiusCm = parseInt(e.target.value, 10);
+      updateSplitData();
+      drawSplitCanvas();
+    });
   </script>
 </body>
 </html>
