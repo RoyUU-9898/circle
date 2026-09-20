@@ -2,13 +2,13 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <!-- 針對平板鎖定縮放與初始可視範圍，防止學生誤觸放大畫面 -->
+  <!-- 鎖定視窗縮放，專門針對平板觸控最佳化 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>圓面積與扇形面積 - 互動教學天地</title>
-  <!-- Tailwind CSS 樣式庫 -->
+  <title>圓與扇形 ‧ 幾何探索島</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 鎖定全螢幕，防止平板下拉重新整理或頁面回彈滾動 */
+    /* 全螢幕背景與防誤觸設定 */
     html, body {
       width: 100%;
       height: 100%;
@@ -19,114 +19,156 @@
       user-select: none;
       -webkit-user-select: none;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: #f8fafc;
+      /* 蔚藍深邃科技漸層背景 */
+      background: radial-gradient(circle at 50% 30%, #1e40af 0%, #172554 100%);
     }
 
-    /* 外層自適應外框：固定在螢幕正中央 */
+    /* 科技幾何淡紋網格背景 */
+    .bg-tech-grid {
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* 平板置中與等比例縮放容器 */
     #app-wrapper {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 1024px;   /* 以標準平板橫向基礎寬度為基準設計尺寸 */
-      height: 700px;   /* 基準高度 */
+      width: 1024px;
+      height: 700px;
       transform-origin: center center;
       box-sizing: border-box;
     }
+
+    /* 頂部立體發光招牌特效 */
+    .neon-sign {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 100%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    .neon-text {
+      text-shadow: 0 2px 10px rgba(56, 189, 248, 0.5), 0 0 20px rgba(14, 165, 233, 0.3);
+    }
+
+    /* 3D 掌機立體按鈕手感樣式 */
+    .btn-3d-orange {
+      background: linear-gradient(145deg, #fbbf24 0%, #f97316 60%, #ea580c 100%);
+      box-shadow: 0 12px 0 #9a3412, 0 15px 25px rgba(0, 0, 0, 0.4);
+      transition: all 0.1s ease-in-out;
+    }
+    .btn-3d-orange:active {
+      transform: translateY(8px);
+      box-shadow: 0 4px 0 #9a3412, 0 8px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-3d-green {
+      background: linear-gradient(145deg, #34d399 0%, #10b981 60%, #059669 100%);
+      box-shadow: 0 12px 0 #065f46, 0 15px 25px rgba(0, 0, 0, 0.4);
+      transition: all 0.1s ease-in-out;
+    }
+    .btn-3d-green:active {
+      transform: translateY(8px);
+      box-shadow: 0 4px 0 #065f46, 0 8px 12px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
-<body class="flex items-center justify-center">
+<body class="bg-tech-grid flex items-center justify-center">
 
-  <!-- 自動縮放容器：根據平板解析度動態放大/縮小 -->
-  <div id="app-wrapper" class="flex flex-col justify-between p-6 sm:p-8">
+  <!-- 自適應縮放外框 -->
+  <div id="app-wrapper" class="flex flex-col justify-between items-center p-8">
 
-    <!-- 頂部標題區 -->
-    <header class="text-center py-6 bg-white rounded-2xl shadow-sm border border-slate-200">
-      <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-800 mb-2">
-        圓面積與扇形面積
+    <!-- 頂部招牌區：遊戲大廳立體發光風格 -->
+    <header class="neon-sign w-full py-6 px-8 rounded-3xl border border-white/20 text-center relative overflow-hidden">
+      <!-- 頂部微光裝飾點綴 -->
+      <div class="absolute top-0 left-1/4 w-1/2 h-[2px] bg-gradient-to-r from-transparent via-cyan-300 to-transparent"></div>
+      
+      <h1 class="neon-text text-4xl sm:text-5xl font-black tracking-wider text-white mb-2">
+        圓與扇形 ‧ 幾何探索島
       </h1>
-      <p class="text-base text-slate-600">
-        透過互動操作、網格估算與切割重組，一步步探索幾何面積的奧秘！
+      <p class="text-sky-200 text-base font-medium tracking-wide">
+        動手探索切割拼合，展開幾何面積的冒險旅程！
       </p>
     </header>
 
-    <!-- 主要入口卡片（支援觸控點擊反饋） -->
-    <main class="grid grid-cols-2 gap-8 my-auto w-full px-4">
+    <!-- 兩大主要入口按鈕區（彩色 3D 掌機大卡片） -->
+    <main class="grid grid-cols-2 gap-12 w-full max-w-3xl my-auto px-6">
 
-      <!-- 按鈕 1：圓面積 -->
-      <a href="circle.html" class="active:scale-95 transition-transform duration-150 group block p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-emerald-500 shadow-md hover:shadow-xl text-center">
-        <div class="w-24 h-24 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
-          <!-- 圓形示意圖 -->
-          <svg class="w-14 h-14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <!-- 按鈕 1：圓面積（亮橘金 / 陽光黃漸層） -->
+      <a href="circle.html" class="btn-3d-orange block rounded-3xl p-6 relative border border-yellow-300/40 cursor-pointer group">
+        <!-- 頂部高光光澤線 -->
+        <div class="absolute top-2 left-6 right-6 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        
+        <!-- 中央白色圓形幾何圖標 -->
+        <div class="w-28 h-28 mx-auto mt-2 mb-6 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-16 h-16 text-white drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9"></circle>
             <line x1="12" y1="12" x2="21" y2="12" stroke-dasharray="2 2"></line>
             <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-600 mb-2">
-          圓面積
-        </h2>
-        <p class="text-slate-500 text-sm leading-relaxed px-4">
-          從數格子估算開始，體驗將圓切割成 8、16、32 等分拼成長方形的推導歷程。
-        </p>
-        <div class="mt-4 inline-flex items-center text-emerald-600 font-bold text-base group-hover:translate-x-1 transition-transform">
-          點擊開始探索 ➜
+
+        <!-- 底部半透明白色標籤條 -->
+        <div class="bg-white/85 backdrop-blur-sm py-3 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-xl font-black text-amber-950 tracking-wider">
+            圓面積探索
+          </span>
         </div>
       </a>
 
-      <!-- 按鈕 2：扇形面積 -->
-      <a href="sector.html" class="active:scale-95 transition-transform duration-150 group block p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-indigo-500 shadow-md hover:shadow-xl text-center">
-        <div class="w-24 h-24 mx-auto mb-4 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
-          <!-- 扇形示意圖 -->
-          <svg class="w-14 h-14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 21V12L19.5 16.5A9 9 0 0 1 12 21Z" fill="currentColor" fill-opacity="0.15"></path>
-            <path d="M12 12L19.5 16.5A9 9 0 0 1 12 21V12Z"></path>
+      <!-- 按鈕 2：扇形面積（翡翠綠 / 薄荷綠漸層） -->
+      <a href="sector.html" class="btn-3d-green block rounded-3xl p-6 relative border border-emerald-300/40 cursor-pointer group">
+        <!-- 頂部高光光澤線 -->
+        <div class="absolute top-2 left-6 right-6 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        
+        <!-- 中央精緻扇形圖標 -->
+        <div class="w-28 h-28 mx-auto mt-2 mb-6 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-16 h-16 text-white drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M12 21V12L19.5 16.5A9 9 0 0 1 12 21Z" fill="currentColor" fill-opacity="0.3"></path>
+            <path d="M12 12L19.5 16.5A9 9 0 0 1 12 21Z"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-indigo-600 mb-2">
-          扇形面積
-        </h2>
-        <p class="text-slate-500 text-sm leading-relaxed px-4">
-          認識圓心角與圓的關係，利用分數比例輕鬆推導與計算扇形面積。
-        </p>
-        <div class="mt-4 inline-flex items-center text-indigo-600 font-bold text-base group-hover:translate-x-1 transition-transform">
-          點擊開始探索 ➜
+
+        <!-- 底部半透明白色標籤條 -->
+        <div class="bg-white/85 backdrop-blur-sm py-3 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-xl font-black text-emerald-950 tracking-wider">
+            扇形面積探索
+          </span>
         </div>
       </a>
 
     </main>
 
-    <!-- 頁尾版權 -->
-    <footer class="text-center text-sm font-medium text-slate-500 py-3 bg-white/70 rounded-xl border border-slate-200/80">
-      柚子老師製作
+    <!-- 簡約底部署名 -->
+    <footer class="text-sky-300/60 text-xs tracking-widest uppercase">
+      Interactive Mathematics Explorer
     </footer>
 
   </div>
 
-  <!-- 自動偵測平板解析度並等比例縮放的 JavaScript -->
+  <!-- 平板自動縮放與手勢防誤觸腳本 -->
   <script>
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
-      const baseWidth = 1024; // 設計基準寬度
-      const baseHeight = 700; // 設計基準高度
+      const baseWidth = 1024;
+      const baseHeight = 700;
 
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
 
-      // 計算寬與高的縮放倍率，取較小者以保證在任何平板螢幕中都能完整呈現
-      const scaleX = windowWidth / baseWidth;
-      const scaleY = windowHeight / baseHeight;
-      const scale = Math.min(scaleX, scaleY) * 0.95; // 留 5% 邊距，視覺更舒適
-
-      // 套用置中與縮放
+      // 取得寬高縮放比率取小值，保證滿版不被裁切
+      const scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight) * 0.96;
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
-    // 頁面載入、視窗大小改變、平板旋轉時立即重新計算
+    // 監聽螢幕旋轉與解析度變更
     window.addEventListener('resize', autoScale);
     window.addEventListener('orientationchange', autoScale);
     window.addEventListener('DOMContentLoaded', autoScale);
 
-    // 額外防止 iPad 雙指誤觸縮放
+    // 防止 iOS Safari 雙指捏合誤縮放
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
