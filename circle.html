@@ -2,17 +2,18 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>圓面積探索</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* 允許雙手拖拉與雙指縮放，禁用雙擊快速放大 */
     html, body {
       width: 100%;
       height: 100%;
       margin: 0;
       padding: 0;
       overflow: hidden;
-      touch-action: none;
+      touch-action: pan-x pan-y pinch-zoom; /* 僅允許平移與雙指捏合縮放，阻擋點兩下放大 */
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
@@ -178,10 +179,10 @@
       </div>
     </main>
 
-    <!-- ==================== 模式二：圓面積推算（修復高與右側文字遮擋） ==================== -->
+    <!-- ==================== 模式二：圓面積推算（字體放大版數據觀測卡） ==================== -->
     <main id="section-split-mode" class="hidden grid grid-cols-12 gap-6 flex-1 w-full items-stretch">
       
-      <!-- 左側互動 Canvas 畫布區（寬度加大至 600px） -->
+      <!-- 左側互動 Canvas 畫布區 -->
       <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-xs text-sky-200 px-2">
           <span id="stage-guide-text" class="font-bold text-amber-300 text-sm">步驟 1：請設定半徑與等分，點擊「1. 上下分開」</span>
@@ -190,7 +191,7 @@
           </span>
         </div>
 
-        <!-- 畫布：寬度調為 600，高 430 -->
+        <!-- 畫布 -->
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
           <canvas id="splitCanvas" width="600" height="430" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain"></canvas>
         </div>
@@ -282,32 +283,35 @@
           </div>
         </div>
 
-        <!-- 卡片 3：LoiLoNote 截圖觀測卡 -->
-        <div class="glass-panel p-3.5 rounded-3xl flex flex-col justify-between border-2 border-emerald-400/40 bg-slate-900/60 shadow-xl">
-          <div class="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2">
-            <h3 class="text-xs font-black text-emerald-300 flex items-center gap-1">
-              <span>📸</span> 數據觀測卡 (LoiLoNote 截圖計算)
+        <!-- 卡片 3：LoiLoNote 截圖觀測卡（字體與間距全面放大升級） -->
+        <div class="glass-panel p-4 rounded-3xl flex flex-col justify-between border-2 border-emerald-400/50 bg-slate-900/70 shadow-2xl">
+          <div class="flex items-center justify-between border-b border-white/15 pb-2 mb-2.5">
+            <h3 class="text-sm font-black text-emerald-300 flex items-center gap-1.5">
+              <span class="text-base">📸</span> 數據觀測卡 (LoiLoNote 截圖專用)
             </h3>
-            <span class="text-[10px] text-sky-200/60 font-mono">π ≈ 3.14</span>
+            <span class="text-xs text-sky-200/80 font-mono font-bold">π ≈ 3.14</span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-xs font-mono mb-2">
-            <div class="bg-black/30 p-2 rounded-xl border border-white/10">
-              <span class="text-slate-400 block text-[10px]">長方形的寬 (半徑)：</span>
-              <span id="card-val-w" class="text-amber-300 font-bold text-sm">4 cm</span>
+          <!-- 數值卡片欄位（字體放大至 text-sm 與 text-base） -->
+          <div class="grid grid-cols-2 gap-2.5 text-xs font-mono mb-2.5">
+            <div class="bg-black/40 p-2.5 rounded-xl border border-white/15 shadow-inner">
+              <span class="text-slate-300 block text-xs font-medium mb-0.5">長方形的寬 (半徑)：</span>
+              <span id="card-val-w" class="text-amber-300 font-black text-base">4 cm</span>
             </div>
-            <div class="bg-black/30 p-2 rounded-xl border border-white/10">
-              <span class="text-slate-400 block text-[10px]">長方形的長 (半圓周)：</span>
-              <span id="card-val-l" class="text-orange-300 font-bold text-sm">12.56 cm</span>
+            <div class="bg-black/40 p-2.5 rounded-xl border border-white/15 shadow-inner">
+              <span class="text-slate-300 block text-xs font-medium mb-0.5">長方形的長 (半圓周)：</span>
+              <span id="card-val-l" class="text-orange-300 font-black text-base">12.56 cm</span>
             </div>
           </div>
 
-          <div class="bg-emerald-500/15 p-2 rounded-xl border border-emerald-400/30 text-xs font-mono flex justify-between items-center">
-            <span class="text-emerald-200 font-bold">長方形面積 (長 × 寬)：</span>
-            <span id="card-val-area" class="text-emerald-300 font-black text-sm">50.24 cm²</span>
+          <!-- 面積結果 -->
+          <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-400/40 text-sm font-mono flex justify-between items-center shadow-md">
+            <span class="text-emerald-200 font-bold text-xs">長方形面積 (長 × 寬)：</span>
+            <span id="card-val-area" class="text-emerald-300 font-black text-base">50.24 cm²</span>
           </div>
 
-          <div class="text-[10px] text-amber-200/90 text-center pt-1.5">
+          <!-- 任務提示文字調大 -->
+          <div class="text-xs text-amber-200 font-bold text-center pt-2">
             💡 任務：截圖傳到筆記，算算看「長 ÷ 寬」是不是等於 3.14？
           </div>
         </div>
@@ -319,7 +323,7 @@
   </div>
 
   <script>
-    // ==================== 1. 平板等比例縮放 ====================
+    // ==================== 1. 平板等比例縮放與防雙擊放大 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
       const scale = Math.min(window.innerWidth / 1024, window.innerHeight / 700) * 0.96;
@@ -328,8 +332,16 @@
     window.addEventListener('resize', autoScale);
     window.addEventListener('orientationchange', autoScale);
     window.addEventListener('DOMContentLoaded', autoScale);
-    document.addEventListener('gesturestart', e => e.preventDefault());
-    document.addEventListener('touchmove', e => { if (e.scale !== 1) e.preventDefault(); }, { passive: false });
+
+    // 徹底阻斷「點兩下快速放大」行為，但保留雙指手勢縮放 (Pinch-to-zoom)
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault(); // 阻擋雙擊放大
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
 
     // ==================== 2. 頁籤切換 ====================
     const tabGrid = document.getElementById('tab-grid');
@@ -534,12 +546,12 @@
 
     drawGridCanvas();
 
-    // ==================== 模式二：圓面積的推算（加大畫布寬度，徹底根除文字被截） ====================
+    // ==================== 模式二：圓面積推算邏輯 ====================
     const sCanvas = document.getElementById('splitCanvas');
     const sCtx = sCanvas.getContext('2d');
 
     let stage = 0;
-    let currentSlices = 8; // 預設 8 等分
+    let currentSlices = 8;
     let radiusCm = 4;
     const PI = 3.14;
 
@@ -634,7 +646,6 @@
       const theta = (Math.PI * 2) / currentSlices;
       const halfTheta = theta / 2;
 
-      // 嚴謹自適應寬度限制：右側專門預留 170px 空間，確保文字完全顯露
       const naturalStepX = 2 * baseR * Math.sin(halfTheta);
       const naturalTotalW = halfN * naturalStepX;
 
@@ -645,12 +656,10 @@
       const stepX = 2 * rPx * Math.sin(halfTheta);
       const totalW = halfN * stepX;
 
-      // 靠左排版，為右側的「高 (寬)」標註留出充足空位
       const startX = 35;
       const baseBottomY = 275;
 
       if (stage === 0) {
-        // ========== 階段 0：完整圓形 ==========
         for (let i = 0; i < currentSlices; i++) {
           const startA = i * theta - Math.PI;
           const endA = (i + 1) * theta - Math.PI;
@@ -674,7 +683,6 @@
         sCtx.fillText(`半徑 r = ${radiusCm} cm`, cx + baseR / 2, cy - 8);
 
       } else if (stage === 1) {
-        // ========== 階段 1：上下平滑分開動畫 ==========
         const currentSplit = 36 * animProgress;
 
         for (let i = 0; i < halfN; i++) {
@@ -700,7 +708,6 @@
         }
 
       } else if (stage === 2 && animProgress < 1.0) {
-        // ========== 階段 2A：展開排平動畫 ==========
         const p = animProgress;
 
         sCtx.fillStyle = '#10b981'; sCtx.strokeStyle = '#064e3b'; sCtx.lineWidth = 1.2;
@@ -751,7 +758,6 @@
         }
 
       } else if (stage === 2 || stage === 3) {
-        // ========== 階段 2B & 3：完全嵌合 & 尺寸標註（充足空間） ==========
         const greenTipY = baseBottomY - rPx * Math.cos(halfTheta);
 
         // 1. 下半組（綠色齒列）
@@ -779,7 +785,6 @@
 
         // 3. 拼合後的幾何標註
         if (stage === 3) {
-          // 上下虛線基準
           sCtx.strokeStyle = '#38bdf8'; sCtx.lineWidth = 2.2; sCtx.setLineDash([5, 5]);
           sCtx.beginPath();
           sCtx.moveTo(startX, baseBottomY); sCtx.lineTo(startX + totalW, baseBottomY);
@@ -803,7 +808,7 @@
           const lText = (quizLengthAns === true) ? `底 (長) ＝ 圓周長的一半 (${halfC} cm)` : `長 ＝ ？`;
           sCtx.fillText(lText, startX + totalW / 2, markY + 16);
 
-          // 2. 寬度標註線（右側垂直邊，分行完整顯示，絕不被截）
+          // 2. 寬度標註線（右側垂直邊，雙行分段完全顯示）
           const markX = startX + totalW + stepX * 0.5 + 16;
           sCtx.strokeStyle = (quizWidthAns === true) ? '#34d399' : '#facc15';
           sCtx.fillStyle = sCtx.strokeStyle;
@@ -814,7 +819,6 @@
           sCtx.moveTo(markX - 5, baseBottomY); sCtx.lineTo(markX + 5, baseBottomY);
           sCtx.stroke();
 
-          // 雙行文字，保證 100% 都在 Canvas 內
           sCtx.textAlign = 'left';
           sCtx.font = 'bold 12px sans-serif';
           const midY = (greenTipY + baseBottomY) / 2;
