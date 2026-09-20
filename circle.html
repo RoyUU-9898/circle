@@ -1,1 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <!-- 針對平板鎖定縮放與初始可視範圍，防止學生誤觸放大畫面 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>圓面積與扇形面積 - 互動教學天地</title>
+  <!-- Tailwind CSS 樣式庫 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 鎖定全螢幕，防止平板下拉重新整理或頁面回彈滾動 */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8fafc;
+    }
 
+    /* 外層自適應外框：固定在螢幕正中央 */
+    #app-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1024px;   /* 以標準平板橫向基礎寬度為基準設計基準尺寸 */
+      height: 700px;   /* 基準高度 */
+      transform-origin: center center;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center">
+
+  <!-- 自動縮放容器：此區塊會根據平板解析度動態放大/縮小，永不變形跑版 -->
+  <div id="app-wrapper" class="flex flex-col justify-between p-6 sm:p-8">
+
+    <!-- 頂部標題區 -->
+    <header class="text-center py-6 bg-white rounded-2xl shadow-sm border border-slate-200">
+      <div class="inline-block px-3 py-1 mb-2 text-sm font-semibold text-emerald-700 bg-emerald-100 rounded-full">
+        國小六年級數學 ‧ 互動探索
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-850 mb-2">
+        圓面積與扇形面積
+      </h1>
+      <p class="text-base text-slate-600">
+        透過互動操作、網格估算與切割重組，一步步探索幾何面積的奧秘！
+      </p>
+    </header>
+
+    <!-- 主要入口卡片（支援觸控點擊反饋） -->
+    <main class="grid grid-cols-2 gap-8 my-auto w-full px-4">
+
+      <!-- 按鈕 1：圓面積 -->
+      <a href="circle.html" class="active:scale-95 transition-transform duration-150 group block p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-emerald-500 shadow-md hover:shadow-xl text-center">
+        <div class="w-24 h-24 mx-auto mb-4 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300">
+          <!-- 圓形示意圖 -->
+          <svg class="w-14 h-14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"></circle>
+            <line x1="12" y1="12" x2="21" y2="12" stroke-dasharray="2 2"></line>
+            <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-emerald-600 mb-2">
+          圓面積
+        </h2>
+        <p class="text-slate-500 text-sm leading-relaxed px-4">
+          從數格子估算開始，體驗將圓切割成 8、16、32 等分拼成長方形的推導歷程。
+        </p>
+        <div class="mt-4 inline-flex items-center text-emerald-600 font-bold text-base group-hover:translate-x-1 transition-transform">
+          點擊開始探索 ➜
+        </div>
+      </a>
+
+      <!-- 按鈕 2：扇形面積 -->
+      <a href="sector.html" class="active:scale-95 transition-transform duration-150 group block p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-indigo-500 shadow-md hover:shadow-xl text-center">
+        <div class="w-24 h-24 mx-auto mb-4 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+          <!-- 扇形示意圖 -->
+          <svg class="w-14 h-14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 21V12L19.5 16.5A9 9 0 0 1 12 21Z" fill="currentColor" fill-opacity="0.15"></path>
+            <path d="M12 12L19.5 16.5A9 9 0 0 1 12 21Z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-indigo-600 mb-2">
+          扇形面積
+        </h2>
+        <p class="text-slate-500 text-sm leading-relaxed px-4">
+          認識圓心角與圓的關係，利用分數比例輕鬆推導與計算扇形面積。
+        </p>
+        <div class="mt-4 inline-flex items-center text-indigo-600 font-bold text-base group-hover:translate-x-1 transition-transform">
+          點擊開始探索 ➜
+        </div>
+      </a>
+
+    </main>
+
+    <!-- 頁尾版權與模式說明 -->
+    <footer class="text-center text-xs text-slate-400 py-3 bg-white/70 rounded-xl border border-slate-200/80">
+      平板教學最佳化介面 ‧ 支援旋轉螢幕與自動等比例縮放
+    </footer>
+
+  </div>
+
+  <!-- 自動偵測平板解析度並等比例縮放的 JavaScript -->
+  <script>
+    function autoScale() {
+      const wrapper = document.getElementById('app-wrapper');
+      const baseWidth = 1024; // 設計基準寬度
+      const baseHeight = 700; // 設計基準高度
+
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+
+      // 計算寬與高的縮放倍率，取較小者以保證在任何平板螢幕中都能完整呈現（不被裁切）
+      const scaleX = windowWidth / baseWidth;
+      const scaleY = windowHeight / baseHeight;
+      const scale = Math.min(scaleX, scaleY) * 0.95; // 留 5% 邊距，視覺更舒適
+
+      // 套用置中與縮放
+      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+
+    // 頁面載入、視窗大小改變、平板旋轉時立即重新計算
+    window.addEventListener('resize', autoScale);
+    window.addEventListener('orientationchange', autoScale);
+    window.addEventListener('DOMContentLoaded', autoScale);
+
+    // 額外防止 iPad 雙指誤觸縮放（iOS Safari 常用防禦）
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
+    });
+  </script>
+
+</body>
+</html>
