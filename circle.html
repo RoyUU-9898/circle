@@ -49,7 +49,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-6">
 
-    <!-- 頂部導覽與頁籤切換區（已移除署名） -->
+    <!-- 頂部導覽與頁籤切換區 -->
     <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl">
       <!-- 回首頁 -->
       <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
@@ -148,30 +148,30 @@
               </div>
             </div>
 
-            <!-- 學生動手做除法與加法算式區塊 -->
+            <!-- 學生動手做除法與加法算式區塊（文字放大約 2pt / 採用 text-sm） -->
             <div class="bg-black/30 p-3 rounded-2xl border border-white/10 space-y-2.5">
               <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-1.5">
                 <span>計算過程 (不完整 2 格折 1 格)：</span>
               </div>
 
-              <!-- 第一步：除法填寫 (B ÷ 2) -->
-              <div class="flex items-center gap-1.5 text-xs font-mono text-slate-200 flex-wrap">
-                <span class="text-slate-400">折半：</span>
-                <span id="disp-b-val" class="text-orange-300 font-bold">B</span>
-                <span>÷ 2 =</span>
-                <input type="number" step="any" id="input-half" placeholder="自行計算" class="w-20 bg-white/15 border border-white/30 rounded-lg px-2 py-0.5 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400">
-                <span>格</span>
+              <!-- 第一步：不完整方格除法計算 (B ÷ 2) -->
+              <div class="flex items-center gap-2 text-sm font-mono text-slate-200 flex-wrap">
+                <span class="text-slate-300 font-bold">不完整方格：</span>
+                <span id="disp-b-val" class="text-orange-300 font-bold text-base">B</span>
+                <span class="font-bold">÷ 2 =</span>
+                <input type="number" step="any" id="input-half" placeholder="自行計算" class="w-20 bg-white/15 border border-white/30 rounded-lg px-2 py-0.5 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400 text-sm">
+                <span class="text-xs">格</span>
               </div>
 
-              <!-- 第二步：加法填寫 (A + 半格) = 最終估算面積 -->
-              <div class="flex items-center gap-1.5 text-xs font-mono text-slate-200 flex-wrap pt-1 border-t border-white/5">
-                <span class="text-slate-400">總計：</span>
-                <span id="disp-a-val" class="text-amber-300 font-bold">A</span>
-                <span>+</span>
+              <!-- 第二步：加法計算 (A + 不完整格折半) = 最終估算面積 -->
+              <div class="flex items-center gap-2 text-sm font-mono text-slate-200 flex-wrap pt-1.5 border-t border-white/5">
+                <span class="text-slate-300 font-bold">總計：</span>
+                <span id="disp-a-val" class="text-amber-300 font-bold text-base">A</span>
+                <span class="font-bold">+</span>
                 <span id="disp-half-preview" class="text-sky-300 font-bold">(折半)</span>
-                <span>=</span>
-                <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-24 bg-white/20 border-2 border-emerald-400/80 rounded-lg px-2 py-0.5 text-center font-bold text-emerald-300 text-sm focus:outline-none focus:border-emerald-300">
-                <span class="text-emerald-300 font-bold">cm²</span>
+                <span class="font-bold">=</span>
+                <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-24 bg-white/20 border-2 border-emerald-400/80 rounded-lg px-2 py-0.5 text-center font-bold text-emerald-300 text-base focus:outline-none focus:border-emerald-300">
+                <span class="text-emerald-300 font-bold text-xs">cm²</span>
               </div>
             </div>
           </div>
