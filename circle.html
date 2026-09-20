@@ -2,8 +2,9 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
+  <!-- 鎖定視窗縮放，專門針對平板觸控最佳化 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>圓面積探索 - 柚子老師教學天地</title>
+  <title>圓面積探索</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
@@ -36,7 +37,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    /* 數字輸入框隱藏原生箭頭 */
+    /* 數字輸入框隱藏原生微調箭頭，保持介面清爽 */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
@@ -48,7 +49,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-6">
 
-    <!-- 頂部導覽與頁籤切換區 -->
+    <!-- 頂部導覽與頁籤切換區（已移除署名） -->
     <header class="flex items-center justify-between glass-panel px-6 py-3 rounded-2xl">
       <!-- 回首頁 -->
       <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
@@ -65,21 +66,18 @@
         </button>
       </div>
 
-      <!-- 署名 -->
-      <div class="flex items-center gap-2 text-sky-100 text-sm font-bold bg-white/10 px-4 py-2 rounded-xl border border-white/15">
-        <img src="teacher.png" alt="柚子" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
-        <span>柚子老師製作</span>
-      </div>
+      <!-- 右側留白佔位，讓中央頁籤維持視覺水平置中 -->
+      <div class="w-[100px]"></div>
     </header>
 
-    <!-- 主體內容區（左：方格畫布，右：控制與答題面板） -->
+    <!-- 主體內容區（左：方格畫布，右：控制與自主計算面板） -->
     <main class="grid grid-cols-12 gap-6 my-auto h-[575px] w-full items-center">
 
       <!-- 左側畫布區（佔 7 格） -->
       <div class="col-span-7 h-full glass-panel rounded-3xl p-4 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-xs text-sky-200 font-medium px-2">
           <span>提示：每格為 1 cm × 1 cm</span>
-          <span id="canvas-hint" class="text-amber-300 font-bold">請先勾選右側要數的方格類型</span>
+          <span id="canvas-hint" class="text-amber-300 font-bold">請先點選右側要數的方格類型</span>
         </div>
 
         <!-- 互動 Canvas 畫布 -->
@@ -87,7 +85,7 @@
           <canvas id="gridCanvas" width="440" height="440" class="rounded-2xl shadow-lg cursor-pointer bg-white"></canvas>
         </div>
 
-        <!-- 畫布底部工具列：隨機出題與重設 -->
+        <!-- 畫布底部工具列 -->
         <div class="w-full flex justify-between items-center px-2">
           <button id="btn-random-circle" class="flex items-center gap-1.5 text-xs bg-indigo-500/80 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-xl shadow border border-indigo-400/40 active:scale-95 transition-all">
             <span>🎲 隨機產生不同的圓</span>
@@ -99,17 +97,17 @@
         </div>
       </div>
 
-      <!-- 右側控制與答題面板（佔 5 格） -->
+      <!-- 右側控制與自主答題面板（佔 5 格） -->
       <div class="col-span-5 h-full flex flex-col justify-between gap-3">
 
         <!-- 卡片 1：點選數數模式切換 -->
         <div class="glass-panel p-4 rounded-3xl text-white">
           <h2 class="text-base font-black text-amber-400 mb-2 flex items-center gap-2">
-            <span>步驟 1</span> 選擇現在要數的方格（單選）
+            <span>步驟 1</span> 選擇方格進行點數
           </h2>
 
           <div class="grid grid-cols-2 gap-2">
-            <!-- 模式：數完整方格 -->
+            <!-- 數完整方格 -->
             <label id="label-mode-full" class="flex flex-col p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 cursor-pointer transition-all">
               <div class="flex items-center justify-between">
                 <span class="w-4 h-4 rounded-md bg-amber-400 inline-block"></span>
@@ -119,7 +117,7 @@
               <span id="label-full-current" class="text-xs text-slate-300 mt-0.5">已數：0 格</span>
             </label>
 
-            <!-- 模式：數不完整方格 -->
+            <!-- 數不完整方格 -->
             <label id="label-mode-partial" class="flex flex-col p-3 rounded-2xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-all">
               <div class="flex items-center justify-between">
                 <span class="w-4 h-4 rounded-md bg-orange-400 inline-block"></span>
@@ -131,39 +129,56 @@
           </div>
         </div>
 
-        <!-- 卡片 2：輸入答案與核對 -->
+        <!-- 卡片 2：學生自己動手計算算式 -->
         <div class="glass-panel p-4 rounded-3xl text-white flex-1 flex flex-col justify-between">
-          <div>
-            <h2 class="text-base font-black text-amber-400 mb-2 flex items-center gap-2">
-              <span>步驟 2</span> 輸入方格數並計算面積
+          <div class="space-y-3">
+            <h2 class="text-base font-black text-amber-400 flex items-center gap-2">
+              <span>步驟 2</span> 填入格數並自己動手算
             </h2>
 
-            <div class="bg-amber-400/10 border border-amber-400/30 p-2.5 rounded-xl mb-3 text-xs text-amber-200 leading-relaxed">
-              💡 <strong>估算原則：</strong>每 <strong>2 個不完整方格</strong> 估算為 <strong>1 格</strong>。
-            </div>
-
-            <!-- 輸入區 -->
-            <div class="grid grid-cols-2 gap-3 mb-3">
-              <div class="bg-black/20 p-2.5 rounded-xl border border-white/10">
-                <label class="text-xs text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
-                <input type="number" id="input-full" placeholder="輸入格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-center font-mono font-bold text-lg text-white focus:outline-none focus:border-amber-400">
+            <!-- 格數輸入欄位 -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <div class="bg-black/20 p-2 rounded-xl border border-white/10">
+                <label class="text-[11px] text-amber-300 font-bold block mb-1">完整方格數 (A)</label>
+                <input type="number" id="input-full" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-center font-mono font-bold text-base text-white focus:outline-none focus:border-amber-400">
               </div>
-              <div class="bg-black/20 p-2.5 rounded-xl border border-white/10">
-                <label class="text-xs text-orange-300 font-bold block mb-1">不完整方格數 (B)</label>
-                <input type="number" id="input-partial" placeholder="輸入格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-center font-mono font-bold text-lg text-white focus:outline-none focus:border-orange-400">
+              <div class="bg-black/20 p-2 rounded-xl border border-white/10">
+                <label class="text-[11px] text-orange-300 font-bold block mb-1">不完整方格數 (B)</label>
+                <input type="number" id="input-partial" placeholder="格數" class="w-full bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-center font-mono font-bold text-base text-white focus:outline-none focus:border-orange-400">
               </div>
             </div>
 
-            <!-- 即時算式預覽 -->
-            <div class="bg-black/30 px-3 py-2 rounded-xl border border-white/10 text-xs font-mono flex justify-between items-center text-slate-300">
-              <span>算式預覽：</span>
-              <span id="preview-calc" class="text-sky-300 font-bold">_ + (_ ÷ 2) = _ cm²</span>
+            <!-- 學生動手做除法與加法算式區塊 -->
+            <div class="bg-black/30 p-3 rounded-2xl border border-white/10 space-y-2.5">
+              <div class="text-xs text-amber-200 font-semibold flex items-center justify-between border-b border-white/10 pb-1.5">
+                <span>計算過程 (不完整 2 格折 1 格)：</span>
+              </div>
+
+              <!-- 第一步：除法填寫 (B ÷ 2) -->
+              <div class="flex items-center gap-1.5 text-xs font-mono text-slate-200 flex-wrap">
+                <span class="text-slate-400">折半：</span>
+                <span id="disp-b-val" class="text-orange-300 font-bold">B</span>
+                <span>÷ 2 =</span>
+                <input type="number" step="any" id="input-half" placeholder="自行計算" class="w-20 bg-white/15 border border-white/30 rounded-lg px-2 py-0.5 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400">
+                <span>格</span>
+              </div>
+
+              <!-- 第二步：加法填寫 (A + 半格) = 最終估算面積 -->
+              <div class="flex items-center gap-1.5 text-xs font-mono text-slate-200 flex-wrap pt-1 border-t border-white/5">
+                <span class="text-slate-400">總計：</span>
+                <span id="disp-a-val" class="text-amber-300 font-bold">A</span>
+                <span>+</span>
+                <span id="disp-half-preview" class="text-sky-300 font-bold">(折半)</span>
+                <span>=</span>
+                <input type="number" step="any" id="input-final-area" placeholder="最終面積" class="w-24 bg-white/20 border-2 border-emerald-400/80 rounded-lg px-2 py-0.5 text-center font-bold text-emerald-300 text-sm focus:outline-none focus:border-emerald-300">
+                <span class="text-emerald-300 font-bold">cm²</span>
+              </div>
             </div>
           </div>
 
-          <!-- 核對結果回饋與送出按鈕 -->
+          <!-- 核對結果回饋與按鈕 -->
           <div class="pt-2">
-            <div id="feedback-box" class="hidden text-center text-xs font-bold py-1.5 px-3 rounded-xl mb-2"></div>
+            <div id="feedback-box" class="hidden text-center text-xs font-bold py-2 px-3 rounded-xl mb-2"></div>
             
             <button id="btn-check-ans" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl shadow-lg border border-emerald-300/40 active:scale-95 transition-all text-sm tracking-wider">
               送出核對答案 ➜
@@ -179,7 +194,7 @@
 
   <!-- 核心互動邏輯腳本 -->
   <script>
-    // 平板適配
+    // 平板視窗縮放適配
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
       const scale = Math.min(window.innerWidth / 1024, window.innerHeight / 700) * 0.96;
@@ -190,7 +205,7 @@
     window.addEventListener('DOMContentLoaded', autoScale);
     document.addEventListener('gesturestart', e => e.preventDefault());
 
-    // 畫布基礎參數
+    // 畫布參數
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
     const gridSize = 10;
@@ -198,17 +213,16 @@
     const centerX = canvas.width / 2;
     const centerY = canvas.height / 2;
 
-    // 當前圓的半徑（單位：格數）
-    let currentRadiusCells = 4.0; // 預設直徑 8 格 (半徑 4 格)
+    // 當前圓半徑（格數）
+    let currentRadiusCells = 4.0;
 
-    // 儲存學生點擊的序號地圖：0 代表沒點，>0 代表點擊序號
+    // 學生點選計數紀錄陣列
     let fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
     let partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
-
     let fullCounter = 0;
     let partialCounter = 0;
 
-    // 判定方格類型：1=完整在圓內, 2=相交不完整, 0=圓外
+    // 方格幾何相交判定 (1: 內, 2: 邊, 0: 外)
     function getCellType(col, row, rCells) {
       const rPx = rCells * cellSize;
       const corners = [
@@ -227,7 +241,6 @@
       if (insideCount === 4) return 1;
       if (insideCount > 0 && insideCount < 4) return 2;
 
-      // 邊緣凸出檢測
       const cx = (col + 0.5) * cellSize;
       const cy = (row + 0.5) * cellSize;
       const distSq = (cx - centerX)**2 + (cy - centerY)**2;
@@ -237,7 +250,7 @@
       return 0;
     }
 
-    // 計算系統標準答案
+    // 計算系統正確數量
     function getSystemCounts() {
       let sysFull = 0, sysPartial = 0;
       for (let r = 0; r < gridSize; r++) {
@@ -250,25 +263,25 @@
       return { sysFull, sysPartial };
     }
 
-    // 重繪畫布
+    // 繪製畫布
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 1. 底層方格填色
+      // 1. 底層顏色
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
           const type = getCellType(c, r, currentRadiusCells);
           if (type === 1) {
-            ctx.fillStyle = '#fef08a'; // 完整格：柔和亮黃
+            ctx.fillStyle = '#fef08a'; // 完整格黃色
             ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           } else if (type === 2) {
-            ctx.fillStyle = '#fed7aa'; // 不完整格：淡橘色
+            ctx.fillStyle = '#fed7aa'; // 不完整格橘色
             ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
           }
         }
       }
 
-      // 2. 網格線
+      // 2. 網格線條
       ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1;
       for (let i = 0; i <= gridSize; i++) {
@@ -290,13 +303,13 @@
       ctx.lineWidth = 3.5;
       ctx.stroke();
 
-      // 圓心點
+      // 圓心
       ctx.beginPath();
       ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
       ctx.fillStyle = '#0f172a';
       ctx.fill();
 
-      // 4. 繪製點擊數字標記（邊點邊跳 1, 2, 3...）
+      // 4. 繪製邊點邊數數字
       ctx.font = 'bold 15px monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -307,7 +320,6 @@
           const fy = (r + 0.5) * cellSize;
 
           if (fullMarks[r][c] > 0) {
-            // 完整格數字：深藍色圓底 + 白字
             ctx.beginPath();
             ctx.arc(fx, fy, 12, 0, Math.PI * 2);
             ctx.fillStyle = '#1e3a8a';
@@ -315,7 +327,6 @@
             ctx.fillStyle = '#ffffff';
             ctx.fillText(fullMarks[r][c], fx, fy + 1);
           } else if (partialMarks[r][c] > 0) {
-            // 不完整格數字：深橘紅圓底 + 白字
             ctx.beginPath();
             ctx.arc(fx, fy, 12, 0, Math.PI * 2);
             ctx.fillStyle = '#c2410c';
@@ -326,14 +337,13 @@
         }
       }
 
-      // 更新側邊累計顯示
+      // 更新側邊計數文字
       document.getElementById('label-full-current').textContent = `已數：${fullCounter} 格`;
       document.getElementById('label-partial-current').textContent = `已數：${partialCounter} 格`;
     }
 
-    // 重新編號（當學生點擊已標記的格子取消時，重新整理剩餘格子的序號 1~N）
+    // 重新排序序號
     function resequenceMarks() {
-      // 重新整理 fullMarks
       let fNum = 1;
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
@@ -342,7 +352,6 @@
       }
       fullCounter = fNum - 1;
 
-      // 重新整理 partialMarks
       let pNum = 1;
       for (let r = 0; r < gridSize; r++) {
         for (let c = 0; c < gridSize; c++) {
@@ -352,7 +361,7 @@
       partialCounter = pNum - 1;
     }
 
-    // 畫布點擊事件
+    // 畫布點擊互動
     canvas.addEventListener('pointerdown', (e) => {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
@@ -369,24 +378,18 @@
       const cellType = getCellType(col, row, currentRadiusCells);
 
       if (currentMode === 'full') {
-        if (cellType !== 1) {
-          // 點到非完整格提示
-          return;
-        }
+        if (cellType !== 1) return;
         if (fullMarks[row][col] > 0) {
-          fullMarks[row][col] = 0; // 取消標記
+          fullMarks[row][col] = 0;
           resequenceMarks();
         } else {
           fullCounter++;
           fullMarks[row][col] = fullCounter;
         }
       } else if (currentMode === 'partial') {
-        if (cellType !== 2) {
-          // 點到非不完整格提示
-          return;
-        }
+        if (cellType !== 2) return;
         if (partialMarks[row][col] > 0) {
-          partialMarks[row][col] = 0; // 取消標記
+          partialMarks[row][col] = 0;
           resequenceMarks();
         } else {
           partialCounter++;
@@ -397,7 +400,7 @@
       draw();
     });
 
-    // 監聽模式切換按鈕高亮
+    // 模式切換樣式
     document.querySelectorAll('input[name="countMode"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         const isFull = e.target.value === 'full';
@@ -421,7 +424,6 @@
 
     // 隨機產生圓形
     function generateRandomCircle() {
-      // 隨機半徑：從 3.0 到 4.6 格（步長 0.2 或 0.5）
       const possibleRadii = [3.0, 3.2, 3.5, 3.8, 4.0, 4.2, 4.5];
       let newR;
       do {
@@ -430,14 +432,18 @@
 
       currentRadiusCells = newR;
       resetCurrentCounters();
-      document.getElementById('feedback-box').className = 'hidden';
+      
+      // 清空輸入框
       document.getElementById('input-full').value = '';
       document.getElementById('input-partial').value = '';
-      updateFormulaPreview();
+      document.getElementById('input-half').value = '';
+      document.getElementById('input-final-area').value = '';
+      document.getElementById('feedback-box').className = 'hidden';
+      syncInputsToEquation();
       draw();
     }
 
-    // 重設計數數據
+    // 重設計數
     function resetCurrentCounters() {
       fullMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
       partialMarks = Array(gridSize).fill().map(() => Array(gridSize).fill(0));
@@ -452,53 +458,68 @@
       document.getElementById('feedback-box').className = 'hidden';
     });
 
-    // 即時更新算式預覽
-    function updateFormulaPreview() {
-      const a = document.getElementById('input-full').value;
-      const b = document.getElementById('input-partial').value;
-      const preview = document.getElementById('preview-calc');
+    // 將輸入值動態帶入下方的算式提示文字中
+    function syncInputsToEquation() {
+      const a = document.getElementById('input-full').value.trim();
+      const b = document.getElementById('input-partial').value.trim();
+      const half = document.getElementById('input-half').value.trim();
 
-      if (a !== '' && b !== '') {
-        const valA = parseFloat(a) || 0;
-        const valB = parseFloat(b) || 0;
-        const result = valA + (valB / 2);
-        preview.textContent = `${valA} + (${valB} ÷ 2) = ${result} cm²`;
-      } else {
-        preview.textContent = `${a || '_'} + (${b || '_'} ÷ 2) = _ cm²`;
-      }
+      document.getElementById('disp-a-val').textContent = a !== '' ? a : 'A';
+      document.getElementById('disp-b-val').textContent = b !== '' ? b : 'B';
+      document.getElementById('disp-half-preview').textContent = half !== '' ? half : '(折半)';
     }
 
-    document.getElementById('input-full').addEventListener('input', updateFormulaPreview);
-    document.getElementById('input-partial').addEventListener('input', updateFormulaPreview);
+    document.getElementById('input-full').addEventListener('input', syncInputsToEquation);
+    document.getElementById('input-partial').addEventListener('input', syncInputsToEquation);
+    document.getElementById('input-half').addEventListener('input', syncInputsToEquation);
 
-    // 核對答案
+    // 核對答案（分步檢查格數、除法與加法結果）
     document.getElementById('btn-check-ans').addEventListener('click', () => {
-      const inputA = document.getElementById('input-full').value.trim();
-      const inputB = document.getElementById('input-partial').value.trim();
+      const valA = document.getElementById('input-full').value.trim();
+      const valB = document.getElementById('input-partial').value.trim();
+      const valHalf = document.getElementById('input-half').value.trim();
+      const valFinal = document.getElementById('input-final-area').value.trim();
       const fb = document.getElementById('feedback-box');
 
-      if (inputA === '' || inputB === '') {
+      // 1. 檢查是否漏填
+      if (valA === '' || valB === '' || valHalf === '' || valFinal === '') {
         fb.className = "text-center text-xs font-bold py-2 px-3 rounded-xl mb-2 bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
-        fb.textContent = "請先在上方輸入完整方格與不完整方格的數量喔！";
+        fb.textContent = "每個空格都要填寫喔！請填寫格數、折半計算與最終面積！";
         return;
       }
 
-      const userA = parseInt(inputA, 10);
-      const userB = parseInt(inputB, 10);
+      const numA = parseFloat(valA);
+      const numB = parseFloat(valB);
+      const numHalf = parseFloat(valHalf);
+      const numFinal = parseFloat(valFinal);
+
       const { sysFull, sysPartial } = getSystemCounts();
+      const correctHalf = sysPartial / 2;
+      const correctTotal = sysFull + correctHalf;
 
-      const userArea = userA + (userB / 2);
-      const correctArea = sysFull + (sysPartial / 2);
+      // 2. 逐步判定錯誤環節
+      let errors = [];
 
-      if (userA === sysFull && userB === sysPartial) {
+      if (numA !== sysFull) {
+        errors.push(`完整方格數算錯了（應為 ${sysFull} 格）`);
+      }
+      if (numB !== sysPartial) {
+        errors.push(`不完整方格數算錯了（應為 ${sysPartial} 格）`);
+      }
+      if (numHalf !== (numB / 2)) {
+        errors.push(`不完整方格除以 2 算錯了（${numB} ÷ 2 應該是 ${numB / 2}）`);
+      }
+      if (numFinal !== (numA + numHalf)) {
+        errors.push(`最後的加法總和算錯了（${numA} + ${numHalf} 應該是 ${numA + numHalf}）`);
+      }
+
+      // 3. 顯示回饋
+      if (errors.length === 0) {
         fb.className = "text-center text-xs font-bold py-2.5 px-3 rounded-xl mb-2 bg-emerald-500/30 text-emerald-200 border border-emerald-400/50 block";
-        fb.innerHTML = `🎉 太棒了！完全正確！<br>完整方格 ${userA} 格，不完整 ${userB} 格，估算面積為 <strong>${userArea} cm²</strong>！`;
+        fb.innerHTML = `🎉 太厲害了！完全正確！<br>格數與計算步驟全都答對了，估算圓面積為 <strong>${numFinal} cm²</strong>！`;
       } else {
-        fb.className = "text-center text-xs font-bold py-2.5 px-3 rounded-xl mb-2 bg-rose-500/25 text-rose-200 border border-rose-400/50 block";
-        let hints = [];
-        if (userA !== sysFull) hints.push(`完整方格數應為 ${sysFull} 格`);
-        if (userB !== sysPartial) hints.push(`不完整方格數應為 ${sysPartial} 格`);
-        fb.innerHTML = `再數數看喔！加油！<br><span class="text-[11px] opacity-90">（提示：${hints.join('，')}）</span>`;
+        fb.className = "text-center text-xs font-bold py-2.5 px-3 rounded-xl mb-2 bg-rose-500/25 text-rose-200 border border-rose-400/50 block text-left";
+        fb.innerHTML = `⚠️ 有些步驟需要再檢查一下喔：<br><ul class="list-disc list-inside mt-1 space-y-0.5">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`;
       }
     });
 
