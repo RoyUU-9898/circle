@@ -364,17 +364,7 @@
       lastTouchEnd = now;
     }, { passive: false });
 
-    // ==================== 2. 嚴選題庫池（保證 100% 能被整除，小學黃金組合） ====================
-    // 移除會導致 314 除不盡的 1/15, 1/18，精準搭配半徑：
-    // 1/3 (r=6 -> 36*3.14/3 = 12*3.14 = 37.68)
-    // 1/4 (r=10 -> 314/4 = 78.5)
-    // 1/5 (r=10 -> 314/5 = 62.8)
-    // 1/6 (r=6 -> 36*3.14/6 = 6*3.14 = 18.84)
-    // 1/8 (r=8 -> 64*3.14/8 = 8*3.14 = 25.12)
-    // 1/9 (r=6 -> 36*3.14/9 = 4*3.14 = 12.56)
-    // 1/10 (r=10 -> 314/10 = 31.4)
-    // 1/12 (r=6 -> 36*3.14/12 = 3*3.14 = 9.42)
-    // 1/20 (r=10 -> 314/20 = 15.7)
+    // ==================== 2. 嚴選題庫池（保證 100% 除得盡） ====================
     const QUESTION_POOL = [
       { den: 3, angle: 120, radius: 6 },
       { den: 4, angle: 90, radius: 10 },
@@ -387,7 +377,6 @@
       { den: 20, angle: 18, radius: 10 }
     ];
 
-    // 第一題預設固定：72度 (1/5, r=10)，有虛線輔助
     let currentQ = { den: 5, angle: 72, radius: 10 };
     let isFirstGuidedQuestion = true;
     const PI = 3.14;
@@ -402,7 +391,7 @@
       return +(getFullArea() / currentQ.den).toFixed(2);
     }
 
-    // ==================== 3. 畫布繪圖 ====================
+    // ==================== 3. 畫布繪圖（修復半徑與圓心角重疊） ====================
     const canvas = document.getElementById('geoCanvas');
     const ctx = canvas.getContext('2d');
 
@@ -416,7 +405,7 @@
       const radiusCm = (currentMode === 'example') ? currentQ.radius : practiceQ.radius;
       const theta = (angleDeg * Math.PI) / 180;
 
-      // 底層 360° 虛線圓
+      // 1. 底層 360° 虛線圓
       ctx.beginPath();
       ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -470,6 +459,7 @@
           ctx.stroke();
         }
 
+        // 圓心角度數弧線
         const arcR = 36;
         ctx.beginPath();
         ctx.arc(cx, cy, arcR, 0, theta, false);
@@ -477,12 +467,15 @@
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
+        // 【防重疊重點 1】：圓心角度數沿著角平分線放置
         const midA = theta / 2;
+        // 如果角度特別小（<= 45度），度數距離適當推外一點；否則放弧線外圍
+        const textDist = (angleDeg <= 45) ? (arcR + 26) : (arcR + 20);
         ctx.font = 'bold 14px monospace';
         ctx.fillStyle = '#facc15';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${angleDeg}°`, cx + (arcR + 22) * Math.cos(midA), cy + (arcR + 22) * Math.sin(midA));
+        ctx.fillText(`${angleDeg}°`, cx + textDist * Math.cos(midA), cy + textDist * Math.sin(midA));
 
       } else {
         ctx.setLineDash([]);
@@ -504,22 +497,27 @@
         ctx.stroke();
 
         const midA = theta / 2;
+        const textDist = (angleDeg <= 45) ? (arcR + 26) : (arcR + 20);
         ctx.font = 'bold 14px monospace';
         ctx.fillStyle = '#facc15';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${angleDeg}°`, cx + (arcR + 22) * Math.cos(midA), cy + (arcR + 22) * Math.sin(midA));
+        ctx.fillText(`${angleDeg}°`, cx + textDist * Math.cos(midA), cy + textDist * Math.sin(midA));
       }
 
+      // 圓心
       ctx.beginPath();
       ctx.arc(cx, cy, 5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
       ctx.fill();
 
+      // 【防重疊重點 2】：半徑長度標註移到水平邊的「正上方外側 (cy - 12)」，絕不與內部扇形度數打架
       ctx.font = 'bold 13px sans-serif';
       ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
-      ctx.fillText(`${radiusCm} cm`, cx + rPx / 2, cy + 18);
+      ctx.textBaseline = 'bottom';
+      // 標在水平半徑線的中間點上方 10px 處
+      ctx.fillText(`${radiusCm} cm`, cx + rPx * 0.58, cy - 8);
     }
 
     document.getElementById('btn-add-slice').addEventListener('click', () => {
@@ -545,7 +543,6 @@
       isFirstGuidedQuestion = hasGuide;
       sliceCount = 1;
 
-      // 左側狀態
       document.getElementById('canvas-title').textContent = `圓心角 ${currentQ.angle}° 的扇形`;
       document.getElementById('canvas-badge').textContent = `半徑 ${currentQ.radius} cm`;
 
@@ -565,17 +562,14 @@
       document.getElementById('badge-step1').textContent = "請填寫最簡分母";
       document.getElementById('badge-step1').className = "text-[10px] font-bold text-slate-400";
 
-      // 關卡 2 鎖定 ＋ 【關鍵防劇透：分母顯示問號？】
+      // 關卡 2 鎖定 ＋ 防劇透：分母顯示問號
       document.getElementById('card-step2').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
       document.getElementById('badge-step2').textContent = "完成關卡 1 解鎖";
       document.getElementById('badge-step2').className = "text-[10px] font-bold text-slate-400";
       
-      // 動態設定整圓算式字樣 (如 6×6×3.14 或 10×10×3.14)
       document.getElementById('calc-full-formula-step2').textContent = `${currentQ.radius} × ${currentQ.radius} × 3.14`;
       document.getElementById('calc-full-area-step2').textContent = getFullArea();
       document.getElementById('calc-full-val-step2').textContent = getFullArea();
-      
-      // 防劇透：解鎖前分母顯示為 ?
       document.getElementById('step2-den-view').textContent = "?";
 
       document.getElementById('input-step2-area').value = '';
@@ -598,7 +592,6 @@
       drawGeo();
     }
 
-    // 下一題按鈕：保證除得盡的題庫中抽題，且無虛線輔助
     document.getElementById('btn-next-topic').addEventListener('click', () => {
       let nextQ;
       do {
@@ -619,12 +612,12 @@
         document.getElementById('badge-step1').textContent = "✓ 已通過";
         document.getElementById('badge-step1').className = "text-[10px] font-bold text-emerald-400";
 
-        // 解鎖關卡 2 ＋ 【正式揭曉關卡 2 的分母】
+        // 解鎖關卡 2 並帶入分母
         const c2 = document.getElementById('card-step2');
         c2.classList.remove('opacity-40', 'pointer-events-none');
         c2.classList.add('border-sky-400/80');
         document.getElementById('badge-step2').textContent = "請計算面積";
-        document.getElementById('step2-den-view').textContent = currentQ.den; // 帶入剛才算對的分母
+        document.getElementById('step2-den-view').textContent = currentQ.den;
 
         setTimeout(() => {
           c2.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -649,7 +642,6 @@
         document.getElementById('badge-step2').className = "text-[10px] font-bold text-emerald-400";
         document.getElementById('box-formula').classList.remove('hidden');
 
-        // 更新關卡 3
         document.getElementById('ratio-area-prompt').textContent = `${trueArea} : ${getFullArea()}`;
         const c3 = document.getElementById('card-step3');
         c3.classList.remove('opacity-40', 'pointer-events-none');
@@ -701,16 +693,15 @@
     let practiceQ = { angle: 135, radius: 8, num: 3, den: 8 };
 
     function rerollPractice() {
-      // 挑選整除漂亮的練習題型
       const pPool = [
-        { angle: 135, num: 3, den: 8, radius: 8 },  // 64*3.14*3/8 = 75.36
-        { angle: 240, num: 2, den: 3, radius: 6 },  // 36*3.14*2/3 = 75.36
-        { angle: 270, num: 3, den: 4, radius: 10 }, // 314*3/4 = 235.5
-        { angle: 216, num: 3, den: 5, radius: 10 }, // 314*3/5 = 188.4
-        { angle: 45, num: 1, den: 8, radius: 8 },   // 64*3.14/8 = 25.12
-        { angle: 60, num: 1, den: 6, radius: 6 },   // 36*3.14/6 = 18.84
-        { angle: 90, num: 1, den: 4, radius: 10 },  // 314/4 = 78.5
-        { angle: 120, num: 1, den: 3, radius: 6 }   // 36*3.14/3 = 37.68
+        { angle: 135, num: 3, den: 8, radius: 8 },
+        { angle: 240, num: 2, den: 3, radius: 6 },
+        { angle: 270, num: 3, den: 4, radius: 10 },
+        { angle: 216, num: 3, den: 5, radius: 10 },
+        { angle: 45, num: 1, den: 8, radius: 8 },
+        { angle: 60, num: 1, den: 6, radius: 6 },
+        { angle: 90, num: 1, den: 4, radius: 10 },
+        { angle: 120, num: 1, den: 3, radius: 6 }
       ];
       practiceQ = pPool[Math.floor(Math.random() * pPool.length)];
 
