@@ -44,23 +44,6 @@
       margin: 0; 
     }
 
-    input[type=range] {
-      -webkit-appearance: none;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 9999px;
-      height: 6px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #38bdf8;
-      cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
-
     .math-frac {
       display: inline-flex;
       flex-direction: column;
@@ -90,9 +73,6 @@
     .custom-scroll::-webkit-scrollbar-thumb {
       background: rgba(255, 255, 255, 0.25);
       border-radius: 9999px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.4);
     }
   </style>
 </head>
@@ -124,7 +104,6 @@
 
     <!-- ==================== 單元 1：推論幾分之幾圓 (引導與探索) ==================== -->
     <div id="panel-example" class="flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
-      <!-- 左側幾何畫布區 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-xs text-sky-200 px-1">
           <span id="canvas-title" class="font-bold text-amber-300">圓心角 72° 的扇形</span>
@@ -155,7 +134,6 @@
         </div>
       </div>
 
-      <!-- 右側學習面板：垂直平滑捲動 -->
       <div class="col-span-6 h-full flex flex-col text-white overflow-y-auto pr-1 space-y-3 custom-scroll" id="example-scroll-container">
         <!-- 關卡 1 -->
         <div id="card-step1" class="glass-panel p-3.5 rounded-2xl border border-white/15 space-y-2">
@@ -246,12 +224,8 @@
               <div class="flex items-center justify-center gap-1 pt-1 text-amber-300">
                 <span>比值 ＝</span>
                 <div class="math-frac text-xs">
-                  <div class="math-num">
-                    <input type="number" id="input-step3-r1-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
-                  </div>
-                  <div class="math-den pt-0.5">
-                    <input type="number" id="input-step3-r1-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
-                  </div>
+                  <div class="math-num"><input type="number" id="input-step3-r1-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
+                  <div class="math-den pt-0.5"><input type="number" id="input-step3-r1-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
                 </div>
               </div>
             </div>
@@ -262,12 +236,8 @@
               <div class="flex items-center justify-center gap-1 pt-1 text-amber-300">
                 <span>比值 ＝</span>
                 <div class="math-frac text-xs">
-                  <div class="math-num">
-                    <input type="number" id="input-step3-r2-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
-                  </div>
-                  <div class="math-den pt-0.5">
-                    <input type="number" id="input-step3-r2-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
-                  </div>
+                  <div class="math-num"><input type="number" id="input-step3-r2-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
+                  <div class="math-den pt-0.5"><input type="number" id="input-step3-r2-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
                 </div>
               </div>
             </div>
@@ -285,7 +255,7 @@
       </div>
     </div>
 
-    <!-- ==================== 單元 2：推論幾分之幾圓練習 (無括號) ==================== -->
+    <!-- ==================== 單元 2：推論幾分之幾圓練習 ==================== -->
     <div id="panel-practice" class="hidden flex-1 w-full flex items-center justify-center overflow-hidden">
       <div class="w-[620px] glass-panel p-5 rounded-3xl space-y-3.5 border-2 border-sky-400/40">
         <div class="flex items-center justify-between border-b border-white/15 pb-2">
@@ -339,14 +309,12 @@
       <!-- 左側幾何操作工作台 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
         
-        <!-- 頂部控制列：下拉式選單 ＋ 長度隨機鈕 -->
         <div class="w-full flex items-center justify-between gap-2 px-1">
           <div class="flex items-center gap-1.5 flex-1">
             <span class="text-xs font-bold text-amber-300 whitespace-nowrap">選擇題型：</span>
-            <!-- 核心改進：下拉式選單 -->
             <select id="m3-shape-select" class="bg-black/50 border border-sky-400/50 rounded-xl px-2.5 py-1 text-xs font-bold text-sky-200 focus:outline-none focus:border-sky-300 flex-1 cursor-pointer">
               <option value="taiji">1. 太極圖形（半圓割補移位）</option>
-              <option value="cross">2. 準星環狀（圓環切片移位）</option>
+              <option value="cross" selected>2. 準星環狀（圓環切片移位）</option>
               <option value="diag">3. 扇形拼湊（對角翻轉合體）</option>
               <option value="sub_sq">4. 正方形扣掉扇形（圖形相減）</option>
               <option value="bow">5. 弓形面積（扇形扣三角形）</option>
@@ -360,21 +328,20 @@
         </div>
 
         <div class="w-full flex justify-between items-center text-xs text-sky-200 px-1 mt-1">
-          <span id="m3-canvas-title" class="font-bold text-amber-300">題型 1：太極圖形</span>
+          <span id="m3-canvas-title" class="font-bold text-amber-300">題型 2：準星環狀</span>
           <span id="m3-canvas-badge" class="bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full font-mono text-[11px] font-bold">
-            直徑 20 cm
+            外直徑 20 cm
           </span>
         </div>
 
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
-          <canvas id="m3GeoCanvas" width="460" height="340" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain"></canvas>
+          <canvas id="m3GeoCanvas" width="460" height="340" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain cursor-grab active:cursor-grabbing"></canvas>
         </div>
 
-        <!-- 動態拖曳滑桿與示範按鈕 -->
         <div class="w-full bg-black/30 p-2 rounded-2xl border border-white/10 flex items-center justify-between gap-2 px-3">
-          <span class="text-xs text-sky-200 font-bold flex-shrink-0" id="m3-slider-label">拖曳圖形拆解/拼合：</span>
+          <span class="text-xs text-sky-200 font-bold flex-shrink-0" id="m3-slider-label">動手移動與旋轉拼合：</span>
           <input type="range" id="m3AnimSlider" min="0" max="100" value="0" class="flex-1 cursor-pointer">
-          <button id="m3-btn-auto-toggle" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-3 py-1 rounded-xl text-xs shadow active:scale-95 transition-all flex-shrink-0">
+          <button id="m3-btn-auto-toggle" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-2.5 py-1 rounded-xl text-xs shadow active:scale-95 transition-all flex-shrink-0">
             自動示範 ➔
           </button>
         </div>
@@ -382,7 +349,6 @@
 
       <!-- 右側圖形方程式與計算卡 -->
       <div class="col-span-6 h-full flex flex-col text-white overflow-y-auto pr-1 space-y-2.5 custom-scroll">
-        <!-- 幾何策略卡 -->
         <div class="glass-panel p-3.5 rounded-2xl border border-white/15 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-300 flex items-center gap-1">
@@ -397,7 +363,6 @@
           </p>
         </div>
 
-        <!-- 幾何方程式計算卡 -->
         <div class="glass-panel p-3.5 rounded-2xl border border-white/15 space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-sky-300 flex items-center gap-1">
@@ -436,22 +401,16 @@
     // ==================== 1. 平板自適應縮放 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
-      const baseWidth = 1024;
-      const baseHeight = 660;
-
       const availWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
       const availHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-
-      const scale = Math.min(availWidth / baseWidth, availHeight / baseHeight) * 0.91;
+      const scale = Math.min(availWidth / 1024, availHeight / 660) * 0.91;
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     window.addEventListener('resize', autoScale);
-    window.addEventListener('orientationchange', () => { setTimeout(autoScale, 150); });
+    window.addEventListener('orientationchange', () => setTimeout(autoScale, 150));
     window.addEventListener('DOMContentLoaded', autoScale);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', autoScale);
-    }
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (e) => {
@@ -462,7 +421,7 @@
 
     const PI = 3.14;
 
-    // ==================== 2. 單元一：推論幾分之幾圓邏輯 ====================
+    // ==================== 2. 單元 1 邏輯 ====================
     const QUESTION_POOL = [
       { den: 3, angle: 120, radius: 6 },
       { den: 4, angle: 90, radius: 10 },
@@ -479,12 +438,8 @@
     let isFirstGuidedQuestion = true;
     let sliceCount = 1;
 
-    function getFullArea() {
-      return +(currentQ.radius * currentQ.radius * PI).toFixed(2);
-    }
-    function getSectorArea() {
-      return +(getFullArea() / currentQ.den).toFixed(2);
-    }
+    function getFullArea() { return +(currentQ.radius * currentQ.radius * PI).toFixed(2); }
+    function getSectorArea() { return +(getFullArea() / currentQ.den).toFixed(2); }
 
     const canvas = document.getElementById('geoCanvas');
     const ctx = canvas.getContext('2d');
@@ -494,7 +449,6 @@
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
       const rPx = 130;
-
       const angleDeg = currentQ.angle;
       const radiusCm = currentQ.radius;
       const theta = (angleDeg * Math.PI) / 180;
@@ -620,20 +574,16 @@
 
       document.getElementById('card-step2').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
       document.getElementById('badge-step2').textContent = "完成關卡 1 解鎖";
-      document.getElementById('badge-step2').className = "text-[10px] font-bold text-slate-400";
-      
       document.getElementById('calc-full-formula-step2').textContent = `${currentQ.radius} × ${currentQ.radius} × 3.14`;
       document.getElementById('calc-full-area-step2').textContent = getFullArea();
       document.getElementById('calc-full-val-step2').textContent = getFullArea();
       document.getElementById('step2-den-view').textContent = "?";
-
       document.getElementById('input-step2-area').value = '';
       document.getElementById('msg-step2').className = 'hidden';
       document.getElementById('box-formula').classList.add('hidden');
 
       document.getElementById('card-step3').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
       document.getElementById('badge-step3').textContent = "完成關卡 2 解鎖";
-      document.getElementById('badge-step3').className = "text-[10px] font-bold text-slate-400";
       document.getElementById('ratio-angle-prompt').textContent = `${currentQ.angle} : 360`;
       document.getElementById('input-step3-r1-num').value = '';
       document.getElementById('input-step3-r1-den').value = '';
@@ -729,7 +679,7 @@
       }
     });
 
-    // ==================== 3. 單元 2：隨機自我挑戰練習 ====================
+    // ==================== 3. 單元 2 練習 ====================
     let practiceQ = { angle: 135, radius: 8, num: 3, den: 8 };
 
     function rerollPractice() {
@@ -789,7 +739,7 @@
       }
     });
 
-    // ==================== 4. 單元 3：扇形面積練習 (下拉選單切換題型) ====================
+    // ==================== 4. 單元 3：六大題型精準繪圖與旋轉操作 ====================
     const M3_CONFIGS = {
       taiji: {
         title: "題型 1：太極圖形（半圓割補移位）",
@@ -811,35 +761,36 @@
       },
       cross: {
         title: "題型 2：準星環狀（圓環切片移位）",
-        dims: [20, 40, 30],
+        dims: [20, 40, 10], // 外直徑 20 -> 外半徑 10, 環寬 5, 內半徑 5
         dimIdx: 0,
-        badge: "同心圓割補",
-        desc: "下方半圓凸出的小圓塊，剛好可以往上推進上方圓心凹洞，嚴密拼合成一個「大半圓」！",
-        tip: "把底部的半圓補到上方圓心，直接算大半圓即可，不必做大圓減小圓！",
-        label: "拖曳下半圓向上推進：",
+        badge: "同心圓旋轉割補",
+        desc: "下方半圓內部的塗色半圓，可以向上拖曳並旋轉 180°，完美咬合填入上方中空圓心，拼成一個完整「大半圓」！",
+        tip: "下方小半圓翻轉移到上方後，就完全填滿成大半圓了！",
+        label: "旋轉並向上拖曳咬合：",
         calc(d) {
           const r = d / 2;
+          const w = r / 2;
           const ans = +(r * r * PI / 2).toFixed(2);
           return {
-            badge: `外直徑 ${d} cm`,
-            guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
+            badge: `外直徑 ${d} cm / 環寬 ${w} cm`,
+            guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後大半圓面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
             ans
           };
         }
       },
       diag: {
-        title: "題型 3：扇形拼湊（對稱翻轉合體）",
-        dims: [40, 20, 10],
+        title: "題型 3：扇形拼湊（正方形內的雙扇形）",
+        dims: [40, 20, 10], // 正方形邊長
         dimIdx: 0,
-        badge: "翻轉拼三角形",
-        desc: "將右上方凸出的扇形翻轉移動補到左邊，兩塊弧形嚴密咬合，拼成一個「等腰直角三角形」！",
-        tip: "這題完全不必乘 3.14！拼成三角形後，直接底乘高除以 2！",
-        label: "拖曳右上扇形翻轉拼合：",
+        badge: "旋轉拼直角三角形",
+        desc: "右上方扇形的圓心角為 90°！將它旋轉移動與左下方扇形拼合，圓心角合併拼成一個「等腰直角三角形」！",
+        tip: "兩塊圓弧邊剛好互補！拼成三角形後底乘高除以 2，完全不用算圓周率！",
+        label: "旋轉並移動扇形拼合：",
         calc(a) {
           const ans = +(a * a / 2).toFixed(2);
           return {
-            badge: `邊長 ${a} cm`,
-            guide: `拼成直角三角形 (半個正方形)：<br>三角形面積 ＝ ${a} × ${a} ÷ 2 ＝`,
+            badge: `正方形邊長 ${a} cm`,
+            guide: `拼成等腰直角三角形 (半個正方形)：<br>面積 ＝ ${a} × ${a} ÷ 2 ＝`,
             ans
           };
         }
@@ -904,7 +855,7 @@
       }
     };
 
-    let m3CurrentType = "taiji";
+    let m3CurrentType = "cross"; // 預設展示修正後的準星環
     let m3Progress = 0.0;
     let m3AutoAnim = null;
 
@@ -922,9 +873,8 @@
       m3Ctx.save();
 
       if (m3CurrentType === "taiji") {
-        const R = 110;
-        const r = R / 2;
-
+        // ========== 1. 太極 ==========
+        const R = 110, r = R / 2;
         m3Ctx.beginPath();
         m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
         m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -963,95 +913,173 @@
         m3Ctx.fillText(`直徑 ${curDim} cm`, cx - 12, cy);
 
       } else if (m3CurrentType === "cross") {
-        const R = 115;
-        const r = 57.5;
+        // ========== 2. 準星環狀 (精準對齊課本原圖) ==========
+        const R = 110;       // 外半徑
+        const r = R / 2;     // 內半徑
+        const curR = curDim / 2;
+        const curW = curR / 2;
 
+        // 1. 課本標配：整圓外框虛線
         m3Ctx.beginPath();
         m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        m3Ctx.setLineDash([5, 5]);
+        m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        m3Ctx.lineWidth = 1.5;
+        m3Ctx.setLineDash([4, 4]);
+        m3Ctx.stroke();
+
+        // 2. 課本標配：垂直中央貫穿虛線
+        m3Ctx.beginPath();
+        m3Ctx.moveTo(cx, cy - R);
+        m3Ctx.lineTo(cx, cy + R);
         m3Ctx.stroke();
         m3Ctx.setLineDash([]);
 
+        // 3. 水平直徑實線
+        m3Ctx.beginPath();
+        m3Ctx.moveTo(cx - R, cy);
+        m3Ctx.lineTo(cx + R, cy);
+        m3Ctx.strokeStyle = '#ffffff';
+        m3Ctx.lineWidth = 2;
+        m3Ctx.stroke();
+
+        // 4. 固定上半部外環 (半徑 R 到半徑 r 之間)
         m3Ctx.beginPath();
         m3Ctx.arc(cx, cy, R, Math.PI, 0, false);
         m3Ctx.arc(cx, cy, r, 0, Math.PI, true);
         m3Ctx.closePath();
-        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.55)'; // 課本同款藍色
         m3Ctx.fill();
         m3Ctx.strokeStyle = '#38bdf8';
-        m3Ctx.lineWidth = 2.5;
+        m3Ctx.lineWidth = 2;
         m3Ctx.stroke();
 
-        const moveY = -r * p;
+        // 5. 下半部可拖曳旋轉的小半圓 (原位在下方)
+        // 隨 p 向上移動並旋轉 180°
+        const transY = -r * p;
+        const rot = p * Math.PI;
+
         m3Ctx.save();
-        m3Ctx.translate(0, moveY);
+        m3Ctx.translate(cx, cy);
+        m3Ctx.translate(0, transY);
+        m3Ctx.rotate(rot);
+
         m3Ctx.beginPath();
-        m3Ctx.arc(cx, cy, r, 0, Math.PI, false);
+        m3Ctx.arc(0, 0, r, 0, Math.PI, false);
         m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.6)' : 'rgba(249, 115, 22, 0.75)';
+        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.55)' : 'rgba(249, 115, 22, 0.75)';
         m3Ctx.fill();
         m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
         m3Ctx.lineWidth = 2;
         m3Ctx.stroke();
         m3Ctx.restore();
 
+        // 6. 課本標註尺規：
+        // 貫穿半徑 20 弧線標註
+        m3Ctx.strokeStyle = '#facc15';
+        m3Ctx.lineWidth = 1.5;
+        m3Ctx.beginPath();
+        m3Ctx.arc(cx - 15, cy, R * 0.9, -Math.PI * 0.45, Math.PI * 0.45, false);
+        m3Ctx.stroke();
+
         m3Ctx.font = 'bold 13px monospace';
         m3Ctx.fillStyle = '#facc15';
-        m3Ctx.textAlign = 'center';
-        m3Ctx.fillText(`外直徑 ${curDim} cm`, cx, cy + R + 18);
+        m3Ctx.textAlign = 'right';
+        m3Ctx.fillText(`${curDim}`, cx - 18, cy + 4);
+
+        // 下方環寬 5 標註
+        m3Ctx.beginPath();
+        m3Ctx.arc(cx + 10, cy + (r + R) / 2, r * 0.5, -Math.PI * 0.4, Math.PI * 0.4, false);
+        m3Ctx.stroke();
+        m3Ctx.textAlign = 'left';
+        m3Ctx.fillText(`${curW}`, cx + 22, cy + (r + R) / 2 + 4);
 
       } else if (m3CurrentType === "diag") {
-        const S = 160;
+        // ========== 3. 扇形拼湊 (課本正方形雙扇形原圖修正) ==========
+        const S = 170;
         const sx = cx - S / 2;
         const sy = cy - S / 2;
 
-        m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        m3Ctx.setLineDash([5, 5]);
-        m3Ctx.strokeRect(sx, sy, S, S);
-        m3Ctx.setLineDash([]);
+        // 1. 正方形邊框（上下為虛線，左右為實線，完全對齊課本）
+        m3Ctx.lineWidth = 1.8;
+        m3Ctx.strokeStyle = '#ffffff';
 
+        // 左右實線
         m3Ctx.beginPath();
         m3Ctx.moveTo(sx, sy);
         m3Ctx.lineTo(sx, sy + S);
+        m3Ctx.moveTo(sx + S, sy);
+        m3Ctx.lineTo(sx + S, sy + S);
+        m3Ctx.stroke();
+
+        // 上下虛線
+        m3Ctx.setLineDash([4, 4]);
+        m3Ctx.beginPath();
+        m3Ctx.moveTo(sx, sy);
+        m3Ctx.lineTo(sx + S, sy);
+        m3Ctx.moveTo(sx, sy + S);
+        m3Ctx.lineTo(sx + S, sy + S);
+        m3Ctx.stroke();
+
+        // 2. 正中央對角線虛線 (從左下到右上)
+        m3Ctx.beginPath();
+        m3Ctx.moveTo(sx, sy + S);
+        m3Ctx.lineTo(sx + S, sy);
+        m3Ctx.stroke();
+        m3Ctx.setLineDash([]);
+
+        // 3. 左下方扇形 (圓心在左下角 sx, sy+S，向右上方延伸，半徑為 S 的 1/4 圓弧，但被對角線截斷)
+        // 課本原圖是：以左上角為圓心畫弧、以及以右下角為圓心畫弧！
+        // 左上頂點 (sx, sy) 為圓心，畫 90 度扇形弧線 (從 0 到 Math.PI/2)
+        // 藍色區域在對角線上方
+        m3Ctx.beginPath();
+        m3Ctx.moveTo(sx, sy);
+        m3Ctx.lineTo(sx + S, sy);
         m3Ctx.lineTo(sx + S / 2, sy + S / 2);
         m3Ctx.arc(sx, sy, S, Math.PI / 4, 0, true);
         m3Ctx.closePath();
-        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
         m3Ctx.fill();
         m3Ctx.strokeStyle = '#38bdf8';
         m3Ctx.lineWidth = 2;
         m3Ctx.stroke();
 
+        // 4. 右上方扇形（可旋轉移動與左下扇形拼成三角形）
+        // 原位圓心在右下角 (sx+S, sy+S)，弧線夾在對角線右下
+        const transDist = (S * 0.5) * p;
+        const rotA = p * (Math.PI / 2);
+
         m3Ctx.save();
-        m3Ctx.translate(sx + S * (1 - p * 0.5), sy + S * (p * 0.5));
-        m3Ctx.rotate(p * Math.PI / 2);
+        // 移向左上角貼齊
+        m3Ctx.translate(sx + S - transDist * 0.5, sy + S - transDist * 1.5);
+        m3Ctx.rotate(rotA);
+
         m3Ctx.beginPath();
         m3Ctx.moveTo(0, 0);
-        m3Ctx.lineTo(0, S);
-        m3Ctx.arc(0, 0, S, Math.PI / 2, Math.PI / 4, true);
+        m3Ctx.lineTo(-S, 0);
+        m3Ctx.lineTo(-S / 2, -S / 2);
+        m3Ctx.arc(0, 0, S, Math.PI, Math.PI * 0.75, false);
         m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.6)' : 'rgba(249, 115, 22, 0.75)';
+        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(249, 115, 22, 0.75)';
         m3Ctx.fill();
         m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
         m3Ctx.lineWidth = 2;
         m3Ctx.stroke();
         m3Ctx.restore();
 
+        // 5. 課本尺規標註 (上 40、右 40)
         m3Ctx.font = 'bold 13px monospace';
         m3Ctx.fillStyle = '#facc15';
         m3Ctx.textAlign = 'center';
-        m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy - 8);
+        m3Ctx.fillText(`${curDim}`, cx, sy - 10);
+        m3Ctx.textAlign = 'left';
+        m3Ctx.fillText(`${curDim}`, sx + S + 10, cy);
 
       } else if (m3CurrentType === "sub_sq") {
-        const W = 100;
-        const gap = 40;
-
+        // ========== 4. 正方形扣掉扇形 (圖形相減方程式) ==========
+        const W = 100, gap = 40;
         if (p < 0.1) {
           const S = 160;
-          const sx = cx - S / 2;
-          const sy = cy - S / 2;
-
+          const sx = cx - S / 2, sy = cy - S / 2;
           m3Ctx.strokeStyle = '#ffffff';
           m3Ctx.lineWidth = 2;
           m3Ctx.strokeRect(sx, sy, S, S);
@@ -1078,12 +1106,10 @@
           m3Ctx.fillStyle = '#facc15';
           m3Ctx.textAlign = 'center';
           m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy + S + 20);
-
         } else {
           const startX = cx - (W * 1.5 + gap);
           const topY = cy - W / 2;
 
-          // 1. 正方形
           m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
           m3Ctx.fillRect(startX, topY, W, W);
           m3Ctx.strokeStyle = '#ffffff';
@@ -1101,7 +1127,6 @@
           m3Ctx.textBaseline = 'middle';
           m3Ctx.fillText('－', startX + W + gap / 2, cy);
 
-          // 2. 抽離扇形
           const secX = startX + W + gap;
           m3Ctx.beginPath();
           m3Ctx.moveTo(secX, topY);
@@ -1115,7 +1140,6 @@
 
           m3Ctx.fillText('＝', secX + W + gap / 2, cy);
 
-          // 3. 角隅
           const resX = secX + W + gap;
           m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
           m3Ctx.setLineDash([4, 4]);
@@ -1139,14 +1163,11 @@
         }
 
       } else if (m3CurrentType === "bow") {
-        const W = 110;
-        const gap = 38;
-
+        // ========== 5. 弓形 ==========
+        const W = 110, gap = 38;
         if (p < 0.1) {
           const R = 160;
-          const sx = cx - R / 2;
-          const sy = cy - R / 2;
-
+          const sx = cx - R / 2, sy = cy - R / 2;
           m3Ctx.beginPath();
           m3Ctx.moveTo(sx, sy);
           m3Ctx.arc(sx, sy, R, 0, Math.PI / 2, false);
@@ -1168,7 +1189,6 @@
           m3Ctx.fillStyle = '#facc15';
           m3Ctx.textAlign = 'center';
           m3Ctx.fillText(`半徑 ${curDim} cm`, cx, sy - 8);
-
         } else {
           const startX = cx - (W * 1.5 + gap);
           const topY = cy - W / 2;
@@ -1220,17 +1240,15 @@
         }
 
       } else if (m3CurrentType === "leaf") {
+        // ========== 6. 葉片 ==========
         const S = 150;
-        const sx = cx - S / 2;
-        const sy = cy - S / 2;
-
+        const sx = cx - S / 2, sy = cy - S / 2;
         m3Ctx.strokeStyle = '#ffffff';
         m3Ctx.lineWidth = 1.5;
         m3Ctx.strokeRect(sx, sy, S, S);
 
         const sep = p * 25;
 
-        // 下弓形
         m3Ctx.save();
         m3Ctx.translate(-sep * 0.7, sep * 0.7);
         m3Ctx.beginPath();
@@ -1245,7 +1263,6 @@
         m3Ctx.stroke();
         m3Ctx.restore();
 
-        // 上弓形
         m3Ctx.save();
         m3Ctx.translate(sep * 0.7, -sep * 0.7);
         m3Ctx.beginPath();
@@ -1290,7 +1307,7 @@
       m3Draw();
     }
 
-    // 下拉式選單切換題型
+    // 下拉選單監聽
     document.getElementById('m3-shape-select').addEventListener('change', (e) => {
       m3CurrentType = e.target.value;
       m3UpdateUI();
@@ -1352,7 +1369,7 @@
       }
     });
 
-    // ==================== 5. 頂部三大分頁切換 ====================
+    // ==================== 5. 頂部頁籤切換 ====================
     const tabEx = document.getElementById('tab-example');
     const tabPr = document.getElementById('tab-practice');
     const tabComp = document.getElementById('tab-composite');
@@ -1394,7 +1411,7 @@
       autoScale();
     });
 
-    // 初始載入：預設 72 度 (1/5, r=10) 帶輔助虛線
+    // 初始載入
     loadExampleQuestion(currentQ, true);
   </script>
 </body>
