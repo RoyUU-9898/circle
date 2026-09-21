@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>扇形面積探索 - 康軒版 7-2 課本同步教學</title>
+  <title>扇形面積探索 - 康軒版 7-2 直式分數與鋪滿驗證</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html, body {
@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      touch-action: pan-x pan-y pinch-zoom; /* 僅允許雙指手勢，禁止雙擊放大 */
+      touch-action: pan-x pan-y pinch-zoom;
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
@@ -25,7 +25,7 @@
       top: 50%;
       left: 50%;
       width: 1024px;
-      height: 660px; /* 緊緻高度適配 iPad Safari 網址列 */
+      height: 660px;
       transform-origin: center center;
       box-sizing: border-box;
       will-change: transform;
@@ -38,11 +38,30 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
-    /* 數字輸入框隱藏原生微調箭頭 */
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none; 
       margin: 0; 
+    }
+
+    /* 課本直式分數專用排版類別 */
+    .math-frac {
+      display: inline-flex;
+      flex-direction: column;
+      vertical-align: middle;
+      text-align: center;
+      padding: 0 4px;
+      font-family: monospace;
+      font-weight: bold;
+    }
+    .math-num {
+      border-bottom: 2px solid currentColor;
+      padding-bottom: 2px;
+      line-height: 1.1;
+    }
+    .math-den {
+      padding-top: 2px;
+      line-height: 1.1;
     }
   </style>
 </head>
@@ -50,18 +69,18 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-4">
 
-    <!-- 頂部導覽列與單元標題 -->
-    <header class="flex items-center justify-between glass-panel px-5 py-2.5 rounded-2xl mb-2.5 flex-shrink-0">
-      <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/20 active:scale-95 transition-all">
+    <!-- 頂部標題列 -->
+    <header class="flex items-center justify-between glass-panel px-5 py-2 rounded-2xl mb-2 flex-shrink-0">
+      <a href="index.html" class="flex items-center gap-2 text-sky-200 hover:text-white font-bold text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
       </a>
 
-      <!-- 課本單元標題與切換鈕 -->
+      <!-- 課本範例與做做看標籤 -->
       <div class="flex items-center bg-black/30 p-1 rounded-xl border border-white/15">
-        <button id="btn-mode-example" class="px-4 py-1.5 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all">
-          課本範例 (72°, 半徑 10cm)
+        <button id="tab-example" class="px-4 py-1 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all">
+          課本例題 (72°, 半徑 10cm)
         </button>
-        <button id="btn-mode-practice" class="px-4 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all">
+        <button id="tab-practice" class="px-4 py-1 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all">
           課本做做看 (135°, 半徑 8cm)
         </button>
       </div>
@@ -69,151 +88,206 @@
       <div class="w-[80px]"></div>
     </header>
 
-    <!-- 主體內容區（左：幾何畫布，右：三階段鷹架推理學習單） -->
-    <main class="grid grid-cols-12 gap-5 flex-1 w-full items-stretch overflow-hidden">
+    <!-- 主內容區（左側：扇形與鋪滿動畫，右側：直式分數推理卡） -->
+    <main class="grid grid-cols-12 gap-4 flex-1 w-full items-stretch overflow-hidden">
       
-      <!-- 左側幾何對照畫布區 -->
-      <div class="col-span-6 h-full glass-panel rounded-3xl p-3.5 flex flex-col justify-between items-center relative">
+      <!-- 左側幾何互動畫布區 -->
+      <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-xs text-sky-200 px-1">
-          <span id="canvas-title" class="font-bold text-amber-300">課本題型：圓心角 72° 的扇形</span>
+          <span id="canvas-title" class="font-bold text-amber-300">課本情境：圓心角 72° 的扇形</span>
           <span id="canvas-badge" class="bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full font-mono text-[11px] font-bold">
             半徑 10 cm
           </span>
         </div>
 
-        <!-- 幾何 Canvas -->
+        <!-- 畫布：顯示扇形與鋪滿效果 -->
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
-          <canvas id="geoCanvas" width="460" height="390" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain"></canvas>
+          <canvas id="geoCanvas" width="460" height="380" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain"></canvas>
         </div>
 
-        <!-- 輔助觀察說明列 -->
-        <div class="w-full bg-black/30 px-3 py-1.5 rounded-xl border border-white/10 text-center text-xs text-slate-300">
-          💡 <strong>幾何觀察提示：</strong><span id="canvas-hint-text">淡白色虛線將整圓 360° 等分成 5 份，橘色扇形佔了其中的 1 份。</span>
+        <!-- 鋪滿整圓操作列 -->
+        <div class="w-full flex items-center justify-between px-1 gap-2">
+          <button id="btn-add-slice" class="flex-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-1.5 px-3 rounded-xl text-xs shadow active:scale-95 transition-all">
+            ＋ 鋪下一塊扇形 (看要幾塊鋪滿整圓)
+          </button>
+          <button id="btn-reset-slice" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold py-1.5 px-3 rounded-xl text-xs border border-white/10 active:scale-95 transition-all">
+            重設 ↺
+          </button>
         </div>
       </div>
 
-      <!-- 右側鷹架引導學習單（可滾動或分段解鎖） -->
+      <!-- 右側三關卡學習單 -->
       <div class="col-span-6 h-full flex flex-col justify-between gap-2.5 text-white">
         
-        <!-- 【範例情境】課本 ①、②、③ 逐步推論面板 -->
-        <div id="panel-example" class="h-full flex flex-col justify-between gap-2.5">
+        <!-- 【模式一：課本範例 72度】 -->
+        <div id="panel-example" class="h-full flex flex-col justify-between gap-2">
 
-          <!-- 步驟 ①：幾分之幾圓推理 -->
+          <!-- 關卡 1：推論幾分之幾圓（直式分數） -->
           <div class="glass-panel p-3 rounded-2xl space-y-1.5 border border-white/15">
-            <div class="text-xs font-black text-amber-300 flex items-center gap-1">
-              <span>①</span> 這是幾分之幾圓的扇形？
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-amber-300">關卡 1：這是幾分之幾圓？</span>
+              <span id="badge-step1" class="text-[10px] font-bold text-slate-400">請填寫分母</span>
             </div>
-            <div class="text-xs text-slate-200 leading-relaxed font-mono bg-black/30 p-2 rounded-xl border border-white/10">
-              扇形的圓心角 <strong>72°</strong> 占整個圓的圓心角 <strong>360°</strong> 的：<br>
-              <div class="flex items-center gap-2 mt-1 flex-wrap">
-                <span>72 ÷ 360 ＝ 72 / 360 ＝ 1 / </span>
-                <input type="number" id="input-ex-fraction-den" placeholder="分母" class="w-14 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-amber-300 focus:outline-none focus:border-amber-400 text-xs">
-                <span>，所以是</span>
-                <span class="text-amber-300 font-bold">1 / <span id="disp-ex-fraction-den">?</span> 圓</span>
-                <button id="btn-check-ex1" class="ml-auto bg-amber-500 hover:bg-amber-400 text-slate-950 font-black px-3 py-0.5 rounded-lg text-xs shadow active:scale-95 transition-all">
-                  確認 ①
-                </button>
+            
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs text-slate-200 leading-relaxed">
+              扇形圓心角 <strong>72°</strong> 占整個圓 <strong>360°</strong> 的比例：
+              <div class="flex items-center justify-center gap-3 my-1.5 text-sm font-mono">
+                <!-- 直式分數 1 -->
+                <div class="math-frac text-sky-300 text-base">
+                  <span class="math-num">72°</span>
+                  <span class="math-den">360°</span>
+                </div>
+                <span class="text-slate-400 font-black">＝</span>
+                <!-- 約分直式分數 -->
+                <div class="math-frac text-amber-300 text-base">
+                  <span class="math-num">1</span>
+                  <div class="math-den pt-1">
+                    <input type="number" id="input-step1-den" placeholder="分母" class="w-12 bg-white/20 border border-amber-400 rounded text-center text-xs text-amber-300 font-black py-0.5 focus:outline-none">
+                  </div>
+                </div>
+                <span class="text-amber-200 font-bold ml-1">圓</span>
               </div>
             </div>
-            <div id="msg-ex1" class="hidden text-[11px] font-bold py-0.5 px-2 rounded"></div>
+
+            <button id="btn-check-step1" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-1.5 rounded-xl text-xs shadow active:scale-95 transition-all">
+              送出第 1 關答案 ➜
+            </button>
+            <div id="msg-step1" class="hidden text-center text-[11px] font-bold py-1 px-2 rounded"></div>
           </div>
 
-          <!-- 步驟 ②：扇形面積計算與結論（完成 ① 後解鎖） -->
-          <div id="block-ex2" class="glass-panel p-3 rounded-2xl space-y-1.5 border border-white/15 opacity-40 pointer-events-none transition-all duration-300">
-            <div class="text-xs font-black text-sky-300 flex items-center gap-1">
-              <span>②</span> 這個扇形的面積大約是多少平方公分？
+          <!-- 關卡 2：扇形面積計算（直式分數乘法） -->
+          <div id="block-step2" class="glass-panel p-3 rounded-2xl space-y-1.5 border border-white/15 opacity-40 pointer-events-none transition-all duration-300">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-sky-300">關卡 2：扇形面積是多少平方公分？</span>
+              <span id="badge-step2" class="text-[10px] font-bold text-slate-400">完成關卡 1 解鎖</span>
             </div>
-            <div class="text-xs text-slate-200 font-mono bg-black/30 p-2 rounded-xl border border-white/10">
-              <div>算式：10 × 10 × 3.14 × (72 / 360)</div>
-              <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                <span>＝ 314 × (1 / 5) ＝</span>
-                <input type="number" step="any" id="input-ex-area" placeholder="面積" class="w-20 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-sky-300 focus:outline-none focus:border-sky-400 text-xs">
-                <span class="text-xs">cm²</span>
-                <button id="btn-check-ex2" class="ml-auto bg-sky-500 hover:bg-sky-400 text-slate-950 font-black px-3 py-0.5 rounded-lg text-xs shadow active:scale-95 transition-all">
-                  確認 ②
-                </button>
+
+            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs font-mono space-y-1 text-slate-200">
+              <div>整圓面積 ＝ 10 × 10 × 3.14 ＝ <strong>314</strong></div>
+              <div class="flex items-center gap-2 pt-0.5">
+                <span>扇形面積 ＝ 314 × </span>
+                <!-- 直式分數 1/5 -->
+                <div class="math-frac text-amber-300 text-sm">
+                  <span class="math-num">1</span>
+                  <span class="math-den">5</span>
+                </div>
+                <span>＝</span>
+                <input type="number" step="any" id="input-step2-area" placeholder="面積" class="w-20 bg-white/20 border border-sky-400 rounded px-1.5 py-0.5 text-center font-black text-sky-300 text-xs focus:outline-none">
+                <span>cm²</span>
               </div>
             </div>
-            <div id="msg-ex2" class="hidden text-[11px] font-bold py-0.5 px-2 rounded"></div>
 
-            <!-- 課本粉紅重點框（答對 ② 後浮現） -->
-            <div id="formula-box" class="hidden bg-rose-500/20 border border-rose-400/40 p-2 rounded-xl text-center">
-              <span class="text-[11px] text-rose-200 font-bold block">📢 課本重要歸納公式：</span>
-              <span class="text-xs font-black text-rose-300 font-mono">
-                扇形面積 ＝ 圓面積 × (圓心角度數 ÷ 360)
-              </span>
+            <button id="btn-check-step2" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-black py-1.5 rounded-xl text-xs shadow active:scale-95 transition-all">
+              送出第 2 關答案 ➜
+            </button>
+            <div id="msg-step2" class="hidden text-center text-[11px] font-bold py-1 px-2 rounded"></div>
+
+            <!-- 課本粉紅歸納卡片 -->
+            <div id="box-formula" class="hidden bg-rose-500/20 border border-rose-400/40 p-2 rounded-xl text-center">
+              <span class="text-[11px] text-rose-200 font-bold block">📢 課本重要公式歸納：</span>
+              <div class="flex items-center justify-center gap-1.5 text-xs font-black text-rose-300 mt-0.5">
+                <span>扇形面積 ＝ 圓面積 ×</span>
+                <div class="math-frac text-xs">
+                  <span class="math-num">圓心角度數</span>
+                  <span class="math-den">360</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 步驟 ③：比與比值驗證（完成 ② 後解鎖） -->
-          <div id="block-ex3" class="glass-panel p-3 rounded-2xl space-y-1.5 border border-white/15 opacity-40 pointer-events-none transition-all duration-300">
-            <div class="text-xs font-black text-emerald-300 flex items-center gap-1">
-              <span>③</span> 「圓心角：周角」和「扇形面積：圓面積」的比值相等嗎？
+          <!-- 關卡 3：比值天平驗證（課本第 ③ 題） -->
+          <div id="block-step3" class="glass-panel p-3 rounded-2xl space-y-1.5 border border-white/15 opacity-40 pointer-events-none transition-all duration-300">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-emerald-300">關卡 3：比值會相等嗎？（比與比值）</span>
             </div>
+
             <div class="grid grid-cols-2 gap-2 text-xs font-mono">
               <div class="bg-black/40 p-2 rounded-xl border border-white/10 text-center">
-                <span class="text-slate-400 text-[11px] block">圓心角：周角</span>
-                <div class="text-sky-300 font-bold mt-0.5">72 : 360 ＝ 1 : 5</div>
-                <div class="text-amber-300 font-black mt-0.5">比值 ＝ 1 / 5</div>
+                <span class="text-slate-400 text-[10px] block">圓心角 ： 周角</span>
+                <div class="text-sky-300 font-bold text-xs mt-0.5">72 : 360</div>
+                <div class="flex items-center justify-center gap-1 mt-1 text-amber-300">
+                  <span>比值 ＝</span>
+                  <div class="math-frac text-xs">
+                    <span class="math-num">1</span>
+                    <span class="math-den">5</span>
+                  </div>
+                </div>
               </div>
+
               <div class="bg-black/40 p-2 rounded-xl border border-white/10 text-center">
-                <span class="text-slate-400 text-[11px] block">扇形面積：圓面積</span>
-                <div class="text-sky-300 font-bold mt-0.5">(圓面積×1/5) : 圓面積</div>
-                <div class="text-amber-300 font-black mt-0.5">比值 ＝ 1 / 5</div>
+                <span class="text-slate-400 text-[10px] block">扇形面積 ： 圓面積</span>
+                <div class="text-sky-300 font-bold text-xs mt-0.5">62.8 : 314</div>
+                <div class="flex items-center justify-center gap-1 mt-1 text-amber-300">
+                  <span>比值 ＝</span>
+                  <div class="math-frac text-xs">
+                    <span class="math-num">1</span>
+                    <span class="math-den">5</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-400/40 text-center text-xs font-bold text-emerald-200">
-              🎉 發現結論：在一個扇形中，兩個比值「完全相等」！
+
+            <div class="bg-emerald-500/20 p-1.5 rounded-xl border border-emerald-400/40 text-center text-xs font-bold text-emerald-200">
+              🎉 發現定律：兩者的比值「完全相等，都是 <span class="math-frac"><span class="math-num">1</span><span class="math-den">5</span></span>」！
             </div>
           </div>
 
         </div>
 
-        <!-- 【做做看隨堂練習】面板（點選頂部按鈕切換） -->
-        <div id="panel-practice" class="hidden h-full flex flex-col justify-between gap-3">
-          <div class="glass-panel p-4 rounded-3xl space-y-3 border-2 border-amber-400/40">
-            <div class="flex items-center justify-between border-b border-white/15 pb-2">
-              <h2 class="text-sm font-black text-amber-400">📝 課本做做看隨堂驗證</h2>
-              <span class="text-xs text-slate-300 font-mono">半徑 8 cm、圓心角 135°</span>
+        <!-- 【模式二：課本做做看 135度】 -->
+        <div id="panel-practice" class="hidden h-full flex flex-col justify-between gap-2.5">
+          <div class="glass-panel p-3.5 rounded-3xl space-y-2.5 border-2 border-amber-400/40">
+            <div class="flex items-center justify-between border-b border-white/15 pb-1.5">
+              <h2 class="text-xs font-black text-amber-400">📝 課本做做看隨堂驗收</h2>
+              <span class="text-[11px] text-slate-300 font-mono">半徑 8 cm、圓心角 135°</span>
             </div>
 
-            <!-- 題目 ① -->
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs font-mono space-y-1">
-              <div class="text-slate-300">①「圓心角：周角」的比值是？(請用最簡分數)</div>
+            <!-- 做做看 ① -->
+            <div class="bg-black/30 p-2 rounded-xl border border-white/10 text-xs font-mono space-y-1">
+              <div class="text-slate-300 text-[11px]">①「圓心角：周角」的比值是？(最簡分數)</div>
               <div class="flex items-center gap-2">
                 <span>比值 ＝</span>
-                <input type="number" id="input-p-ratio1-num" placeholder="分子" class="w-14 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-amber-300 focus:outline-none focus:border-amber-400 text-xs">
-                <span>/</span>
-                <input type="number" id="input-p-ratio1-den" placeholder="分母" class="w-14 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-amber-300 focus:outline-none focus:border-amber-400 text-xs">
+                <div class="math-frac text-amber-300 text-sm">
+                  <div class="math-num">
+                    <input type="number" id="input-p1-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-xs py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                  <div class="math-den pt-0.5">
+                    <input type="number" id="input-p1-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-xs py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 題目 ② -->
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs font-mono space-y-1">
-              <div class="text-slate-300">②「扇形面積：圓面積」的比值是？(請用最簡分數)</div>
+            <!-- 做做看 ② -->
+            <div class="bg-black/30 p-2 rounded-xl border border-white/10 text-xs font-mono space-y-1">
+              <div class="text-slate-300 text-[11px]">②「扇形面積：圓面積」的比值是？(最簡分數)</div>
               <div class="flex items-center gap-2">
                 <span>比值 ＝</span>
-                <input type="number" id="input-p-ratio2-num" placeholder="分子" class="w-14 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-amber-300 focus:outline-none focus:border-amber-400 text-xs">
-                <span>/</span>
-                <input type="number" id="input-p-ratio2-den" placeholder="分母" class="w-14 bg-white/15 border border-white/30 rounded px-1.5 py-0.5 text-center font-bold text-amber-300 focus:outline-none focus:border-amber-400 text-xs">
+                <div class="math-frac text-amber-300 text-sm">
+                  <div class="math-num">
+                    <input type="number" id="input-p2-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-xs py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                  <div class="math-den pt-0.5">
+                    <input type="number" id="input-p2-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-xs py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- 題目 ③ -->
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs font-mono space-y-1">
-              <div class="text-slate-300">③ 扇形的面積大約是多少平方公分？</div>
+            <!-- 做做看 ③ -->
+            <div class="bg-black/30 p-2 rounded-xl border border-white/10 text-xs font-mono space-y-1">
+              <div class="text-slate-300 text-[11px]">③ 扇形的面積大約是多少平方公分？</div>
               <div class="flex items-center gap-2">
                 <span class="text-slate-400 text-[11px]">(8×8×3.14×3/8) ＝</span>
-                <input type="number" step="any" id="input-p-area" placeholder="最終面積" class="w-24 bg-white/20 border-2 border-emerald-400/80 rounded px-2 py-0.5 text-center font-black text-emerald-300 text-xs focus:outline-none focus:border-emerald-300">
-                <span class="text-xs text-slate-300">cm²</span>
+                <input type="number" step="any" id="input-p-area" placeholder="面積" class="w-24 bg-white/20 border-2 border-emerald-400 rounded px-2 py-0.5 text-center font-black text-emerald-300 text-xs focus:outline-none">
+                <span class="text-xs">cm²</span>
               </div>
             </div>
           </div>
 
-          <!-- 核對按鈕與回饋 -->
-          <div class="space-y-2">
-            <div id="msg-practice" class="hidden text-center text-xs font-bold py-2 px-3 rounded-xl"></div>
-            <button id="btn-check-practice" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 rounded-xl text-sm tracking-wider shadow-lg active:scale-95 transition-all">
+          <div class="space-y-1.5">
+            <div id="msg-practice" class="hidden text-center text-xs font-bold py-1 px-3 rounded-xl"></div>
+            <button id="btn-check-practice" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2 rounded-xl text-xs tracking-wider shadow-lg active:scale-95 transition-all">
               送出做做看答案 ➜
             </button>
           </div>
@@ -226,7 +300,7 @@
   </div>
 
   <script>
-    // ==================== 1. 平板等比例自適應縮放 ====================
+    // ==================== 1. 平板自適應縮放與防雙擊 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
       const baseWidth = 1024;
@@ -246,39 +320,32 @@
       window.visualViewport.addEventListener('resize', autoScale);
     }
 
-    // 禁用點兩下放大
     let lastTouchEnd = 0;
-    document.addEventListener('touchend', (event) => {
+    document.addEventListener('touchend', (e) => {
       const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
-      }
+      if (now - lastTouchEnd <= 300) e.preventDefault();
       lastTouchEnd = now;
     }, { passive: false });
 
-    // ==================== 2. 幾何畫布繪製 (Canvas) ====================
+    // ==================== 2. 畫布幾何與動態鋪滿動畫 ====================
     const canvas = document.getElementById('geoCanvas');
     const ctx = canvas.getContext('2d');
 
-    // 當前模式：'example' (72度, r=10) 或 'practice' (135度, r=8)
-    let currentMode = 'example';
+    let currentMode = 'example'; // 'example' (72度) 或 'practice' (135度)
+    let sliceCount = 1;          // 當前鋪了幾塊
+    const maxSlices = 5;         // 72度 * 5 = 360度
 
-    function drawGeometry() {
+    function drawGeo() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
+      const rPx = 130;
 
       const angleDeg = (currentMode === 'example') ? 72 : 135;
       const radiusCm = (currentMode === 'example') ? 10 : 8;
-      const totalSlices = (currentMode === 'example') ? 5 : 8; // 360/72=5等分, 360/45=8等分 (135度佔3等分)
-      const sliceDeg = (currentMode === 'example') ? 72 : 45;
-
-      const rPx = 130; // 繪製半徑
       const theta = (angleDeg * Math.PI) / 180;
-      const startAngle = 0; // 水平向右
-      const endAngle = theta;
 
-      // 1. 底層完整虛線圓（代表整個圓 360°）
+      // 1. 底層完整虛線圓（360°）
       ctx.beginPath();
       ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
@@ -286,182 +353,241 @@
       ctx.setLineDash([5, 5]);
       ctx.stroke();
 
-      // 2. 畫課本同款「等分輔助虛線」
-      for (let i = 0; i < totalSlices; i++) {
-        const rad = (i * sliceDeg * Math.PI) / 180;
+      if (currentMode === 'example') {
+        // 畫 5 等分虛線
+        for (let i = 0; i < 5; i++) {
+          const rad = (i * 72 * Math.PI) / 180;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + rPx * Math.cos(rad), cy + rPx * Math.sin(rad));
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // 2. 繪製已經鋪上去的扇形塊
+        const colors = [
+          'rgba(249, 115, 22, 0.65)', // 第 1 塊：鮮亮橘
+          'rgba(56, 189, 248, 0.5)',  // 第 2 塊：天藍
+          'rgba(16, 185, 129, 0.5)',  // 第 3 塊：翡翠綠
+          'rgba(168, 85, 247, 0.5)',  // 第 4 塊：紫色
+          'rgba(234, 179, 8, 0.5)'    // 第 5 塊：金色
+        ];
+
+        for (let i = 0; i < sliceCount; i++) {
+          const sRad = (i * 72 * Math.PI) / 180;
+          const eRad = ((i + 1) * 72 * Math.PI) / 180;
+
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, rPx, sRad, eRad, false);
+          ctx.closePath();
+          ctx.fillStyle = colors[i % colors.length];
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // 標記塊數編號文字
+          const midR = (sRad + eRad) / 2;
+          const numX = cx + (rPx * 0.65) * Math.cos(midR);
+          const numY = cy + (rPx * 0.65) * Math.sin(midR);
+          ctx.font = 'bold 15px monospace';
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`第 ${i + 1} 塊`, numX, numY);
+        }
+
+        // 圓心角度數標記（第 1 塊）
+        const arcR = 36;
+        ctx.beginPath();
+        ctx.arc(cx, cy, arcR, 0, theta, false);
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        const midA = theta / 2;
+        const tx = cx + (arcR + 20) * Math.cos(midA);
+        const ty = cy + (arcR + 20) * Math.sin(midA);
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#facc15';
+        ctx.fillText(`72°`, tx, ty);
+
+      } else {
+        // 做做看 (135度)
+        ctx.setLineDash([5, 5]);
+        for (let i = 0; i < 8; i++) {
+          const rad = (i * 45 * Math.PI) / 180;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + rPx * Math.cos(rad), cy + rPx * Math.sin(rad));
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+
+        // 水藍色扇形
         ctx.beginPath();
         ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + rPx * Math.cos(rad), cy + rPx * Math.sin(rad));
+        ctx.arc(cx, cy, rPx, 0, theta, false);
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.5)';
+        ctx.fill();
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
         ctx.stroke();
+
+        const arcR = 36;
+        ctx.beginPath();
+        ctx.arc(cx, cy, arcR, 0, theta, false);
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        const midA = theta / 2;
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#facc15';
+        ctx.textAlign = 'center';
+        ctx.fillText(`135°`, cx + (arcR + 20) * Math.cos(midA), cy + (arcR + 20) * Math.sin(midA));
       }
-      ctx.setLineDash([]); // 還原實線
 
-      // 3. 扇形實體填色
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, rPx, startAngle, endAngle, false);
-      ctx.closePath();
-      ctx.fillStyle = (currentMode === 'example') ? 'rgba(249, 115, 22, 0.45)' : 'rgba(56, 189, 248, 0.45)';
-      ctx.fill();
-      ctx.strokeStyle = (currentMode === 'example') ? '#f97316' : '#38bdf8';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      // 4. 圓心點
+      // 圓心與半徑標示
       ctx.beginPath();
       ctx.arc(cx, cy, 5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff';
       ctx.fill();
 
-      // 5. 圓心角度弧度標記
-      const arcR = 36;
-      ctx.beginPath();
-      ctx.arc(cx, cy, arcR, startAngle, endAngle, false);
-      ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // 圓心角度文字
-      const midA = endAngle / 2;
-      const tx = cx + (arcR + 22) * Math.cos(midA);
-      const ty = cy + (arcR + 22) * Math.sin(midA);
-      ctx.font = 'bold 15px monospace';
-      ctx.fillStyle = '#facc15';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${angleDeg}°`, tx, ty);
-
-      // 6. 標記兩條半徑長度
       ctx.font = 'bold 13px sans-serif';
       ctx.fillStyle = '#ffffff';
-      // 下半徑
       ctx.textAlign = 'center';
       ctx.fillText(`${radiusCm} cm`, cx + rPx / 2, cy + 18);
-      // 斜半徑
-      const rx = cx + (rPx * 0.6) * Math.cos(endAngle);
-      const ry = cy + (rPx * 0.6) * Math.sin(endAngle);
-      ctx.fillText(`${radiusCm} cm`, rx - 18, ry - 12);
     }
 
-    // ==================== 3. 模式切換事件 ====================
-    const btnEx = document.getElementById('btn-mode-example');
-    const btnPr = document.getElementById('btn-mode-practice');
+    // 鋪滿按鈕控制
+    document.getElementById('btn-add-slice').addEventListener('click', () => {
+      if (currentMode !== 'example') return;
+      if (sliceCount < maxSlices) {
+        sliceCount++;
+        drawGeo();
+      }
+      if (sliceCount === maxSlices) {
+        document.getElementById('canvas-title').textContent = "🎉 剛好 5 塊鋪滿 360° 整圓！";
+      }
+    });
+
+    document.getElementById('btn-reset-slice').addEventListener('click', () => {
+      sliceCount = 1;
+      document.getElementById('canvas-title').textContent = (currentMode === 'example') ? "課本情境：圓心角 72° 的扇形" : "課本做做看：圓心角 135° 的扇形";
+      drawGeo();
+    });
+
+    // ==================== 3. 模式切換 ====================
+    const tabEx = document.getElementById('tab-example');
+    const tabPr = document.getElementById('tab-practice');
     const panelEx = document.getElementById('panel-example');
     const panelPr = document.getElementById('panel-practice');
 
-    btnEx.addEventListener('click', () => {
+    tabEx.addEventListener('click', () => {
       currentMode = 'example';
-      btnEx.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all";
-      btnPr.className = "px-4 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
+      sliceCount = 1;
+      tabEx.className = "px-4 py-1 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow-md transition-all";
+      tabPr.className = "px-4 py-1 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
       panelEx.classList.remove('hidden');
       panelPr.classList.add('hidden');
-
-      document.getElementById('canvas-title').textContent = "課本範例：圓心角 72° 的扇形";
+      document.getElementById('btn-add-slice').classList.remove('hidden');
+      document.getElementById('canvas-title').textContent = "課本情境：圓心角 72° 的扇形";
       document.getElementById('canvas-badge').textContent = "半徑 10 cm";
-      document.getElementById('canvas-hint-text').textContent = "淡白色虛線將整圓 360° 等分成 5 份，橘色扇形佔了其中的 1 份。";
-      drawGeometry();
-      autoScale();
+      drawGeo();
     });
 
-    btnPr.addEventListener('click', () => {
+    tabPr.addEventListener('click', () => {
       currentMode = 'practice';
-      btnPr.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-wide bg-sky-500 text-slate-950 shadow-md transition-all";
-      btnEx.className = "px-4 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
+      tabPr.className = "px-4 py-1 rounded-lg font-black text-xs tracking-wide bg-sky-500 text-slate-950 shadow-md transition-all";
+      tabEx.className = "px-4 py-1 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
       panelPr.classList.remove('hidden');
       panelEx.classList.add('hidden');
-
+      document.getElementById('btn-add-slice').classList.add('hidden');
       document.getElementById('canvas-title').textContent = "課本做做看：圓心角 135° 的扇形";
       document.getElementById('canvas-badge').textContent = "半徑 8 cm";
-      document.getElementById('canvas-hint-text').textContent = "整圓 360° 每 45° 切成 8 等份，水藍色扇形 135° 剛好佔了 3 等份。";
-      drawGeometry();
-      autoScale();
+      drawGeo();
     });
 
-    // ==================== 4. 範例互動邏輯（解鎖式） ====================
-    // 步驟 ① 核對
-    document.getElementById('input-ex-fraction-den').addEventListener('input', (e) => {
-      document.getElementById('disp-ex-fraction-den').textContent = e.target.value || '?';
-    });
-
-    document.getElementById('btn-check-ex1').addEventListener('click', () => {
-      const den = document.getElementById('input-ex-fraction-den').value.trim();
-      const msg = document.getElementById('msg-ex1');
+    // ==================== 4. 關卡核對邏輯 ====================
+    // 關卡 1
+    document.getElementById('btn-check-step1').addEventListener('click', () => {
+      const den = document.getElementById('input-step1-den').value.trim();
+      const msg = document.getElementById('msg-step1');
 
       if (den === '5') {
-        msg.className = "text-[11px] font-bold py-1 px-2.5 rounded bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = "✓ 太棒了！72/360 約分後是 <strong>1/5</strong>，所以是 <strong>1/5 圓</strong>！已解鎖步驟 ②！";
-        // 解鎖步驟 ②
-        const block2 = document.getElementById('block-ex2');
-        block2.classList.remove('opacity-40', 'pointer-events-none');
-        block2.classList.add('border-sky-400/80');
+        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+        msg.innerHTML = "✓ 答對了！72/360 約分後就是 <strong>1/5 圓</strong>！解鎖關卡 2！";
+        document.getElementById('badge-step1').textContent = "✓ 已通過";
+        document.getElementById('badge-step1').className = "text-[10px] font-bold text-emerald-400";
+
+        // 解鎖關卡 2
+        const b2 = document.getElementById('block-step2');
+        b2.classList.remove('opacity-40', 'pointer-events-none');
+        b2.classList.add('border-sky-400/80');
+        document.getElementById('badge-step2').textContent = "請計算面積";
       } else {
-        msg.className = "text-[11px] font-bold py-1 px-2.5 rounded bg-rose-500/25 text-rose-200 block";
-        msg.textContent = "✕ 再想想看喔！360 除以 72 等於多少呢？（看左圖虛線被分成幾份）";
+        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
+        msg.textContent = "✕ 再試一次！左邊點點看「鋪下一塊」，數數看幾塊能鋪滿整圓？";
       }
     });
 
-    // 步驟 ② 核對
-    document.getElementById('btn-check-ex2').addEventListener('click', () => {
-      const areaVal = document.getElementById('input-ex-area').value.trim();
-      const msg = document.getElementById('msg-ex2');
-      const ans = parseFloat(areaVal);
+    // 關卡 2
+    document.getElementById('btn-check-step2').addEventListener('click', () => {
+      const areaVal = parseFloat(document.getElementById('input-step2-area').value.trim());
+      const msg = document.getElementById('msg-step2');
 
-      // 10*10*3.14 / 5 = 62.8
-      if (Math.abs(ans - 62.8) < 0.1) {
-        msg.className = "text-[11px] font-bold py-1 px-2.5 rounded bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = "✓ 完全正確！314 × 1/5 ＝ <strong>62.8 cm²</strong>！已解鎖步驟 ③！";
-        document.getElementById('formula-box').classList.remove('hidden');
+      // 314 * 1/5 = 62.8
+      if (Math.abs(areaVal - 62.8) < 0.1) {
+        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+        msg.innerHTML = "✓ 完全正確！扇形面積為 <strong>62.8 cm²</strong>！";
+        document.getElementById('badge-step2').textContent = "✓ 已通過";
+        document.getElementById('badge-step2').className = "text-[10px] font-bold text-emerald-400";
+        document.getElementById('box-formula').classList.remove('hidden');
 
-        // 解鎖步驟 ③
-        const block3 = document.getElementById('block-ex3');
-        block3.classList.remove('opacity-40', 'pointer-events-none');
-        block3.classList.add('border-emerald-400/80');
+        // 解鎖關卡 3
+        const b3 = document.getElementById('block-step3');
+        b3.classList.remove('opacity-40', 'pointer-events-none');
+        b3.classList.add('border-emerald-400/80');
       } else {
-        msg.className = "text-[11px] font-bold py-1 px-2.5 rounded bg-rose-500/25 text-rose-200 block";
-        msg.textContent = "✕ 面積算錯囉！整圓是 314，314 除以 5 算算看等於多少？";
+        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
+        msg.textContent = "✕ 面積算錯囉！314 除以 5 等於多少呢？";
       }
     });
 
-    // ==================== 5. 做做看隨堂練習核對邏輯 ====================
+    // 做做看核對
     document.getElementById('btn-check-practice').addEventListener('click', () => {
-      const r1Num = document.getElementById('input-p-ratio1-num').value.trim();
-      const r1Den = document.getElementById('input-p-ratio1-den').value.trim();
-      const r2Num = document.getElementById('input-p-ratio2-num').value.trim();
-      const r2Den = document.getElementById('input-p-ratio2-den').value.trim();
-      const area = document.getElementById('input-p-area').value.trim();
+      const p1N = document.getElementById('input-p1-num').value.trim();
+      const p1D = document.getElementById('input-p1-den').value.trim();
+      const p2N = document.getElementById('input-p2-num').value.trim();
+      const p2D = document.getElementById('input-p2-den').value.trim();
+      const area = parseFloat(document.getElementById('input-p-area').value.trim());
       const msg = document.getElementById('msg-practice');
 
-      if (!r1Num || !r1Den || !r2Num || !r2Den || !area) {
-        msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/40 block";
-        msg.textContent = "請把三個題目的空格都填寫完整喔！";
+      if (!p1N || !p1D || !p2N || !p2D || isNaN(area)) {
+        msg.className = "text-center text-xs font-bold py-1 px-2 rounded bg-amber-500/20 text-amber-300 block";
+        msg.textContent = "每個空格都要填寫完整喔！";
         return;
       }
 
-      // 正確答案：
-      // 135/360 約分為 3/8
-      // 面積：8 * 8 * 3.14 * (3/8) = 64 * 3.14 * 3/8 = 8 * 3.14 * 3 = 75.36
       let errors = [];
-      if (r1Num !== '3' || r1Den !== '8') {
-        errors.push("第 ① 題最簡分數比值應為 3/8（135/360 同除以 45）");
-      }
-      if (r2Num !== '3' || r2Den !== '8') {
-        errors.push("第 ② 題面積比值同樣為 3/8");
-      }
-      if (Math.abs(parseFloat(area) - 75.36) > 0.1) {
-        errors.push("第 ③ 題扇形面積應為 75.36 cm² (64 × 3.14 × 3/8)");
-      }
+      if (p1N !== '3' || p1D !== '8') errors.push("第 ① 題比值應為 3/8 (135/360)");
+      if (p2N !== '3' || p2D !== '8') errors.push("第 ② 題比值應為 3/8");
+      if (Math.abs(area - 75.36) > 0.1) errors.push("第 ③ 題面積應為 75.36 cm²");
 
       if (errors.length === 0) {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 border border-emerald-400/50 block";
-        msg.innerHTML = "🎉 太優秀了！全數正確！<br>比值都是 <strong>3/8</strong>，扇形面積為 <strong>75.36 cm²</strong>！";
+        msg.className = "text-center text-xs font-bold py-1.5 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+        msg.innerHTML = "🎉 太棒了！全數答對！比值都是 3/8，面積為 <strong>75.36 cm²</strong>！";
       } else {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 border border-rose-400/50 block text-left";
-        msg.innerHTML = `⚠️ 檢查看看哪一步粗心了：<ul class="list-disc list-inside mt-0.5">${errors.map(err => `<li>${err}</li>`).join('')}</ul>`;
+        msg.className = "text-center text-xs font-bold py-1.5 px-2 rounded bg-rose-500/25 text-rose-200 block text-left";
+        msg.innerHTML = `⚠️ 檢查看看：<ul class="list-disc list-inside mt-0.5">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
       }
     });
 
     // 初始繪製
-    drawGeometry();
+    drawGeo();
   </script>
 </body>
 </html>
