@@ -97,7 +97,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-4">
 
-    <!-- 頂部一級主導覽列（三大階段無縫切換） -->
+    <!-- 頂部一級主導覽列 -->
     <header class="flex items-center justify-between glass-panel px-4 py-2 rounded-2xl mb-2 flex-shrink-0">
       <a href="index.html" class="flex items-center gap-1.5 text-sky-200 hover:text-white font-bold text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
@@ -116,7 +116,7 @@
       <div class="w-[80px]"></div>
     </header>
 
-    <!-- ==================== 單元一：推論幾分之幾圓（原版完整保留） ==================== -->
+    <!-- ==================== 單元一：推論幾分之幾圓 ==================== -->
     <div id="section-module1" class="flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
       <!-- 左側幾何畫布 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
@@ -262,7 +262,7 @@
       </div>
     </div>
 
-    <!-- ==================== 單元二：扇形複合面積練習（動態割補與圖形相減） ==================== -->
+    <!-- ==================== 單元二：扇形複合面積練習 ==================== -->
     <div id="section-module2" class="hidden flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
       <!-- 左側幾何操作工作台 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
@@ -283,7 +283,7 @@
         </div>
 
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
-          <canvas id="m2GeoCanvas" width="460" height="340" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain cursor-grab active:cursor-grabbing"></canvas>
+          <canvas id="m2GeoCanvas" width="460" height="340" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full object-contain"></canvas>
         </div>
 
         <!-- 動態拖曳滑桿與隨機按鈕 -->
@@ -352,25 +352,19 @@
   </div>
 
   <script>
-    // ==================== 1. 平板自適應縮放 ====================
+    // ==================== 1. 平板縮放與基礎事件 ====================
     function autoScale() {
       const wrapper = document.getElementById('app-wrapper');
-      const baseWidth = 1024;
-      const baseHeight = 660;
-
       const availWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
       const availHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-
-      const scale = Math.min(availWidth / baseWidth, availHeight / baseHeight) * 0.91;
+      const scale = Math.min(availWidth / 1024, availHeight / 660) * 0.91;
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
     window.addEventListener('resize', autoScale);
-    window.addEventListener('orientationchange', () => { setTimeout(autoScale, 150); });
+    window.addEventListener('orientationchange', () => setTimeout(autoScale, 150));
     window.addEventListener('DOMContentLoaded', autoScale);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', autoScale);
-    }
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (e) => {
@@ -381,31 +375,7 @@
 
     const PI = 3.14;
 
-    // ==================== 2. 主單元頁籤切換 ====================
-    const mainTab1 = document.getElementById('main-tab-part1');
-    const mainTab2 = document.getElementById('main-tab-part2');
-    const secMod1 = document.getElementById('section-module1');
-    const secMod2 = document.getElementById('section-module2');
-
-    mainTab1.addEventListener('click', () => {
-      mainTab1.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow transition-all";
-      mainTab2.className = "px-4 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
-      secMod1.classList.remove('hidden');
-      secMod2.classList.add('hidden');
-      m1DrawGeo();
-      autoScale();
-    });
-
-    mainTab2.addEventListener('click', () => {
-      mainTab2.className = "px-4 py-1.5 rounded-lg font-black text-xs tracking-wide bg-sky-500 text-slate-950 shadow transition-all";
-      mainTab1.className = "px-4 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
-      secMod2.classList.remove('hidden');
-      secMod1.classList.add('hidden');
-      m2UpdateUI();
-      autoScale();
-    });
-
-    // ==================== 3. 單元一：推論幾分之幾圓邏輯 ====================
+    // ==================== 2. 單元一邏輯 ====================
     const M1_QUESTION_POOL = [
       { den: 3, angle: 120, radius: 6 },
       { den: 4, angle: 90, radius: 10 },
@@ -507,7 +477,6 @@
       m1Ctx.fillStyle = '#ffffff';
       m1Ctx.fill();
 
-      // 半徑放上方外側防重疊
       m1Ctx.font = 'bold 13px sans-serif';
       m1Ctx.fillStyle = '#ffffff';
       m1Ctx.textAlign = 'center';
@@ -662,7 +631,7 @@
       }
     });
 
-    // ==================== 4. 單元二：六大題型動態割補與幾何相減 ====================
+    // ==================== 3. 單元二：六大題型邏輯 ====================
     const M2_CONFIGS = {
       taiji: {
         title: "題型 1：太極圖形（半圓割補移位）",
@@ -795,7 +764,6 @@
       m2Ctx.save();
 
       if (m2CurrentType === "taiji") {
-        // ========== 1. 太極 ==========
         const R = 110;
         const r = R / 2;
 
@@ -806,7 +774,6 @@
         m2Ctx.stroke();
         m2Ctx.setLineDash([]);
 
-        // 右大半圓固定 (挖去右上小半圓)
         m2Ctx.beginPath();
         m2Ctx.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, false);
         m2Ctx.arc(cx, cy - r, r, Math.PI / 2, -Math.PI / 2, true);
@@ -816,7 +783,6 @@
         m2Ctx.lineWidth = 2.5;
         m2Ctx.stroke();
 
-        // 可拖曳的左下小半圓 (從下半移至右上)
         const curY = (cy + r) + ((cy - r) - (cy + r)) * p;
         const curRot = p * Math.PI;
 
@@ -839,7 +805,6 @@
         m2Ctx.fillText(`直徑 ${curDim} cm`, cx - 12, cy);
 
       } else if (m2CurrentType === "cross") {
-        // ========== 2. 準星環 ==========
         const R = 115;
         const r = 57.5;
 
@@ -850,7 +815,6 @@
         m2Ctx.stroke();
         m2Ctx.setLineDash([]);
 
-        // 上半部外環
         m2Ctx.beginPath();
         m2Ctx.arc(cx, cy, R, Math.PI, 0, false);
         m2Ctx.arc(cx, cy, r, 0, Math.PI, true);
@@ -861,7 +825,6 @@
         m2Ctx.lineWidth = 2.5;
         m2Ctx.stroke();
 
-        // 向上移動的小半圓
         const moveY = -r * p;
         m2Ctx.save();
         m2Ctx.translate(0, moveY);
@@ -881,7 +844,6 @@
         m2Ctx.fillText(`外直徑 ${curDim} cm`, cx, cy + R + 18);
 
       } else if (m2CurrentType === "diag") {
-        // ========== 3. 扇形拼湊 ==========
         const S = 160;
         const sx = cx - S / 2;
         const sy = cy - S / 2;
@@ -891,7 +853,6 @@
         m2Ctx.strokeRect(sx, sy, S, S);
         m2Ctx.setLineDash([]);
 
-        // 左半邊固定扇形
         m2Ctx.beginPath();
         m2Ctx.moveTo(sx, sy);
         m2Ctx.lineTo(sx, sy + S);
@@ -904,7 +865,6 @@
         m2Ctx.lineWidth = 2;
         m2Ctx.stroke();
 
-        // 右上可翻轉扇形
         m2Ctx.save();
         m2Ctx.translate(sx + S * (1 - p * 0.5), sy + S * (p * 0.5));
         m2Ctx.rotate(p * Math.PI / 2);
@@ -926,12 +886,10 @@
         m2Ctx.fillText(`邊長 ${curDim} cm`, cx, sy - 8);
 
       } else if (m2CurrentType === "sub_sq") {
-        // ========== 4. 正方形扣掉扇形 (圖形相減方程式展開！) ==========
-        const W = 100; // 單個小圖寬度
+        const W = 100;
         const gap = 40;
 
         if (p < 0.1) {
-          // 初始重疊態
           const S = 160;
           const sx = cx - S / 2;
           const sy = cy - S / 2;
@@ -940,7 +898,6 @@
           m2Ctx.lineWidth = 2;
           m2Ctx.strokeRect(sx, sy, S, S);
 
-          // 角隅
           m2Ctx.beginPath();
           m2Ctx.moveTo(sx + S, sy);
           m2Ctx.lineTo(sx + S, sy + S);
@@ -950,7 +907,6 @@
           m2Ctx.fill();
           m2Ctx.stroke();
 
-          // 扇形內部虛線
           m2Ctx.beginPath();
           m2Ctx.moveTo(sx, sy);
           m2Ctx.arc(sx, sy, S, 0, Math.PI / 2, false);
@@ -966,7 +922,6 @@
           m2Ctx.fillText(`邊長 ${curDim} cm`, cx, sy + S + 20);
 
         } else {
-          // 動態橫向展開：【正方形】 － 【扇形】 ＝ 【角隅】
           const startX = cx - (W * 1.5 + gap);
           const topY = cy - W / 2;
 
@@ -982,14 +937,13 @@
           m2Ctx.stroke();
           m2Ctx.setLineDash([]);
 
-          // 減號
           m2Ctx.font = 'bold 28px sans-serif';
           m2Ctx.fillStyle = '#ffffff';
           m2Ctx.textAlign = 'center';
           m2Ctx.textBaseline = 'middle';
           m2Ctx.fillText('－', startX + W + gap / 2, cy);
 
-          // 2. 抽離的扇形
+          // 2. 抽離扇形
           const secX = startX + W + gap;
           m2Ctx.beginPath();
           m2Ctx.moveTo(secX, topY);
@@ -1001,10 +955,9 @@
           m2Ctx.lineWidth = 2;
           m2Ctx.stroke();
 
-          // 等號
           m2Ctx.fillText('＝', secX + W + gap / 2, cy);
 
-          // 3. 所求角隅
+          // 3. 角隅
           const resX = secX + W + gap;
           m2Ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
           m2Ctx.setLineDash([4, 4]);
@@ -1022,14 +975,12 @@
           m2Ctx.lineWidth = 2;
           m2Ctx.stroke();
 
-          // 尺寸文字
           m2Ctx.font = 'bold 12px monospace';
           m2Ctx.fillStyle = '#facc15';
           m2Ctx.fillText(`邊長 ${curDim} cm`, cx, cy + W / 2 + 25);
         }
 
       } else if (m2CurrentType === "bow") {
-        // ========== 5. 弓形面積 ==========
         const W = 110;
         const gap = 38;
 
@@ -1048,7 +999,6 @@
           m2Ctx.lineWidth = 2;
           m2Ctx.stroke();
 
-          // 弦與直角符號
           m2Ctx.beginPath();
           m2Ctx.moveTo(sx + R, sy);
           m2Ctx.lineTo(sx, sy + R);
@@ -1062,7 +1012,6 @@
           m2Ctx.fillText(`半徑 ${curDim} cm`, cx, sy - 8);
 
         } else {
-          // 展開：【扇形】 － 【直角三角形】 ＝ 【弓形】
           const startX = cx - (W * 1.5 + gap);
           const topY = cy - W / 2;
 
@@ -1076,14 +1025,13 @@
           m2Ctx.strokeStyle = '#38bdf8';
           m2Ctx.stroke();
 
-          // 減號
           m2Ctx.font = 'bold 28px sans-serif';
           m2Ctx.fillStyle = '#ffffff';
           m2Ctx.textAlign = 'center';
           m2Ctx.textBaseline = 'middle';
           m2Ctx.fillText('－', startX + W + gap / 2, cy);
 
-          // 2. 直角三角形
+          // 2. 三角形
           const triX = startX + W + gap;
           m2Ctx.beginPath();
           m2Ctx.moveTo(triX, topY);
@@ -1096,7 +1044,6 @@
           m2Ctx.lineWidth = 2;
           m2Ctx.stroke();
 
-          // 等號
           m2Ctx.fillText('＝', triX + W + gap / 2, cy);
 
           // 3. 弓形
@@ -1118,7 +1065,6 @@
         }
 
       } else if (m2CurrentType === "leaf") {
-        // ========== 6. 葉片幾何 ==========
         const S = 150;
         const sx = cx - S / 2;
         const sy = cy - S / 2;
@@ -1256,8 +1202,11 @@
       }
     });
 
-    // 初始載入
-    m1LoadQuestion(m1CurrentQ, true);
+    // ==================== 4. 總體初始化 ====================
+    window.addEventListener('load', () => {
+      autoScale();
+      m1LoadQuestion(m1CurrentQ, true);
+    });
   </script>
 </body>
 </html>
