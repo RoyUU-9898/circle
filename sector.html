@@ -44,6 +44,23 @@
       margin: 0; 
     }
 
+    input[type=range] {
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      height: 6px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
     .math-frac {
       display: inline-flex;
       flex-direction: column;
@@ -104,6 +121,7 @@
 
     <!-- ==================== 單元 1：推論幾分之幾圓 (引導與探索) ==================== -->
     <div id="panel-example" class="flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
+      <!-- 左側幾何畫布區 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
         <div class="w-full flex justify-between items-center text-xs text-sky-200 px-1">
           <span id="canvas-title" class="font-bold text-amber-300">圓心角 72° 的扇形</span>
@@ -134,6 +152,7 @@
         </div>
       </div>
 
+      <!-- 右側學習面板 -->
       <div class="col-span-6 h-full flex flex-col text-white overflow-y-auto pr-1 space-y-3 custom-scroll" id="example-scroll-container">
         <!-- 關卡 1 -->
         <div id="card-step1" class="glass-panel p-3.5 rounded-2xl border border-white/15 space-y-2">
@@ -220,24 +239,32 @@
           <div class="grid grid-cols-2 gap-2 text-xs font-mono">
             <div class="bg-black/40 p-2.5 rounded-xl border border-white/10 text-center space-y-1">
               <span class="text-slate-300 text-[11px] block">「圓心角 ： 周角」</span>
-              <div id="ratio-angle-prompt" class="text-sky-300 font-bold text-xs">72 : 360</div>
+              <div id="ratio-angle-prompt" class="text-sky-300 font-bold text-xs mt-0.5">72 : 360</div>
               <div class="flex items-center justify-center gap-1 pt-1 text-amber-300">
                 <span>比值 ＝</span>
                 <div class="math-frac text-xs">
-                  <div class="math-num"><input type="number" id="input-step3-r1-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
-                  <div class="math-den pt-0.5"><input type="number" id="input-step3-r1-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
+                  <div class="math-num">
+                    <input type="number" id="input-step3-r1-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                  <div class="math-den pt-0.5">
+                    <input type="number" id="input-step3-r1-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
                 </div>
               </div>
             </div>
 
             <div class="bg-black/40 p-2.5 rounded-xl border border-white/10 text-center space-y-1">
               <span class="text-slate-300 text-[11px] block">「扇形面積 ： 圓面積」</span>
-              <div id="ratio-area-prompt" class="text-sky-300 font-bold text-xs">62.8 : 314</div>
+              <div id="ratio-area-prompt" class="text-sky-300 font-bold text-xs mt-0.5">62.8 : 314</div>
               <div class="flex items-center justify-center gap-1 pt-1 text-amber-300">
                 <span>比值 ＝</span>
                 <div class="math-frac text-xs">
-                  <div class="math-num"><input type="number" id="input-step3-r2-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
-                  <div class="math-den pt-0.5"><input type="number" id="input-step3-r2-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none"></div>
+                  <div class="math-num">
+                    <input type="number" id="input-step3-r2-num" placeholder="分子" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
+                  <div class="math-den pt-0.5">
+                    <input type="number" id="input-step3-r2-den" placeholder="分母" class="w-10 bg-white/20 border border-amber-400 rounded text-center text-[11px] py-0.5 text-amber-300 font-bold focus:outline-none">
+                  </div>
                 </div>
               </div>
             </div>
@@ -304,7 +331,7 @@
       </div>
     </div>
 
-    <!-- ==================== 單元 3：扇形面積練習 (下拉選單切換題型) ==================== -->
+    <!-- ==================== 單元 3：扇形面積練習 (下拉式選單) ==================== -->
     <div id="panel-composite" class="hidden flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
       <!-- 左側幾何操作工作台 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3 flex flex-col justify-between items-center relative">
@@ -398,779 +425,635 @@
   </div>
 
   <script>
-    // ==================== 1. 平板自適應縮放 ====================
-    function autoScale() {
-      const wrapper = document.getElementById('app-wrapper');
-      const availWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-      const availHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      const scale = Math.min(availWidth / 1024, availHeight / 660) * 0.91;
-      wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    }
+    document.addEventListener('DOMContentLoaded', () => {
 
-    window.addEventListener('resize', autoScale);
-    window.addEventListener('orientationchange', () => setTimeout(autoScale, 150));
-    window.addEventListener('DOMContentLoaded', autoScale);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
+      // ==================== 1. 平板縮放適配 ====================
+      function autoScale() {
+        const wrapper = document.getElementById('app-wrapper');
+        const availWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+        const availHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        const scale = Math.min(availWidth / 1024, availHeight / 660) * 0.91;
+        wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+      }
 
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) e.preventDefault();
-      lastTouchEnd = now;
-    }, { passive: false });
+      window.addEventListener('resize', autoScale);
+      window.addEventListener('orientationchange', () => setTimeout(autoScale, 150));
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 
-    const PI = 3.14;
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) e.preventDefault();
+        lastTouchEnd = now;
+      }, { passive: false });
 
-    // ==================== 2. 單元 1 邏輯 ====================
-    const QUESTION_POOL = [
-      { den: 3, angle: 120, radius: 6 },
-      { den: 4, angle: 90, radius: 10 },
-      { den: 5, angle: 72, radius: 10 },
-      { den: 6, angle: 60, radius: 6 },
-      { den: 8, angle: 45, radius: 8 },
-      { den: 9, angle: 40, radius: 6 },
-      { den: 10, angle: 36, radius: 10 },
-      { den: 12, angle: 30, radius: 6 },
-      { den: 20, angle: 18, radius: 10 }
-    ];
+      const PI = 3.14;
 
-    let currentQ = { den: 5, angle: 72, radius: 10 };
-    let isFirstGuidedQuestion = true;
-    let sliceCount = 1;
+      // ==================== 2. 單元 1 邏輯 ====================
+      const QUESTION_POOL = [
+        { den: 3, angle: 120, radius: 6 },
+        { den: 4, angle: 90, radius: 10 },
+        { den: 5, angle: 72, radius: 10 },
+        { den: 6, angle: 60, radius: 6 },
+        { den: 8, angle: 45, radius: 8 },
+        { den: 9, angle: 40, radius: 6 },
+        { den: 10, angle: 36, radius: 10 },
+        { den: 12, angle: 30, radius: 6 },
+        { den: 20, angle: 18, radius: 10 }
+      ];
 
-    function getFullArea() { return +(currentQ.radius * currentQ.radius * PI).toFixed(2); }
-    function getSectorArea() { return +(getFullArea() / currentQ.den).toFixed(2); }
+      let currentQ = { den: 5, angle: 72, radius: 10 };
+      let isFirstGuidedQuestion = true;
+      let sliceCount = 1;
 
-    const canvas = document.getElementById('geoCanvas');
-    const ctx = canvas.getContext('2d');
+      function getFullArea() { return +(currentQ.radius * currentQ.radius * PI).toFixed(2); }
+      function getSectorArea() { return +(getFullArea() / currentQ.den).toFixed(2); }
 
-    function drawGeo() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
-      const rPx = 130;
-      const angleDeg = currentQ.angle;
-      const radiusCm = currentQ.radius;
-      const theta = (angleDeg * Math.PI) / 180;
+      const canvas = document.getElementById('geoCanvas');
+      const ctx = canvas.getContext('2d');
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
+      function drawGeo() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const rPx = 130;
+        const angleDeg = currentQ.angle;
+        const radiusCm = currentQ.radius;
+        const theta = (angleDeg * Math.PI) / 180;
 
-      if (isFirstGuidedQuestion) {
-        ctx.setLineDash([4, 4]);
-        for (let i = 0; i < currentQ.den; i++) {
-          const rad = (i * angleDeg * Math.PI) / 180;
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(cx + rPx * Math.cos(rad), cy + rPx * Math.sin(rad));
-          ctx.stroke();
-        }
-        ctx.setLineDash([]);
-
-        const palette = ['rgba(249, 115, 22, 0.7)', 'rgba(56, 189, 248, 0.55)', 'rgba(16, 185, 129, 0.55)', 'rgba(168, 85, 247, 0.55)', 'rgba(234, 179, 8, 0.55)'];
-        for (let i = 0; i < sliceCount; i++) {
-          const sRad = (i * angleDeg * Math.PI) / 180;
-          const eRad = ((i + 1) * angleDeg * Math.PI) / 180;
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.arc(cx, cy, rPx, sRad, eRad, false);
-          ctx.closePath();
-          ctx.fillStyle = palette[i % palette.length];
-          ctx.fill();
-          ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-
-          const midR = (sRad + eRad) / 2;
-          ctx.font = 'bold 12px monospace';
-          ctx.fillStyle = '#ffffff';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(`${i + 1}`, cx + (rPx * 0.65) * Math.cos(midR), cy + (rPx * 0.65) * Math.sin(midR));
-        }
-      } else {
-        ctx.setLineDash([]);
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, rPx, 0, theta, false);
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
-        ctx.fill();
-        ctx.strokeStyle = '#f97316';
+        ctx.arc(cx, cy, rPx, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+
+        if (isFirstGuidedQuestion) {
+          ctx.setLineDash([4, 4]);
+          for (let i = 0; i < currentQ.den; i++) {
+            const rad = (i * angleDeg * Math.PI) / 180;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx + rPx * Math.cos(rad), cy + rPx * Math.sin(rad));
+            ctx.stroke();
+          }
+          ctx.setLineDash([]);
+
+          const palette = ['rgba(249, 115, 22, 0.7)', 'rgba(56, 189, 248, 0.55)', 'rgba(16, 185, 129, 0.55)', 'rgba(168, 85, 247, 0.55)', 'rgba(234, 179, 8, 0.55)'];
+          for (let i = 0; i < sliceCount; i++) {
+            const sRad = (i * angleDeg * Math.PI) / 180;
+            const eRad = ((i + 1) * angleDeg * Math.PI) / 180;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.arc(cx, cy, rPx, sRad, eRad, false);
+            ctx.closePath();
+            ctx.fillStyle = palette[i % palette.length];
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            const midR = (sRad + eRad) / 2;
+            ctx.font = 'bold 12px monospace';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(`${i + 1}`, cx + (rPx * 0.65) * Math.cos(midR), cy + (rPx * 0.65) * Math.sin(midR));
+          }
+        } else {
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, rPx, 0, theta, false);
+          ctx.closePath();
+          ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
+          ctx.fill();
+          ctx.strokeStyle = '#f97316';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+        }
+
+        const arcR = 36;
+        ctx.beginPath();
+        ctx.arc(cx, cy, arcR, 0, theta, false);
+        ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 2.5;
         ctx.stroke();
+
+        const midA = theta / 2;
+        const textDist = (angleDeg <= 45) ? (arcR + 26) : (arcR + 20);
+        ctx.font = 'bold 14px monospace';
+        ctx.fillStyle = '#facc15';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${angleDeg}°`, cx + textDist * Math.cos(midA), cy + textDist * Math.sin(midA));
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+
+        ctx.font = 'bold 13px sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`${radiusCm} cm`, cx + rPx * 0.58, cy - 8);
       }
 
-      const arcR = 36;
-      ctx.beginPath();
-      ctx.arc(cx, cy, arcR, 0, theta, false);
-      ctx.strokeStyle = '#facc15';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
+      document.getElementById('btn-add-slice').addEventListener('click', () => {
+        if (!isFirstGuidedQuestion) return;
+        if (sliceCount < currentQ.den) {
+          sliceCount++;
+          drawGeo();
+        }
+        if (sliceCount === currentQ.den) {
+          document.getElementById('canvas-title').textContent = `🎉 剛好 ${currentQ.den} 塊鋪滿 360° 整圓！`;
+        }
+      });
 
-      const midA = theta / 2;
-      const textDist = (angleDeg <= 45) ? (arcR + 26) : (arcR + 20);
-      ctx.font = 'bold 14px monospace';
-      ctx.fillStyle = '#facc15';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(`${angleDeg}°`, cx + textDist * Math.cos(midA), cy + textDist * Math.sin(midA));
+      document.getElementById('btn-reset-slice').addEventListener('click', () => {
+        sliceCount = 1;
+        document.getElementById('canvas-title').textContent = `圓心角 ${currentQ.angle}° 的扇形`;
+        drawGeo();
+      });
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
-      ctx.fill();
+      function loadExampleQuestion(qObj, hasGuide) {
+        currentQ = qObj;
+        isFirstGuidedQuestion = hasGuide;
+        sliceCount = 1;
 
-      ctx.font = 'bold 13px sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText(`${radiusCm} cm`, cx + rPx * 0.58, cy - 8);
-    }
+        document.getElementById('canvas-title').textContent = `圓心角 ${currentQ.angle}° 的扇形`;
+        document.getElementById('canvas-badge').textContent = `半徑 ${currentQ.radius} cm`;
 
-    document.getElementById('btn-add-slice').addEventListener('click', () => {
-      if (!isFirstGuidedQuestion) return;
-      if (sliceCount < currentQ.den) {
-        sliceCount++;
+        if (isFirstGuidedQuestion) {
+          document.getElementById('slice-tools').classList.remove('hidden');
+          document.getElementById('no-hint-pill').classList.add('hidden');
+        } else {
+          document.getElementById('slice-tools').classList.add('hidden');
+          document.getElementById('no-hint-pill').classList.remove('hidden');
+        }
+
+        document.getElementById('q-angle-text').textContent = `${currentQ.angle}°`;
+        document.getElementById('q-frac-num').textContent = `${currentQ.angle}°`;
+        document.getElementById('input-step1-den').value = '';
+        document.getElementById('msg-step1').className = 'hidden';
+        document.getElementById('badge-step1').textContent = "請填寫最簡分母";
+        document.getElementById('badge-step1').className = "text-[10px] font-bold text-slate-400";
+
+        document.getElementById('card-step2').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
+        document.getElementById('badge-step2').textContent = "完成關卡 1 解鎖";
+        document.getElementById('calc-full-formula-step2').textContent = `${currentQ.radius} × ${currentQ.radius} × 3.14`;
+        document.getElementById('calc-full-area-step2').textContent = getFullArea();
+        document.getElementById('calc-full-val-step2').textContent = getFullArea();
+        document.getElementById('step2-den-view').textContent = "?";
+
+        document.getElementById('input-step2-area').value = '';
+        document.getElementById('msg-step2').className = 'hidden';
+        document.getElementById('box-formula').classList.add('hidden');
+
+        document.getElementById('card-step3').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
+        document.getElementById('badge-step3').textContent = "完成關卡 2 解鎖";
+        document.getElementById('ratio-angle-prompt').textContent = `${currentQ.angle} : 360`;
+        document.getElementById('input-step3-r1-num').value = '';
+        document.getElementById('input-step3-r1-den').value = '';
+        document.getElementById('input-step3-r2-num').value = '';
+        document.getElementById('input-step3-r2-den').value = '';
+        document.getElementById('msg-step3').className = 'hidden';
+        document.getElementById('conclusion-step3').classList.add('hidden');
+
+        document.getElementById('example-scroll-container').scrollTo({ top: 0, behavior: 'smooth' });
         drawGeo();
       }
-      if (sliceCount === currentQ.den) {
-        document.getElementById('canvas-title').textContent = `🎉 剛好 ${currentQ.den} 塊鋪滿 360° 整圓！`;
-      }
-    });
 
-    document.getElementById('btn-reset-slice').addEventListener('click', () => {
-      sliceCount = 1;
-      document.getElementById('canvas-title').textContent = `圓心角 ${currentQ.angle}° 的扇形`;
-      drawGeo();
-    });
+      document.getElementById('btn-next-topic').addEventListener('click', () => {
+        let nextQ;
+        do {
+          nextQ = QUESTION_POOL[Math.floor(Math.random() * QUESTION_POOL.length)];
+        } while (nextQ.den === currentQ.den);
+        loadExampleQuestion(nextQ, false);
+      });
 
-    function loadExampleQuestion(qObj, hasGuide) {
-      currentQ = qObj;
-      isFirstGuidedQuestion = hasGuide;
-      sliceCount = 1;
+      document.getElementById('btn-check-step1').addEventListener('click', () => {
+        const denVal = parseInt(document.getElementById('input-step1-den').value.trim(), 10);
+        const msg = document.getElementById('msg-step1');
 
-      document.getElementById('canvas-title').textContent = `圓心角 ${currentQ.angle}° 的扇形`;
-      document.getElementById('canvas-badge').textContent = `半徑 ${currentQ.radius} cm`;
+        if (denVal === currentQ.den) {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+          msg.innerHTML = `✓ 答對了！約分後為 <strong>1/${currentQ.den} 圓</strong>！已解鎖關卡 2！`;
+          document.getElementById('badge-step1').textContent = "✓ 已通過";
+          document.getElementById('badge-step1').className = "text-[10px] font-bold text-emerald-400";
 
-      if (isFirstGuidedQuestion) {
-        document.getElementById('slice-tools').classList.remove('hidden');
-        document.getElementById('no-hint-pill').classList.add('hidden');
-      } else {
-        document.getElementById('slice-tools').classList.add('hidden');
-        document.getElementById('no-hint-pill').classList.remove('hidden');
-      }
+          const c2 = document.getElementById('card-step2');
+          c2.classList.remove('opacity-40', 'pointer-events-none');
+          c2.classList.add('border-sky-400/80');
+          document.getElementById('badge-step2').textContent = "請計算面積";
+          document.getElementById('step2-den-view').textContent = currentQ.den;
 
-      document.getElementById('q-angle-text').textContent = `${currentQ.angle}°`;
-      document.getElementById('q-frac-num').textContent = `${currentQ.angle}°`;
-      document.getElementById('input-step1-den').value = '';
-      document.getElementById('msg-step1').className = 'hidden';
-      document.getElementById('badge-step1').textContent = "請填寫最簡分母";
-      document.getElementById('badge-step1').className = "text-[10px] font-bold text-slate-400";
-
-      document.getElementById('card-step2').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
-      document.getElementById('badge-step2').textContent = "完成關卡 1 解鎖";
-      document.getElementById('calc-full-formula-step2').textContent = `${currentQ.radius} × ${currentQ.radius} × 3.14`;
-      document.getElementById('calc-full-area-step2').textContent = getFullArea();
-      document.getElementById('calc-full-val-step2').textContent = getFullArea();
-      document.getElementById('step2-den-view').textContent = "?";
-      document.getElementById('input-step2-area').value = '';
-      document.getElementById('msg-step2').className = 'hidden';
-      document.getElementById('box-formula').classList.add('hidden');
-
-      document.getElementById('card-step3').className = "glass-panel p-3.5 rounded-2xl border border-white/15 opacity-40 pointer-events-none transition-all duration-300 space-y-2";
-      document.getElementById('badge-step3').textContent = "完成關卡 2 解鎖";
-      document.getElementById('ratio-angle-prompt').textContent = `${currentQ.angle} : 360`;
-      document.getElementById('input-step3-r1-num').value = '';
-      document.getElementById('input-step3-r1-den').value = '';
-      document.getElementById('input-step3-r2-num').value = '';
-      document.getElementById('input-step3-r2-den').value = '';
-      document.getElementById('msg-step3').className = 'hidden';
-      document.getElementById('conclusion-step3').classList.add('hidden');
-
-      document.getElementById('example-scroll-container').scrollTo({ top: 0, behavior: 'smooth' });
-      drawGeo();
-    }
-
-    document.getElementById('btn-next-topic').addEventListener('click', () => {
-      let nextQ;
-      do {
-        nextQ = QUESTION_POOL[Math.floor(Math.random() * QUESTION_POOL.length)];
-      } while (nextQ.den === currentQ.den);
-      loadExampleQuestion(nextQ, false);
-    });
-
-    document.getElementById('btn-check-step1').addEventListener('click', () => {
-      const denVal = parseInt(document.getElementById('input-step1-den').value.trim(), 10);
-      const msg = document.getElementById('msg-step1');
-
-      if (denVal === currentQ.den) {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = `✓ 答對了！約分後為 <strong>1/${currentQ.den} 圓</strong>！已解鎖關卡 2！`;
-        document.getElementById('badge-step1').textContent = "✓ 已通過";
-        document.getElementById('badge-step1').className = "text-[10px] font-bold text-emerald-400";
-
-        const c2 = document.getElementById('card-step2');
-        c2.classList.remove('opacity-40', 'pointer-events-none');
-        c2.classList.add('border-sky-400/80');
-        document.getElementById('badge-step2').textContent = "請計算面積";
-        document.getElementById('step2-den-view').textContent = currentQ.den;
-
-        setTimeout(() => { c2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
-      } else {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
-        msg.textContent = `✕ 再想想看喔！360 除以 ${currentQ.angle} 等於多少？`;
-      }
-    });
-
-    document.getElementById('btn-check-step2').addEventListener('click', () => {
-      const areaInput = parseFloat(document.getElementById('input-step2-area').value.trim());
-      const msg = document.getElementById('msg-step2');
-      const trueArea = getSectorArea();
-
-      if (Math.abs(areaInput - trueArea) < 0.15) {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = `✓ 完全正確！扇形面積為 <strong>${trueArea} cm²</strong>！已解鎖關卡 3！`;
-        document.getElementById('badge-step2').textContent = "✓ 已通過";
-        document.getElementById('badge-step2').className = "text-[10px] font-bold text-emerald-400";
-        document.getElementById('box-formula').classList.remove('hidden');
-
-        document.getElementById('ratio-area-prompt').textContent = `${trueArea} : ${getFullArea()}`;
-        const c3 = document.getElementById('card-step3');
-        c3.classList.remove('opacity-40', 'pointer-events-none');
-        c3.classList.add('border-emerald-400/80');
-        document.getElementById('badge-step3').textContent = "請填寫最簡比值";
-
-        setTimeout(() => { c3.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
-      } else {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
-        msg.textContent = `✕ 算錯囉！整圓面積是 ${getFullArea()}，除以 ${currentQ.den} 算算看是多少呢？`;
-      }
-    });
-
-    document.getElementById('btn-check-step3').addEventListener('click', () => {
-      const r1Num = parseInt(document.getElementById('input-step3-r1-num').value.trim(), 10);
-      const r1Den = parseInt(document.getElementById('input-step3-r1-den').value.trim(), 10);
-      const r2Num = parseInt(document.getElementById('input-step3-r2-num').value.trim(), 10);
-      const r2Den = parseInt(document.getElementById('input-step3-r2-den').value.trim(), 10);
-      const msg = document.getElementById('msg-step3');
-
-      if (isNaN(r1Num) || isNaN(r1Den) || isNaN(r2Num) || isNaN(r2Den)) {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-amber-500/20 text-amber-300 block";
-        msg.textContent = "請將左右兩邊的比值分子與分母都填滿喔！";
-        return;
-      }
-
-      if (r1Num === 1 && r1Den === currentQ.den && r2Num === 1 && r2Den === currentQ.den) {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = `✓ 答對了！兩邊比值約分後都是 <strong>1/${currentQ.den}</strong>！`;
-        document.getElementById('badge-step3').textContent = "✓ 驗證成功";
-        document.getElementById('badge-step3').className = "text-[10px] font-bold text-emerald-400";
-        document.getElementById('conclusion-step3').classList.remove('hidden');
-
-        setTimeout(() => { document.getElementById('conclusion-step3').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150);
-      } else {
-        msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
-        msg.textContent = `✕ 再檢查看看喔！化成最簡分數後，分子都是 1，分母應該是多少呢？`;
-      }
-    });
-
-    // ==================== 3. 單元 2 練習 ====================
-    let practiceQ = { angle: 135, radius: 8, num: 3, den: 8 };
-
-    function rerollPractice() {
-      const pPool = [
-        { angle: 135, num: 3, den: 8, radius: 8 },
-        { angle: 240, num: 2, den: 3, radius: 6 },
-        { angle: 270, num: 3, den: 4, radius: 10 },
-        { angle: 216, num: 3, den: 5, radius: 10 },
-        { angle: 45, num: 1, den: 8, radius: 8 },
-        { angle: 60, num: 1, den: 6, radius: 6 },
-        { angle: 90, num: 1, den: 4, radius: 10 },
-        { angle: 120, num: 1, den: 3, radius: 6 }
-      ];
-      practiceQ = pPool[Math.floor(Math.random() * pPool.length)];
-
-      document.getElementById('p-radius-txt').textContent = `${practiceQ.radius} cm`;
-      document.getElementById('p-angle-txt').textContent = `${practiceQ.angle}°`;
-
-      document.getElementById('input-p1-num').value = '';
-      document.getElementById('input-p1-den').value = '';
-      document.getElementById('input-p2-num').value = '';
-      document.getElementById('input-p2-den').value = '';
-      document.getElementById('input-p-area').value = '';
-      document.getElementById('msg-practice').className = 'hidden';
-    }
-
-    document.getElementById('btn-practice-reroll').addEventListener('click', rerollPractice);
-
-    document.getElementById('btn-check-practice').addEventListener('click', () => {
-      const p1N = parseInt(document.getElementById('input-p1-num').value.trim(), 10);
-      const p1D = parseInt(document.getElementById('input-p1-den').value.trim(), 10);
-      const p2N = parseInt(document.getElementById('input-p2-num').value.trim(), 10);
-      const p2D = parseInt(document.getElementById('input-p2-den').value.trim(), 10);
-      const area = parseFloat(document.getElementById('input-p-area').value.trim());
-      const msg = document.getElementById('msg-practice');
-
-      if (isNaN(p1N) || isNaN(p1D) || isNaN(p2N) || isNaN(p2D) || isNaN(area)) {
-        msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 block";
-        msg.textContent = "每個空格都要填寫完整喔！";
-        return;
-      }
-
-      const fullA = practiceQ.radius * practiceQ.radius * PI;
-      const trueArea = +(fullA * (practiceQ.num / practiceQ.den)).toFixed(2);
-
-      let errors = [];
-      if (p1N !== practiceQ.num || p1D !== practiceQ.den) errors.push(`第 ① 題比值應為 ${practiceQ.num}/${practiceQ.den}`);
-      if (p2N !== practiceQ.num || p2D !== practiceQ.den) errors.push(`第 ② 題比值應為 ${practiceQ.num}/${practiceQ.den}`);
-      if (Math.abs(area - trueArea) > 0.15) errors.push(`第 ③ 題面積應為 ${trueArea} cm²`);
-
-      if (errors.length === 0) {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = `🎉 太優秀了！全數答對！比值都是 <strong>${practiceQ.num}/${practiceQ.den}</strong>，面積為 <strong>${trueArea} cm²</strong>！`;
-      } else {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 block text-left";
-        msg.innerHTML = `⚠️ 檢查看看：<ul class="list-disc list-inside mt-0.5">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
-      }
-    });
-
-    // ==================== 4. 單元 3：六大題型精準繪圖與旋轉操作 ====================
-    const M3_CONFIGS = {
-      taiji: {
-        title: "題型 1：太極圖形（半圓割補移位）",
-        dims: [20, 40, 10],
-        dimIdx: 0,
-        badge: "割補平移",
-        desc: "把左下凸出的半圓平移向上補入右上凹陷處，剛好組成一個完整的「大半圓」！",
-        tip: "凸出來的剛好補進凹進去的，所以只要算大半圓面積！",
-        label: "拖曳小半圓向上拼補：",
-        calc(d) {
-          const r = d / 2;
-          const ans = +(r * r * PI / 2).toFixed(2);
-          return {
-            badge: `直徑 ${d} cm`,
-            guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
-            ans
-          };
+          setTimeout(() => { c2.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 200);
+        } else {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
+          msg.textContent = `✕ 再想想看喔！360 除以 ${currentQ.angle} 等於多少？`;
         }
-      },
-      cross: {
-        title: "題型 2：準星環狀（圓環切片移位）",
-        dims: [20, 40, 10], // 外直徑 20 -> 外半徑 10, 環寬 5, 內半徑 5
-        dimIdx: 0,
-        badge: "同心圓旋轉割補",
-        desc: "下方半圓內部的塗色半圓，可以向上拖曳並旋轉 180°，完美咬合填入上方中空圓心，拼成一個完整「大半圓」！",
-        tip: "下方小半圓翻轉移到上方後，就完全填滿成大半圓了！",
-        label: "旋轉並向上拖曳咬合：",
-        calc(d) {
-          const r = d / 2;
-          const w = r / 2;
-          const ans = +(r * r * PI / 2).toFixed(2);
-          return {
-            badge: `外直徑 ${d} cm / 環寬 ${w} cm`,
-            guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後大半圓面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
-            ans
-          };
+      });
+
+      document.getElementById('btn-check-step2').addEventListener('click', () => {
+        const areaInput = parseFloat(document.getElementById('input-step2-area').value.trim());
+        const msg = document.getElementById('msg-step2');
+        const trueArea = getSectorArea();
+
+        if (Math.abs(areaInput - trueArea) < 0.15) {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+          msg.innerHTML = `✓ 完全正確！扇形面積為 <strong>${trueArea} cm²</strong>！已解鎖關卡 3！`;
+          document.getElementById('badge-step2').textContent = "✓ 已通過";
+          document.getElementById('badge-step2').className = "text-[10px] font-bold text-emerald-400";
+          document.getElementById('box-formula').classList.remove('hidden');
+
+          document.getElementById('ratio-area-prompt').textContent = `${trueArea} : ${getFullArea()}`;
+          const c3 = document.getElementById('card-step3');
+          c3.classList.remove('opacity-40', 'pointer-events-none');
+          c3.classList.add('border-emerald-400/80');
+          document.getElementById('badge-step3').textContent = "請填寫最簡比值";
+
+          setTimeout(() => { c3.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+        } else {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
+          msg.textContent = `✕ 算錯囉！整圓面積是 ${getFullArea()}，除以 ${currentQ.den} 算算看是多少呢？`;
         }
-      },
-      diag: {
-        title: "題型 3：扇形拼湊（正方形內的雙扇形）",
-        dims: [40, 20, 10], // 正方形邊長
-        dimIdx: 0,
-        badge: "旋轉拼直角三角形",
-        desc: "右上方扇形的圓心角為 90°！將它旋轉移動與左下方扇形拼合，圓心角合併拼成一個「等腰直角三角形」！",
-        tip: "兩塊圓弧邊剛好互補！拼成三角形後底乘高除以 2，完全不用算圓周率！",
-        label: "旋轉並移動扇形拼合：",
-        calc(a) {
-          const ans = +(a * a / 2).toFixed(2);
-          return {
-            badge: `正方形邊長 ${a} cm`,
-            guide: `拼成等腰直角三角形 (半個正方形)：<br>面積 ＝ ${a} × ${a} ÷ 2 ＝`,
-            ans
-          };
+      });
+
+      document.getElementById('btn-check-step3').addEventListener('click', () => {
+        const r1Num = parseInt(document.getElementById('input-step3-r1-num').value.trim(), 10);
+        const r1Den = parseInt(document.getElementById('input-step3-r1-den').value.trim(), 10);
+        const r2Num = parseInt(document.getElementById('input-step3-r2-num').value.trim(), 10);
+        const r2Den = parseInt(document.getElementById('input-step3-r2-den').value.trim(), 10);
+        const msg = document.getElementById('msg-step3');
+
+        if (isNaN(r1Num) || isNaN(r1Den) || isNaN(r2Num) || isNaN(r2Den)) {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-amber-500/20 text-amber-300 block";
+          msg.textContent = "請將左右兩邊的比值分子與分母都填滿喔！";
+          return;
         }
-      },
-      sub_sq: {
-        title: "題型 4：正方形扣掉扇形（圖形相減）",
-        dims: [20, 10, 40],
-        dimIdx: 0,
-        badge: "正方形 － 扇形",
-        desc: "拉動滑桿可將扇形直接抽離！看清楚是由「完整的正方形」減去「1/4 圓扇形」！",
-        tip: "正方形面積 － 1/4圓扇形 ＝ 角隅面積！",
-        label: "拖曳將扇形抽離正方形：",
-        calc(a) {
-          const sq = a * a;
-          const sec = +(a * a * PI / 4).toFixed(2);
-          const ans = +(sq - sec).toFixed(2);
-          return {
-            badge: `邊長 ${a} cm`,
-            guide: `① 正方形面積 ＝ ${a} × ${a} ＝ ${sq}<br>② 1/4 圓扇形 ＝ ${a} × ${a} × 3.14 ÷ 4 ＝ ${sec}<br>③ 相減角隅 ＝ ${sq} － ${sec} ＝`,
-            ans
-          };
+
+        if (r1Num === 1 && r1Den === currentQ.den && r2Num === 1 && r2Den === currentQ.den) {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-emerald-500/30 text-emerald-200 block";
+          msg.innerHTML = `✓ 答對了！兩邊比值約分後都是 <strong>1/${currentQ.den}</strong>！`;
+          document.getElementById('badge-step3').textContent = "✓ 驗證成功";
+          document.getElementById('badge-step3').className = "text-[10px] font-bold text-emerald-400";
+          document.getElementById('conclusion-step3').classList.remove('hidden');
+
+          setTimeout(() => { document.getElementById('conclusion-step3').scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150);
+        } else {
+          msg.className = "text-[11px] font-bold py-1 px-2 rounded bg-rose-500/25 text-rose-200 block";
+          msg.textContent = `✕ 再檢查看看喔！化成最簡分數後，分子都是 1，分母應該是多少呢？`;
         }
-      },
-      bow: {
-        title: "題型 5：弓形面積（扇形扣三角形）",
-        dims: [10, 20, 4],
-        dimIdx: 0,
-        badge: "扇形 － 三角形",
-        desc: "沿對角弦剪開！拖動三角形往下分離，清楚看出弓形是由「1/4 圓扇形」減去「直角三角形」！",
-        tip: "弓形面積 ＝ 扇形面積 － 等腰直角三角形面積！",
-        label: "拖曳三角形向下脫離：",
-        calc(r) {
-          const sec = +(r * r * PI / 4).toFixed(2);
-          const tri = +(r * r / 2).toFixed(2);
-          const ans = +(sec - tri).toFixed(2);
-          return {
-            badge: `半徑 ${r} cm`,
-            guide: `① 1/4 圓扇形 ＝ ${r} × ${r} × 3.14 ÷ 4 ＝ ${sec}<br>② 直角三角形 ＝ ${r} × ${r} ÷ 2 ＝ ${tri}<br>③ 弓形面積 ＝ ${sec} － ${tri} ＝`,
-            ans
-          };
-        }
-      },
-      leaf: {
-        title: "題型 6：葉片幾何（對角線切成兩片弓形）",
-        dims: [10, 20, 40],
-        dimIdx: 0,
-        badge: "單片弓形 × 2",
-        desc: "沿對角線將葉片切成兩半並拉開！每一半都是一個標準的「弓形」，算出一片再乘 2！",
-        tip: "葉片 ＝ 弓形 × 2 ＝ (扇形 － 三角形) × 2！",
-        label: "拖曳將葉片切半拉開：",
-        calc(a) {
-          const sec = +(a * a * PI / 4).toFixed(2);
-          const tri = +(a * a / 2).toFixed(2);
-          const bow = +(sec - tri).toFixed(2);
-          const ans = +(bow * 2).toFixed(2);
-          return {
-            badge: `邊長 ${a} cm`,
-            guide: `① 單片弓形 ＝ (${a}×${a}×3.14÷4) － (${a}×${a}÷2) ＝ ${bow}<br>② 完整葉片 ＝ ${bow} × 2 ＝`,
-            ans
-          };
-        }
+      });
+
+      // ==================== 3. 單元 2：隨機自我挑戰練習 ====================
+      let practiceQ = { angle: 135, radius: 8, num: 3, den: 8 };
+
+      function rerollPractice() {
+        const pPool = [
+          { angle: 135, num: 3, den: 8, radius: 8 },
+          { angle: 240, num: 2, den: 3, radius: 6 },
+          { angle: 270, num: 3, den: 4, radius: 10 },
+          { angle: 216, num: 3, den: 5, radius: 10 },
+          { angle: 45, num: 1, den: 8, radius: 8 },
+          { angle: 60, num: 1, den: 6, radius: 6 },
+          { angle: 90, num: 1, den: 4, radius: 10 },
+          { angle: 120, num: 1, den: 3, radius: 6 }
+        ];
+        practiceQ = pPool[Math.floor(Math.random() * pPool.length)];
+
+        document.getElementById('p-radius-txt').textContent = `${practiceQ.radius} cm`;
+        document.getElementById('p-angle-txt').textContent = `${practiceQ.angle}°`;
+        document.getElementById('input-p1-num').value = '';
+        document.getElementById('input-p1-den').value = '';
+        document.getElementById('input-p2-num').value = '';
+        document.getElementById('input-p2-den').value = '';
+        document.getElementById('input-p-area').value = '';
+        document.getElementById('msg-practice').className = 'hidden';
       }
-    };
 
-    let m3CurrentType = "cross"; // 預設展示修正後的準星環
-    let m3Progress = 0.0;
-    let m3AutoAnim = null;
+      document.getElementById('btn-practice-reroll').addEventListener('click', rerollPractice);
 
-    const m3Canvas = document.getElementById('m3GeoCanvas');
-    const m3Ctx = m3Canvas.getContext('2d');
+      document.getElementById('btn-check-practice').addEventListener('click', () => {
+        const p1N = parseInt(document.getElementById('input-p1-num').value.trim(), 10);
+        const p1D = parseInt(document.getElementById('input-p1-den').value.trim(), 10);
+        const p2N = parseInt(document.getElementById('input-p2-num').value.trim(), 10);
+        const p2D = parseInt(document.getElementById('input-p2-den').value.trim(), 10);
+        const area = parseFloat(document.getElementById('input-p-area').value.trim());
+        const msg = document.getElementById('msg-practice');
 
-    function m3Draw() {
-      m3Ctx.clearRect(0, 0, m3Canvas.width, m3Canvas.height);
-      const cx = m3Canvas.width / 2;
-      const cy = m3Canvas.height / 2;
-      const p = m3Progress;
-      const conf = M3_CONFIGS[m3CurrentType];
-      const curDim = conf.dims[conf.dimIdx];
+        if (isNaN(p1N) || isNaN(p1D) || isNaN(p2N) || isNaN(p2D) || isNaN(area)) {
+          msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 block";
+          msg.textContent = "每個空格都要填寫完整喔！";
+          return;
+        }
 
-      m3Ctx.save();
+        const fullA = practiceQ.radius * practiceQ.radius * PI;
+        const trueArea = +(fullA * (practiceQ.num / practiceQ.den)).toFixed(2);
 
-      if (m3CurrentType === "taiji") {
-        // ========== 1. 太極 ==========
-        const R = 110, r = R / 2;
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-        m3Ctx.setLineDash([5, 5]);
-        m3Ctx.stroke();
-        m3Ctx.setLineDash([]);
+        let errors = [];
+        if (p1N !== practiceQ.num || p1D !== practiceQ.den) errors.push(`第 ① 題比值應為 ${practiceQ.num}/${practiceQ.den}`);
+        if (p2N !== practiceQ.num || p2D !== practiceQ.den) errors.push(`第 ② 題比值應為 ${practiceQ.num}/${practiceQ.den}`);
+        if (Math.abs(area - trueArea) > 0.15) errors.push(`第 ③ 題面積應為 ${trueArea} cm²`);
 
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, false);
-        m3Ctx.arc(cx, cy - r, r, Math.PI / 2, -Math.PI / 2, true);
-        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = '#38bdf8';
-        m3Ctx.lineWidth = 2.5;
-        m3Ctx.stroke();
+        if (errors.length === 0) {
+          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 block";
+          msg.innerHTML = `🎉 太優秀了！全數答對！比值都是 <strong>${practiceQ.num}/${practiceQ.den}</strong>，面積為 <strong>${trueArea} cm²</strong>！`;
+        } else {
+          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 block text-left";
+          msg.innerHTML = `⚠️ 檢查看看：<ul class="list-disc list-inside mt-0.5">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+        }
+      });
 
-        const curY = (cy + r) + ((cy - r) - (cy + r)) * p;
-        const curRot = p * Math.PI;
+      // ==================== 4. 單元 3：六大題型邏輯與 Canvas ====================
+      const M3_CONFIGS = {
+        taiji: {
+          title: "題型 1：太極圖形（半圓割補移位）",
+          dims: [20, 40, 10],
+          dimIdx: 0,
+          badge: "割補平移",
+          desc: "把左下凸出的半圓平移向上補入右上凹陷處，剛好組成一個完整的「大半圓」！",
+          tip: "凸出來的剛好補進凹進去的，所以只要算大半圓面積！",
+          label: "拖曳小半圓向上拼補：",
+          calc(d) {
+            const r = d / 2;
+            const ans = +(r * r * PI / 2).toFixed(2);
+            return {
+              badge: `直徑 ${d} cm`,
+              guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
+              ans
+            };
+          }
+        },
+        cross: {
+          title: "題型 2：準星環狀（圓環切片移位）",
+          dims: [20, 40, 10],
+          dimIdx: 0,
+          badge: "同心圓旋轉割補",
+          desc: "下方半圓內部的塗色半圓，可以向上拖曳並旋轉 180°，完美咬合填入上方中空圓心，拼成一個完整「大半圓」！",
+          tip: "下方小半圓翻轉移到上方後，就完全填滿成大半圓了！",
+          label: "旋轉並向上拖曳咬合：",
+          calc(d) {
+            const r = d / 2;
+            const w = r / 2;
+            const ans = +(r * r * PI / 2).toFixed(2);
+            return {
+              badge: `外直徑 ${d} cm / 環寬 ${w} cm`,
+              guide: `① 大半圓半徑 ＝ ${d} ÷ 2 ＝ ${r} cm<br>② 拼合後大半圓面積 ＝ ${r} × ${r} × 3.14 ÷ 2 ＝`,
+              ans
+            };
+          }
+        },
+        diag: {
+          title: "題型 3：扇形拼湊（正方形內的雙扇形）",
+          dims: [40, 20, 10],
+          dimIdx: 0,
+          badge: "旋轉拼直角三角形",
+          desc: "右上方扇形的圓心角為 90°！將它旋轉移動與左下方扇形拼合，圓心角合併拼成一個「等腰直角三角形」！",
+          tip: "兩塊圓弧邊剛好互補！拼成三角形後底乘高除以 2，完全不用算圓周率！",
+          label: "旋轉並移動扇形拼合：",
+          calc(a) {
+            const ans = +(a * a / 2).toFixed(2);
+            return {
+              badge: `正方形邊長 ${a} cm`,
+              guide: `拼成等腰直角三角形 (半個正方形)：<br>面積 ＝ ${a} × ${a} ÷ 2 ＝`,
+              ans
+            };
+          }
+        },
+        sub_sq: {
+          title: "題型 4：正方形扣掉扇形（圖形相減）",
+          dims: [20, 10, 40],
+          dimIdx: 0,
+          badge: "正方形 － 扇形",
+          desc: "拉動滑桿可將扇形直接抽離！看清楚是由「完整的正方形」減去「1/4 圓扇形」！",
+          tip: "正方形面積 － 1/4圓扇形 ＝ 角隅面積！",
+          label: "拖曳將扇形抽離正方形：",
+          calc(a) {
+            const sq = a * a;
+            const sec = +(a * a * PI / 4).toFixed(2);
+            const ans = +(sq - sec).toFixed(2);
+            return {
+              badge: `邊長 ${a} cm`,
+              guide: `① 正方形面積 ＝ ${a} × ${a} ＝ ${sq}<br>② 1/4 圓扇形 ＝ ${a} × ${a} × 3.14 ÷ 4 ＝ ${sec}<br>③ 相減角隅 ＝ ${sq} － ${sec} ＝`,
+              ans
+            };
+          }
+        },
+        bow: {
+          title: "題型 5：弓形面積（扇形扣三角形）",
+          dims: [10, 20, 4],
+          dimIdx: 0,
+          badge: "扇形 － 三角形",
+          desc: "沿對角弦剪開！拖動三角形往下分離，清楚看出弓形是由「1/4 圓扇形」減去「直角三角形」！",
+          tip: "弓形面積 ＝ 扇形面積 － 等腰直角三角形面積！",
+          label: "拖曳三角形向下脫離：",
+          calc(r) {
+            const sec = +(r * r * PI / 4).toFixed(2);
+            const tri = +(r * r / 2).toFixed(2);
+            const ans = +(sec - tri).toFixed(2);
+            return {
+              badge: `半徑 ${r} cm`,
+              guide: `① 1/4 圓扇形 ＝ ${r} × ${r} × 3.14 ÷ 4 ＝ ${sec}<br>② 直角三角形 ＝ ${r} × ${r} ÷ 2 ＝ ${tri}<br>③ 弓形面積 ＝ ${sec} － ${tri} ＝`,
+              ans
+            };
+          }
+        },
+        leaf: {
+          title: "題型 6：葉片幾何（對角線切成兩片弓形）",
+          dims: [10, 20, 40],
+          dimIdx: 0,
+          badge: "單片弓形 × 2",
+          desc: "沿對角線將葉片切成兩半並拉開！每一半都是一個標準的「弓形」，算出一片再乘 2！",
+          tip: "葉片 ＝ 弓形 × 2 ＝ (扇形 － 三角形) × 2！",
+          label: "拖曳將葉片切半拉開：",
+          calc(a) {
+            const sec = +(a * a * PI / 4).toFixed(2);
+            const tri = +(a * a / 2).toFixed(2);
+            const bow = +(sec - tri).toFixed(2);
+            const ans = +(bow * 2).toFixed(2);
+            return {
+              badge: `邊長 ${a} cm`,
+              guide: `① 單片弓形 ＝ (${a}×${a}×3.14÷4) － (${a}×${a}÷2) ＝ ${bow}<br>② 完整葉片 ＝ ${bow} × 2 ＝`,
+              ans
+            };
+          }
+        }
+      };
+
+      let m3CurrentType = "cross";
+      let m3Progress = 0.0;
+      let m3AutoAnim = null;
+
+      const m3Canvas = document.getElementById('m3GeoCanvas');
+      const m3Ctx = m3Canvas.getContext('2d');
+
+      function m3Draw() {
+        m3Ctx.clearRect(0, 0, m3Canvas.width, m3Canvas.height);
+        const cx = m3Canvas.width / 2;
+        const cy = m3Canvas.height / 2;
+        const p = m3Progress;
+        const conf = M3_CONFIGS[m3CurrentType];
+        const curDim = conf.dims[conf.dimIdx];
 
         m3Ctx.save();
-        m3Ctx.translate(cx, curY);
-        m3Ctx.rotate(curRot);
-        m3Ctx.beginPath();
-        m3Ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, false);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.6)' : 'rgba(249, 115, 22, 0.75)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-        m3Ctx.restore();
 
-        m3Ctx.font = 'bold 13px monospace';
-        m3Ctx.fillStyle = '#facc15';
-        m3Ctx.textAlign = 'right';
-        m3Ctx.fillText(`直徑 ${curDim} cm`, cx - 12, cy);
-
-      } else if (m3CurrentType === "cross") {
-        // ========== 2. 準星環狀 (精準對齊課本原圖) ==========
-        const R = 110;       // 外半徑
-        const r = R / 2;     // 內半徑
-        const curR = curDim / 2;
-        const curW = curR / 2;
-
-        // 1. 課本標配：整圓外框虛線
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
-        m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
-        m3Ctx.lineWidth = 1.5;
-        m3Ctx.setLineDash([4, 4]);
-        m3Ctx.stroke();
-
-        // 2. 課本標配：垂直中央貫穿虛線
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(cx, cy - R);
-        m3Ctx.lineTo(cx, cy + R);
-        m3Ctx.stroke();
-        m3Ctx.setLineDash([]);
-
-        // 3. 水平直徑實線
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(cx - R, cy);
-        m3Ctx.lineTo(cx + R, cy);
-        m3Ctx.strokeStyle = '#ffffff';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-
-        // 4. 固定上半部外環 (半徑 R 到半徑 r 之間)
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx, cy, R, Math.PI, 0, false);
-        m3Ctx.arc(cx, cy, r, 0, Math.PI, true);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.55)'; // 課本同款藍色
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = '#38bdf8';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-
-        // 5. 下半部可拖曳旋轉的小半圓 (原位在下方)
-        // 隨 p 向上移動並旋轉 180°
-        const transY = -r * p;
-        const rot = p * Math.PI;
-
-        m3Ctx.save();
-        m3Ctx.translate(cx, cy);
-        m3Ctx.translate(0, transY);
-        m3Ctx.rotate(rot);
-
-        m3Ctx.beginPath();
-        m3Ctx.arc(0, 0, r, 0, Math.PI, false);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.55)' : 'rgba(249, 115, 22, 0.75)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-        m3Ctx.restore();
-
-        // 6. 課本標註尺規：
-        // 貫穿半徑 20 弧線標註
-        m3Ctx.strokeStyle = '#facc15';
-        m3Ctx.lineWidth = 1.5;
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx - 15, cy, R * 0.9, -Math.PI * 0.45, Math.PI * 0.45, false);
-        m3Ctx.stroke();
-
-        m3Ctx.font = 'bold 13px monospace';
-        m3Ctx.fillStyle = '#facc15';
-        m3Ctx.textAlign = 'right';
-        m3Ctx.fillText(`${curDim}`, cx - 18, cy + 4);
-
-        // 下方環寬 5 標註
-        m3Ctx.beginPath();
-        m3Ctx.arc(cx + 10, cy + (r + R) / 2, r * 0.5, -Math.PI * 0.4, Math.PI * 0.4, false);
-        m3Ctx.stroke();
-        m3Ctx.textAlign = 'left';
-        m3Ctx.fillText(`${curW}`, cx + 22, cy + (r + R) / 2 + 4);
-
-      } else if (m3CurrentType === "diag") {
-        // ========== 3. 扇形拼湊 (課本正方形雙扇形原圖修正) ==========
-        const S = 170;
-        const sx = cx - S / 2;
-        const sy = cy - S / 2;
-
-        // 1. 正方形邊框（上下為虛線，左右為實線，完全對齊課本）
-        m3Ctx.lineWidth = 1.8;
-        m3Ctx.strokeStyle = '#ffffff';
-
-        // 左右實線
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy);
-        m3Ctx.lineTo(sx, sy + S);
-        m3Ctx.moveTo(sx + S, sy);
-        m3Ctx.lineTo(sx + S, sy + S);
-        m3Ctx.stroke();
-
-        // 上下虛線
-        m3Ctx.setLineDash([4, 4]);
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy);
-        m3Ctx.lineTo(sx + S, sy);
-        m3Ctx.moveTo(sx, sy + S);
-        m3Ctx.lineTo(sx + S, sy + S);
-        m3Ctx.stroke();
-
-        // 2. 正中央對角線虛線 (從左下到右上)
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy + S);
-        m3Ctx.lineTo(sx + S, sy);
-        m3Ctx.stroke();
-        m3Ctx.setLineDash([]);
-
-        // 3. 左下方扇形 (圓心在左下角 sx, sy+S，向右上方延伸，半徑為 S 的 1/4 圓弧，但被對角線截斷)
-        // 課本原圖是：以左上角為圓心畫弧、以及以右下角為圓心畫弧！
-        // 左上頂點 (sx, sy) 為圓心，畫 90 度扇形弧線 (從 0 到 Math.PI/2)
-        // 藍色區域在對角線上方
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy);
-        m3Ctx.lineTo(sx + S, sy);
-        m3Ctx.lineTo(sx + S / 2, sy + S / 2);
-        m3Ctx.arc(sx, sy, S, Math.PI / 4, 0, true);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = '#38bdf8';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-
-        // 4. 右上方扇形（可旋轉移動與左下扇形拼成三角形）
-        // 原位圓心在右下角 (sx+S, sy+S)，弧線夾在對角線右下
-        const transDist = (S * 0.5) * p;
-        const rotA = p * (Math.PI / 2);
-
-        m3Ctx.save();
-        // 移向左上角貼齊
-        m3Ctx.translate(sx + S - transDist * 0.5, sy + S - transDist * 1.5);
-        m3Ctx.rotate(rotA);
-
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(0, 0);
-        m3Ctx.lineTo(-S, 0);
-        m3Ctx.lineTo(-S / 2, -S / 2);
-        m3Ctx.arc(0, 0, S, Math.PI, Math.PI * 0.75, false);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(249, 115, 22, 0.75)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-        m3Ctx.restore();
-
-        // 5. 課本尺規標註 (上 40、右 40)
-        m3Ctx.font = 'bold 13px monospace';
-        m3Ctx.fillStyle = '#facc15';
-        m3Ctx.textAlign = 'center';
-        m3Ctx.fillText(`${curDim}`, cx, sy - 10);
-        m3Ctx.textAlign = 'left';
-        m3Ctx.fillText(`${curDim}`, sx + S + 10, cy);
-
-      } else if (m3CurrentType === "sub_sq") {
-        // ========== 4. 正方形扣掉扇形 (圖形相減方程式) ==========
-        const W = 100, gap = 40;
-        if (p < 0.1) {
-          const S = 160;
-          const sx = cx - S / 2, sy = cy - S / 2;
-          m3Ctx.strokeStyle = '#ffffff';
-          m3Ctx.lineWidth = 2;
-          m3Ctx.strokeRect(sx, sy, S, S);
-
+        if (m3CurrentType === "taiji") {
+          const R = 110, r = R / 2;
           m3Ctx.beginPath();
-          m3Ctx.moveTo(sx + S, sy);
-          m3Ctx.lineTo(sx + S, sy + S);
-          m3Ctx.arc(sx, sy, S, Math.PI / 2, 0, true);
-          m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
-          m3Ctx.fill();
-          m3Ctx.stroke();
-
-          m3Ctx.beginPath();
-          m3Ctx.moveTo(sx, sy);
-          m3Ctx.arc(sx, sy, S, 0, Math.PI / 2, false);
-          m3Ctx.closePath();
-          m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+          m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
+          m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
           m3Ctx.setLineDash([5, 5]);
           m3Ctx.stroke();
           m3Ctx.setLineDash([]);
 
+          m3Ctx.beginPath();
+          m3Ctx.arc(cx, cy, R, -Math.PI / 2, Math.PI / 2, false);
+          m3Ctx.arc(cx, cy - r, r, Math.PI / 2, -Math.PI / 2, true);
+          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.6)';
+          m3Ctx.fill();
+          m3Ctx.strokeStyle = '#38bdf8';
+          m3Ctx.lineWidth = 2.5;
+          m3Ctx.stroke();
+
+          const curY = (cy + r) + ((cy - r) - (cy + r)) * p;
+          const curRot = p * Math.PI;
+
+          m3Ctx.save();
+          m3Ctx.translate(cx, curY);
+          m3Ctx.rotate(curRot);
+          m3Ctx.beginPath();
+          m3Ctx.arc(0, 0, r, Math.PI / 2, -Math.PI / 2, false);
+          m3Ctx.closePath();
+          m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.6)' : 'rgba(249, 115, 22, 0.75)';
+          m3Ctx.fill();
+          m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
+          m3Ctx.lineWidth = 2;
+          m3Ctx.stroke();
+          m3Ctx.restore();
+
           m3Ctx.font = 'bold 13px monospace';
           m3Ctx.fillStyle = '#facc15';
-          m3Ctx.textAlign = 'center';
-          m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy + S + 20);
-        } else {
-          const startX = cx - (W * 1.5 + gap);
-          const topY = cy - W / 2;
+          m3Ctx.textAlign = 'right';
+          m3Ctx.fillText(`直徑 ${curDim} cm`, cx - 12, cy);
 
-          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
-          m3Ctx.fillRect(startX, topY, W, W);
+        } else if (m3CurrentType === "cross") {
+          const R = 110;
+          const r = R / 2;
+          const curR = curDim / 2;
+          const curW = curR / 2;
+
+          // 整圓外框虛線
+          m3Ctx.beginPath();
+          m3Ctx.arc(cx, cy, R, 0, Math.PI * 2);
+          m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+          m3Ctx.lineWidth = 1.5;
+          m3Ctx.setLineDash([4, 4]);
+          m3Ctx.stroke();
+
+          // 垂直貫穿虛線
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(cx, cy - R);
+          m3Ctx.lineTo(cx, cy + R);
+          m3Ctx.stroke();
+          m3Ctx.setLineDash([]);
+
+          // 水平直徑實線
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(cx - R, cy);
+          m3Ctx.lineTo(cx + R, cy);
           m3Ctx.strokeStyle = '#ffffff';
           m3Ctx.lineWidth = 2;
-          m3Ctx.strokeRect(startX, topY, W, W);
-          m3Ctx.beginPath();
-          m3Ctx.arc(startX, topY, W, 0, Math.PI / 2, false);
-          m3Ctx.setLineDash([4, 4]);
-          m3Ctx.stroke();
-          m3Ctx.setLineDash([]);
-
-          m3Ctx.font = 'bold 28px sans-serif';
-          m3Ctx.fillStyle = '#ffffff';
-          m3Ctx.textAlign = 'center';
-          m3Ctx.textBaseline = 'middle';
-          m3Ctx.fillText('－', startX + W + gap / 2, cy);
-
-          const secX = startX + W + gap;
-          m3Ctx.beginPath();
-          m3Ctx.moveTo(secX, topY);
-          m3Ctx.arc(secX, topY, W, 0, Math.PI / 2, false);
-          m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
-          m3Ctx.fill();
-          m3Ctx.strokeStyle = '#f97316';
-          m3Ctx.lineWidth = 2;
           m3Ctx.stroke();
 
-          m3Ctx.fillText('＝', secX + W + gap / 2, cy);
-
-          const resX = secX + W + gap;
-          m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-          m3Ctx.setLineDash([4, 4]);
-          m3Ctx.strokeRect(resX, topY, W, W);
-          m3Ctx.setLineDash([]);
-
+          // 上半部外環
           m3Ctx.beginPath();
-          m3Ctx.moveTo(resX + W, topY);
-          m3Ctx.lineTo(resX + W, topY + W);
-          m3Ctx.arc(resX, topY, W, Math.PI / 2, 0, true);
+          m3Ctx.arc(cx, cy, R, Math.PI, 0, false);
+          m3Ctx.arc(cx, cy, r, 0, Math.PI, true);
           m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.55)';
           m3Ctx.fill();
           m3Ctx.strokeStyle = '#38bdf8';
           m3Ctx.lineWidth = 2;
           m3Ctx.stroke();
 
-          m3Ctx.font = 'bold 12px monospace';
-          m3Ctx.fillStyle = '#facc15';
-          m3Ctx.fillText(`邊長 ${curDim} cm`, cx, cy + W / 2 + 25);
-        }
+          // 可拖曳旋轉的小半圓
+          const transY = -r * p;
+          const rot = p * Math.PI;
 
-      } else if (m3CurrentType === "bow") {
-        // ========== 5. 弓形 ==========
-        const W = 110, gap = 38;
-        if (p < 0.1) {
-          const R = 160;
-          const sx = cx - R / 2, sy = cy - R / 2;
+          m3Ctx.save();
+          m3Ctx.translate(cx, cy);
+          m3Ctx.translate(0, transY);
+          m3Ctx.rotate(rot);
+
+          m3Ctx.beginPath();
+          m3Ctx.arc(0, 0, r, 0, Math.PI, false);
+          m3Ctx.closePath();
+          m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.55)' : 'rgba(249, 115, 22, 0.75)';
+          m3Ctx.fill();
+          m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
+          m3Ctx.lineWidth = 2;
+          m3Ctx.stroke();
+          m3Ctx.restore();
+
+          // 標註尺規
+          m3Ctx.strokeStyle = '#facc15';
+          m3Ctx.lineWidth = 1.5;
+          m3Ctx.beginPath();
+          m3Ctx.arc(cx - 15, cy, R * 0.9, -Math.PI * 0.45, Math.PI * 0.45, false);
+          m3Ctx.stroke();
+
+          m3Ctx.font = 'bold 13px monospace';
+          m3Ctx.fillStyle = '#facc15';
+          m3Ctx.textAlign = 'right';
+          m3Ctx.fillText(`${curDim}`, cx - 18, cy + 4);
+
+          m3Ctx.beginPath();
+          m3Ctx.arc(cx + 10, cy + (r + R) / 2, r * 0.5, -Math.PI * 0.4, Math.PI * 0.4, false);
+          m3Ctx.stroke();
+          m3Ctx.textAlign = 'left';
+          m3Ctx.fillText(`${curW}`, cx + 22, cy + (r + R) / 2 + 4);
+
+        } else if (m3CurrentType === "diag") {
+          const S = 170;
+          const sx = cx - S / 2;
+          const sy = cy - S / 2;
+
+          m3Ctx.lineWidth = 1.8;
+          m3Ctx.strokeStyle = '#ffffff';
+
+          // 左右實線
           m3Ctx.beginPath();
           m3Ctx.moveTo(sx, sy);
-          m3Ctx.arc(sx, sy, R, 0, Math.PI / 2, false);
+          m3Ctx.lineTo(sx, sy + S);
+          m3Ctx.moveTo(sx + S, sy);
+          m3Ctx.lineTo(sx + S, sy + S);
+          m3Ctx.stroke();
+
+          // 上下虛線
+          m3Ctx.setLineDash([4, 4]);
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(sx, sy);
+          m3Ctx.lineTo(sx + S, sy);
+          m3Ctx.moveTo(sx, sy + S);
+          m3Ctx.lineTo(sx + S, sy + S);
+          m3Ctx.stroke();
+
+          // 對角線虛線
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(sx, sy + S);
+          m3Ctx.lineTo(sx + S, sy);
+          m3Ctx.stroke();
+          m3Ctx.setLineDash([]);
+
+          // 左下方扇形
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(sx, sy);
+          m3Ctx.lineTo(sx + S, sy);
+          m3Ctx.lineTo(sx + S / 2, sy + S / 2);
+          m3Ctx.arc(sx, sy, S, Math.PI / 4, 0, true);
           m3Ctx.closePath();
           m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
           m3Ctx.fill();
@@ -1178,241 +1061,371 @@
           m3Ctx.lineWidth = 2;
           m3Ctx.stroke();
 
+          // 右上方扇形（旋轉拼合）
+          const transDist = (S * 0.5) * p;
+          const rotA = p * (Math.PI / 2);
+
+          m3Ctx.save();
+          m3Ctx.translate(sx + S - transDist * 0.5, sy + S - transDist * 1.5);
+          m3Ctx.rotate(rotA);
+
           m3Ctx.beginPath();
-          m3Ctx.moveTo(sx + R, sy);
-          m3Ctx.lineTo(sx, sy + R);
-          m3Ctx.strokeStyle = '#ffffff';
+          m3Ctx.moveTo(0, 0);
+          m3Ctx.lineTo(-S, 0);
+          m3Ctx.lineTo(-S / 2, -S / 2);
+          m3Ctx.arc(0, 0, S, Math.PI, Math.PI * 0.75, false);
+          m3Ctx.closePath();
+          m3Ctx.fillStyle = (p > 0.95) ? 'rgba(56, 189, 248, 0.65)' : 'rgba(249, 115, 22, 0.75)';
+          m3Ctx.fill();
+          m3Ctx.strokeStyle = (p > 0.95) ? '#38bdf8' : '#f97316';
           m3Ctx.lineWidth = 2;
           m3Ctx.stroke();
+          m3Ctx.restore();
 
           m3Ctx.font = 'bold 13px monospace';
           m3Ctx.fillStyle = '#facc15';
           m3Ctx.textAlign = 'center';
-          m3Ctx.fillText(`半徑 ${curDim} cm`, cx, sy - 8);
-        } else {
-          const startX = cx - (W * 1.5 + gap);
-          const topY = cy - W / 2;
+          m3Ctx.fillText(`${curDim}`, cx, sy - 10);
+          m3Ctx.textAlign = 'left';
+          m3Ctx.fillText(`${curDim}`, sx + S + 10, cy);
 
+        } else if (m3CurrentType === "sub_sq") {
+          const W = 100, gap = 40;
+          if (p < 0.1) {
+            const S = 160;
+            const sx = cx - S / 2, sy = cy - S / 2;
+            m3Ctx.strokeStyle = '#ffffff';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.strokeRect(sx, sy, S, S);
+
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(sx + S, sy);
+            m3Ctx.lineTo(sx + S, sy + S);
+            m3Ctx.arc(sx, sy, S, Math.PI / 2, 0, true);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+            m3Ctx.fill();
+            m3Ctx.stroke();
+
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(sx, sy);
+            m3Ctx.arc(sx, sy, S, 0, Math.PI / 2, false);
+            m3Ctx.closePath();
+            m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            m3Ctx.setLineDash([5, 5]);
+            m3Ctx.stroke();
+            m3Ctx.setLineDash([]);
+
+            m3Ctx.font = 'bold 13px monospace';
+            m3Ctx.fillStyle = '#facc15';
+            m3Ctx.textAlign = 'center';
+            m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy + S + 20);
+          } else {
+            const startX = cx - (W * 1.5 + gap);
+            const topY = cy - W / 2;
+
+            m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+            m3Ctx.fillRect(startX, topY, W, W);
+            m3Ctx.strokeStyle = '#ffffff';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.strokeRect(startX, topY, W, W);
+            m3Ctx.beginPath();
+            m3Ctx.arc(startX, topY, W, 0, Math.PI / 2, false);
+            m3Ctx.setLineDash([4, 4]);
+            m3Ctx.stroke();
+            m3Ctx.setLineDash([]);
+
+            m3Ctx.font = 'bold 28px sans-serif';
+            m3Ctx.fillStyle = '#ffffff';
+            m3Ctx.textAlign = 'center';
+            m3Ctx.textBaseline = 'middle';
+            m3Ctx.fillText('－', startX + W + gap / 2, cy);
+
+            const secX = startX + W + gap;
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(secX, topY);
+            m3Ctx.arc(secX, topY, W, 0, Math.PI / 2, false);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#f97316';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.fillText('＝', secX + W + gap / 2, cy);
+
+            const resX = secX + W + gap;
+            m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            m3Ctx.setLineDash([4, 4]);
+            m3Ctx.strokeRect(resX, topY, W, W);
+            m3Ctx.setLineDash([]);
+
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(resX + W, topY);
+            m3Ctx.lineTo(resX + W, topY + W);
+            m3Ctx.arc(resX, topY, W, Math.PI / 2, 0, true);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.85)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#38bdf8';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.font = 'bold 12px monospace';
+            m3Ctx.fillStyle = '#facc15';
+            m3Ctx.fillText(`邊長 ${curDim} cm`, cx, cy + W / 2 + 25);
+          }
+
+        } else if (m3CurrentType === "bow") {
+          const W = 110, gap = 38;
+          if (p < 0.1) {
+            const R = 160;
+            const sx = cx - R / 2, sy = cy - R / 2;
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(sx, sy);
+            m3Ctx.arc(sx, sy, R, 0, Math.PI / 2, false);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#38bdf8';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(sx + R, sy);
+            m3Ctx.lineTo(sx, sy + R);
+            m3Ctx.strokeStyle = '#ffffff';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.font = 'bold 13px monospace';
+            m3Ctx.fillStyle = '#facc15';
+            m3Ctx.textAlign = 'center';
+            m3Ctx.fillText(`半徑 ${curDim} cm`, cx, sy - 8);
+          } else {
+            const startX = cx - (W * 1.5 + gap);
+            const topY = cy - W / 2;
+
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(startX, topY);
+            m3Ctx.arc(startX, topY, W, 0, Math.PI / 2, false);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#38bdf8';
+            m3Ctx.stroke();
+
+            m3Ctx.font = 'bold 28px sans-serif';
+            m3Ctx.fillStyle = '#ffffff';
+            m3Ctx.textAlign = 'center';
+            m3Ctx.textBaseline = 'middle';
+            m3Ctx.fillText('－', startX + W + gap / 2, cy);
+
+            const triX = startX + W + gap;
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(triX, topY);
+            m3Ctx.lineTo(triX + W, topY);
+            m3Ctx.lineTo(triX, topY + W);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#f97316';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.fillText('＝', triX + W + gap / 2, cy);
+
+            const bowX = triX + W + gap;
+            m3Ctx.beginPath();
+            m3Ctx.moveTo(bowX + W, topY);
+            m3Ctx.arc(bowX, topY, W, 0, Math.PI / 2, false);
+            m3Ctx.lineTo(bowX, topY + W);
+            m3Ctx.closePath();
+            m3Ctx.fillStyle = 'rgba(16, 185, 129, 0.75)';
+            m3Ctx.fill();
+            m3Ctx.strokeStyle = '#10b981';
+            m3Ctx.lineWidth = 2;
+            m3Ctx.stroke();
+
+            m3Ctx.font = 'bold 12px monospace';
+            m3Ctx.fillStyle = '#facc15';
+            m3Ctx.fillText(`半徑 ${curDim} cm`, cx, cy + W / 2 + 25);
+          }
+
+        } else if (m3CurrentType === "leaf") {
+          const S = 150;
+          const sx = cx - S / 2, sy = cy - S / 2;
+          m3Ctx.strokeStyle = '#ffffff';
+          m3Ctx.lineWidth = 1.5;
+          m3Ctx.strokeRect(sx, sy, S, S);
+
+          const sep = p * 25;
+
+          m3Ctx.save();
+          m3Ctx.translate(-sep * 0.7, sep * 0.7);
           m3Ctx.beginPath();
-          m3Ctx.moveTo(startX, topY);
-          m3Ctx.arc(startX, topY, W, 0, Math.PI / 2, false);
+          m3Ctx.moveTo(sx, sy + S);
+          m3Ctx.lineTo(sx + S, sy);
+          m3Ctx.arc(sx, sy, S, Math.PI / 4, Math.PI / 2, false);
           m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(56, 189, 248, 0.65)';
-          m3Ctx.fill();
-          m3Ctx.strokeStyle = '#38bdf8';
-          m3Ctx.stroke();
-
-          m3Ctx.font = 'bold 28px sans-serif';
-          m3Ctx.fillStyle = '#ffffff';
-          m3Ctx.textAlign = 'center';
-          m3Ctx.textBaseline = 'middle';
-          m3Ctx.fillText('－', startX + W + gap / 2, cy);
-
-          const triX = startX + W + gap;
-          m3Ctx.beginPath();
-          m3Ctx.moveTo(triX, topY);
-          m3Ctx.lineTo(triX + W, topY);
-          m3Ctx.lineTo(triX, topY + W);
-          m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(249, 115, 22, 0.7)';
-          m3Ctx.fill();
-          m3Ctx.strokeStyle = '#f97316';
-          m3Ctx.lineWidth = 2;
-          m3Ctx.stroke();
-
-          m3Ctx.fillText('＝', triX + W + gap / 2, cy);
-
-          const bowX = triX + W + gap;
-          m3Ctx.beginPath();
-          m3Ctx.moveTo(bowX + W, topY);
-          m3Ctx.arc(bowX, topY, W, 0, Math.PI / 2, false);
-          m3Ctx.lineTo(bowX, topY + W);
-          m3Ctx.closePath();
-          m3Ctx.fillStyle = 'rgba(16, 185, 129, 0.75)';
+          m3Ctx.fillStyle = 'rgba(16, 185, 129, 0.7)';
           m3Ctx.fill();
           m3Ctx.strokeStyle = '#10b981';
           m3Ctx.lineWidth = 2;
           m3Ctx.stroke();
+          m3Ctx.restore();
 
-          m3Ctx.font = 'bold 12px monospace';
+          m3Ctx.save();
+          m3Ctx.translate(sep * 0.7, -sep * 0.7);
+          m3Ctx.beginPath();
+          m3Ctx.moveTo(sx, sy + S);
+          m3Ctx.lineTo(sx + S, sy);
+          m3Ctx.arc(sx + S, sy + S, S, -Math.PI / 2, -3 * Math.PI / 4, true);
+          m3Ctx.closePath();
+          m3Ctx.fillStyle = (p > 0.05) ? 'rgba(56, 189, 248, 0.7)' : 'rgba(16, 185, 129, 0.7)';
+          m3Ctx.fill();
+          m3Ctx.strokeStyle = '#38bdf8';
+          m3Ctx.lineWidth = 2;
+          m3Ctx.stroke();
+          m3Ctx.restore();
+
+          m3Ctx.font = 'bold 13px monospace';
           m3Ctx.fillStyle = '#facc15';
-          m3Ctx.fillText(`半徑 ${curDim} cm`, cx, cy + W / 2 + 25);
+          m3Ctx.textAlign = 'center';
+          m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy - 8);
         }
 
-      } else if (m3CurrentType === "leaf") {
-        // ========== 6. 葉片 ==========
-        const S = 150;
-        const sx = cx - S / 2, sy = cy - S / 2;
-        m3Ctx.strokeStyle = '#ffffff';
-        m3Ctx.lineWidth = 1.5;
-        m3Ctx.strokeRect(sx, sy, S, S);
-
-        const sep = p * 25;
-
-        m3Ctx.save();
-        m3Ctx.translate(-sep * 0.7, sep * 0.7);
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy + S);
-        m3Ctx.lineTo(sx + S, sy);
-        m3Ctx.arc(sx, sy, S, Math.PI / 4, Math.PI / 2, false);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = 'rgba(16, 185, 129, 0.7)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = '#10b981';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
         m3Ctx.restore();
-
-        m3Ctx.save();
-        m3Ctx.translate(sep * 0.7, -sep * 0.7);
-        m3Ctx.beginPath();
-        m3Ctx.moveTo(sx, sy + S);
-        m3Ctx.lineTo(sx + S, sy);
-        m3Ctx.arc(sx + S, sy + S, S, -Math.PI / 2, -3 * Math.PI / 4, true);
-        m3Ctx.closePath();
-        m3Ctx.fillStyle = (p > 0.05) ? 'rgba(56, 189, 248, 0.7)' : 'rgba(16, 185, 129, 0.7)';
-        m3Ctx.fill();
-        m3Ctx.strokeStyle = '#38bdf8';
-        m3Ctx.lineWidth = 2;
-        m3Ctx.stroke();
-        m3Ctx.restore();
-
-        m3Ctx.font = 'bold 13px monospace';
-        m3Ctx.fillStyle = '#facc15';
-        m3Ctx.textAlign = 'center';
-        m3Ctx.fillText(`邊長 ${curDim} cm`, cx, sy - 8);
       }
 
-      m3Ctx.restore();
-    }
+      function m3UpdateUI() {
+        const conf = M3_CONFIGS[m3CurrentType];
+        const curDim = conf.dims[conf.dimIdx];
+        const calcData = conf.calc(curDim);
 
-    function m3UpdateUI() {
-      const conf = M3_CONFIGS[m3CurrentType];
-      const curDim = conf.dims[conf.dimIdx];
-      const calcData = conf.calc(curDim);
+        document.getElementById('m3-canvas-title').textContent = conf.title;
+        document.getElementById('m3-canvas-badge').textContent = calcData.badge;
+        document.getElementById('m3-strategy-badge').textContent = conf.badge;
+        document.getElementById('m3-strategy-desc').textContent = conf.desc;
+        document.getElementById('m3-teacher-tip').textContent = conf.tip;
+        document.getElementById('m3-slider-label').textContent = conf.label;
 
-      document.getElementById('m3-canvas-title').textContent = conf.title;
-      document.getElementById('m3-canvas-badge').textContent = calcData.badge;
-      document.getElementById('m3-strategy-badge').textContent = conf.badge;
-      document.getElementById('m3-strategy-desc').textContent = conf.desc;
-      document.getElementById('m3-teacher-tip').textContent = conf.tip;
-      document.getElementById('m3-slider-label').textContent = conf.label;
+        document.getElementById('m3-formula-step-guide').innerHTML = `幾何拆解步驟：<br>${calcData.guide}`;
+        document.getElementById('m3-input-ans-area').value = '';
+        document.getElementById('m3-msg-feedback').className = 'hidden';
 
-      document.getElementById('m3-formula-step-guide').innerHTML = `幾何拆解步驟：<br>${calcData.guide}`;
-      document.getElementById('m3-input-ans-area').value = '';
-      document.getElementById('m3-msg-feedback').className = 'hidden';
-
-      m3Progress = 0.0;
-      document.getElementById('m3AnimSlider').value = 0;
-      m3Draw();
-    }
-
-    // 下拉選單監聽
-    document.getElementById('m3-shape-select').addEventListener('change', (e) => {
-      m3CurrentType = e.target.value;
-      m3UpdateUI();
-    });
-
-    document.getElementById('m3-btn-random-dim').addEventListener('click', () => {
-      const conf = M3_CONFIGS[m3CurrentType];
-      conf.dimIdx = (conf.dimIdx + 1) % conf.dims.length;
-      m3UpdateUI();
-    });
-
-    document.getElementById('m3AnimSlider').addEventListener('input', (e) => {
-      m3Progress = parseInt(e.target.value, 10) / 100;
-      m3Draw();
-    });
-
-    document.getElementById('m3-btn-auto-toggle').addEventListener('click', () => {
-      if (m3AutoAnim) cancelAnimationFrame(m3AutoAnim);
-      const target = (m3Progress < 0.5) ? 1.0 : 0.0;
-      const startP = m3Progress;
-      const startTime = performance.now();
-      const duration = 600;
-
-      function step(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(1, elapsed / duration);
-        m3Progress = startP + (target - startP) * (t * (2 - t));
-        document.getElementById('m3AnimSlider').value = Math.round(m3Progress * 100);
+        m3Progress = 0.0;
+        document.getElementById('m3AnimSlider').value = 0;
         m3Draw();
+      }
 
-        if (t < 1) {
-          m3AutoAnim = requestAnimationFrame(step);
-        } else {
-          document.getElementById('m3-btn-auto-toggle').textContent = (target === 1.0) ? "還原 ↺" : "自動示範 ➔";
+      document.getElementById('m3-shape-select').addEventListener('change', (e) => {
+        m3CurrentType = e.target.value;
+        m3UpdateUI();
+      });
+
+      document.getElementById('m3-btn-random-dim').addEventListener('click', () => {
+        const conf = M3_CONFIGS[m3CurrentType];
+        conf.dimIdx = (conf.dimIdx + 1) % conf.dims.length;
+        m3UpdateUI();
+      });
+
+      document.getElementById('m3AnimSlider').addEventListener('input', (e) => {
+        m3Progress = parseInt(e.target.value, 10) / 100;
+        m3Draw();
+      });
+
+      document.getElementById('m3-btn-auto-toggle').addEventListener('click', () => {
+        if (m3AutoAnim) cancelAnimationFrame(m3AutoAnim);
+        const target = (m3Progress < 0.5) ? 1.0 : 0.0;
+        const startP = m3Progress;
+        const startTime = performance.now();
+        const duration = 600;
+
+        function step(now) {
+          const elapsed = now - startTime;
+          const t = Math.min(1, elapsed / duration);
+          m3Progress = startP + (target - startP) * (t * (2 - t));
+          document.getElementById('m3AnimSlider').value = Math.round(m3Progress * 100);
+          m3Draw();
+
+          if (t < 1) {
+            m3AutoAnim = requestAnimationFrame(step);
+          } else {
+            document.getElementById('m3-btn-auto-toggle').textContent = (target === 1.0) ? "還原 ↺" : "自動示範 ➔";
+          }
         }
+        m3AutoAnim = requestAnimationFrame(step);
+      });
+
+      document.getElementById('m3-btn-check-ans').addEventListener('click', () => {
+        const userVal = parseFloat(document.getElementById('m3-input-ans-area').value.trim());
+        const msg = document.getElementById('m3-msg-feedback');
+        const conf = M3_CONFIGS[m3CurrentType];
+        const curDim = conf.dims[conf.dimIdx];
+        const calcData = conf.calc(curDim);
+
+        if (isNaN(userVal)) {
+          msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 block";
+          msg.textContent = "請輸入計算出的面積數值喔！";
+          return;
+        }
+
+        if (Math.abs(userVal - calcData.ans) < 0.15) {
+          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 block";
+          msg.innerHTML = `🎉 太優秀了！完全正確！<br>面積為 <strong>${calcData.ans} cm²</strong>！`;
+        } else {
+          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 block";
+          msg.innerHTML = `⚠️ 檢查看看算式：答案應該是 <strong>${calcData.ans} cm²</strong>！`;
+        }
+      });
+
+      // ==================== 5. 頂部頁籤切換 ====================
+      const tabEx = document.getElementById('tab-example');
+      const tabPr = document.getElementById('tab-practice');
+      const tabComp = document.getElementById('tab-composite');
+
+      const panelEx = document.getElementById('panel-example');
+      const panelPr = document.getElementById('panel-practice');
+      const panelComp = document.getElementById('panel-composite');
+
+      function resetTabs() {
+        tabEx.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
+        tabPr.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
+        tabComp.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
+        panelEx.classList.add('hidden');
+        panelPr.classList.add('hidden');
+        panelComp.classList.add('hidden');
       }
-      m3AutoAnim = requestAnimationFrame(step);
-    });
 
-    document.getElementById('m3-btn-check-ans').addEventListener('click', () => {
-      const userVal = parseFloat(document.getElementById('m3-input-ans-area').value.trim());
-      const msg = document.getElementById('m3-msg-feedback');
-      const conf = M3_CONFIGS[m3CurrentType];
-      const curDim = conf.dims[conf.dimIdx];
-      const calcData = conf.calc(curDim);
+      tabEx.addEventListener('click', () => {
+        resetTabs();
+        tabEx.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow transition-all";
+        panelEx.classList.remove('hidden');
+        loadExampleQuestion(currentQ, isFirstGuidedQuestion);
+        autoScale();
+      });
 
-      if (isNaN(userVal)) {
-        msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 block";
-        msg.textContent = "請輸入計算出的面積數值喔！";
-        return;
-      }
+      tabPr.addEventListener('click', () => {
+        resetTabs();
+        tabPr.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-sky-500 text-slate-950 shadow transition-all";
+        panelPr.classList.remove('hidden');
+        rerollPractice();
+        autoScale();
+      });
 
-      if (Math.abs(userVal - calcData.ans) < 0.15) {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 block";
-        msg.innerHTML = `🎉 太優秀了！完全正確！<br>面積為 <strong>${calcData.ans} cm²</strong>！`;
-      } else {
-        msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 block";
-        msg.innerHTML = `⚠️ 檢查看看算式：答案應該是 <strong>${calcData.ans} cm²</strong>！`;
-      }
-    });
+      tabComp.addEventListener('click', () => {
+        resetTabs();
+        tabComp.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-emerald-500 text-slate-950 shadow transition-all";
+        panelComp.classList.remove('hidden');
+        m3UpdateUI();
+        autoScale();
+      });
 
-    // ==================== 5. 頂部頁籤切換 ====================
-    const tabEx = document.getElementById('tab-example');
-    const tabPr = document.getElementById('tab-practice');
-    const tabComp = document.getElementById('tab-composite');
-
-    const panelEx = document.getElementById('panel-example');
-    const panelPr = document.getElementById('panel-practice');
-    const panelComp = document.getElementById('panel-composite');
-
-    function resetTabs() {
-      tabEx.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
-      tabPr.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
-      tabComp.className = "px-3.5 py-1.5 rounded-lg font-bold text-xs tracking-wide text-sky-200 hover:text-white transition-all";
-      panelEx.classList.add('hidden');
-      panelPr.classList.add('hidden');
-      panelComp.classList.add('hidden');
-    }
-
-    tabEx.addEventListener('click', () => {
-      resetTabs();
-      tabEx.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-amber-500 text-slate-950 shadow transition-all";
-      panelEx.classList.remove('hidden');
-      loadExampleQuestion(currentQ, isFirstGuidedQuestion);
+      // 初始化第一單元與縮放
       autoScale();
+      loadExampleQuestion(currentQ, true);
     });
-
-    tabPr.addEventListener('click', () => {
-      resetTabs();
-      tabPr.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-sky-500 text-slate-950 shadow transition-all";
-      panelPr.classList.remove('hidden');
-      rerollPractice();
-      autoScale();
-    });
-
-    tabComp.addEventListener('click', () => {
-      resetTabs();
-      tabComp.className = "px-3.5 py-1.5 rounded-lg font-black text-xs tracking-wide bg-emerald-500 text-slate-950 shadow transition-all";
-      panelComp.classList.remove('hidden');
-      m3UpdateUI();
-      autoScale();
-    });
-
-    // 初始載入
-    loadExampleQuestion(currentQ, true);
   </script>
 </body>
 </html>
