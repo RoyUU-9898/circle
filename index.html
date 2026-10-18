@@ -48,22 +48,42 @@
     /* 3D 掌機按鈕按壓回彈手感 */
     .btn-3d-orange {
       background: linear-gradient(145deg, #fbbf24 0%, #f97316 60%, #ea580c 100%);
-      box-shadow: 0 12px 0 #9a3412, 0 16px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 10px 0 #9a3412, 0 14px 20px rgba(0, 0, 0, 0.35);
       transition: all 0.1s ease-in-out;
     }
     .btn-3d-orange:active {
-      transform: translateY(8px);
-      box-shadow: 0 4px 0 #9a3412, 0 8px 12px rgba(0, 0, 0, 0.25);
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #9a3412, 0 6px 10px rgba(0, 0, 0, 0.25);
     }
 
     .btn-3d-green {
       background: linear-gradient(145deg, #34d399 0%, #10b981 60%, #059669 100%);
-      box-shadow: 0 12px 0 #065f46, 0 16px 24px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 10px 0 #065f46, 0 14px 20px rgba(0, 0, 0, 0.35);
       transition: all 0.1s ease-in-out;
     }
     .btn-3d-green:active {
-      transform: translateY(8px);
-      box-shadow: 0 4px 0 #065f46, 0 8px 12px rgba(0, 0, 0, 0.25);
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #065f46, 0 6px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-3d-purple {
+      background: linear-gradient(145deg, #c084fc 0%, #a855f7 60%, #7e22ce 100%);
+      box-shadow: 0 10px 0 #581c87, 0 14px 20px rgba(0, 0, 0, 0.35);
+      transition: all 0.1s ease-in-out;
+    }
+    .btn-3d-purple:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #581c87, 0 6px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-3d-blue {
+      background: linear-gradient(145deg, #38bdf8 0%, #0284c7 60%, #0369a1 100%);
+      box-shadow: 0 10px 0 #075985, 0 14px 20px rgba(0, 0, 0, 0.35);
+      transition: all 0.1s ease-in-out;
+    }
+    .btn-3d-blue:active {
+      transform: translateY(6px);
+      box-shadow: 0 4px 0 #075985, 0 6px 10px rgba(0, 0, 0, 0.25);
     }
   </style>
 </head>
@@ -73,7 +93,7 @@
   <div id="app-wrapper" class="flex flex-col justify-between items-center p-8">
 
     <!-- 頂部招牌區 -->
-    <header class="neon-sign w-full py-6 px-8 rounded-3xl text-center relative">
+    <header class="neon-sign w-full py-5 px-8 rounded-3xl text-center relative">
       <h1 class="neon-text text-4xl sm:text-5xl font-black tracking-wider text-white mb-2">
         圓與扇形 ‧ 幾何探索島
       </h1>
@@ -82,57 +102,77 @@
       </p>
     </header>
 
-    <!-- 兩大主要入口按鈕區 -->
-    <main class="grid grid-cols-2 gap-12 w-full max-w-3xl my-auto px-6">
+    <!-- 四大主要入口按鈕區 -->
+    <main class="grid grid-cols-4 gap-6 w-full max-w-5xl my-auto px-2">
 
       <!-- 按鈕 1：圓面積 -->
-      <a href="circle.html" class="btn-3d-orange block rounded-3xl p-6 relative border border-yellow-300/40 cursor-pointer group">
-        <!-- 頂部反光飾線 -->
-        <div class="absolute top-2 left-6 right-6 h-1 bg-white/40 rounded-full blur-[1px]"></div>
-        
-        <!-- 中央圖標：帶有半徑 r 標記的幾何圓形 -->
-        <div class="w-28 h-28 mx-auto mt-2 mb-6 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
-          <svg class="w-16 h-16 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-            <!-- 圓外框與半透明填色 -->
+      <a href="circle.html" class="btn-3d-orange block rounded-3xl p-5 relative border border-yellow-300/40 cursor-pointer group">
+        <div class="absolute top-2 left-4 right-4 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        <div class="w-24 h-24 mx-auto mt-2 mb-5 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-14 h-14 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
             <circle cx="50" cy="50" r="38" stroke-width="6" fill="currentColor" fill-opacity="0.2" />
-            <!-- 半徑虛線 -->
             <line x1="50" y1="50" x2="88" y2="50" stroke-width="5" stroke-linecap="round" stroke-dasharray="3 3" />
-            <!-- 圓心點 -->
             <circle cx="50" cy="50" r="4" fill="currentColor" />
-            <!-- 半徑標記 r -->
             <text x="66" y="43" fill="currentColor" font-size="16" font-family="sans-serif" font-weight="bold" font-style="italic">r</text>
           </svg>
         </div>
-
-        <!-- 底部白色標籤條 -->
-        <div class="bg-white/90 backdrop-blur-sm py-3 rounded-2xl border border-white/50 text-center shadow-md">
-          <span class="text-xl font-black text-amber-950 tracking-wider">
+        <div class="bg-white/95 backdrop-blur-sm py-2.5 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-lg font-black text-amber-950 tracking-wider">
             圓面積探索
           </span>
         </div>
       </a>
 
       <!-- 按鈕 2：扇形面積 -->
-      <a href="sector.html" class="btn-3d-green block rounded-3xl p-6 relative border border-emerald-300/40 cursor-pointer group">
-        <!-- 頂部反光飾線 -->
-        <div class="absolute top-2 left-6 right-6 h-1 bg-white/40 rounded-full blur-[1px]"></div>
-        
-        <!-- 中央圖標：帶有圓心角標記的幾何扇形 -->
-        <div class="w-28 h-28 mx-auto mt-2 mb-6 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
-          <svg class="w-16 h-16 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
-            <!-- 扇形本體 -->
+      <a href="sector.html" class="btn-3d-green block rounded-3xl p-5 relative border border-emerald-300/40 cursor-pointer group">
+        <div class="absolute top-2 left-4 right-4 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        <div class="w-24 h-24 mx-auto mt-2 mb-5 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-14 h-14 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
             <path d="M 50,75 L 20,30 A 42 42 0 0 1 80 30 Z" stroke-width="6" stroke-linejoin="round" fill="currentColor" fill-opacity="0.25" />
-            <!-- 圓心角角度弧線 -->
             <path d="M 40,60 A 15 15 0 0 1 60 60" stroke-width="4" stroke-linecap="round" />
-            <!-- 圓心點 -->
             <circle cx="50" cy="75" r="4" fill="currentColor" />
           </svg>
         </div>
-
-        <!-- 底部白色標籤條 -->
-        <div class="bg-white/90 backdrop-blur-sm py-3 rounded-2xl border border-white/50 text-center shadow-md">
-          <span class="text-xl font-black text-emerald-950 tracking-wider">
+        <div class="bg-white/95 backdrop-blur-sm py-2.5 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-lg font-black text-emerald-950 tracking-wider">
             扇形面積探索
+          </span>
+        </div>
+      </a>
+
+      <!-- 按鈕 3：扇形練功區 -->
+      <a href="practice.html" class="btn-3d-purple block rounded-3xl p-5 relative border border-purple-300/40 cursor-pointer group">
+        <div class="absolute top-2 left-4 right-4 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        <div class="w-24 h-24 mx-auto mt-2 mb-5 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-14 h-14 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+            <!-- 筆記本與靶心圖示象徵練習 -->
+            <rect x="22" y="18" width="56" height="64" rx="8" stroke-width="5" fill="currentColor" fill-opacity="0.2" />
+            <path d="M 36,36 L 64,36 M 36,50 L 64,50 M 36,64 L 54,64" stroke-width="4" stroke-linecap="round" />
+            <circle cx="70" cy="68" r="14" stroke-width="4" fill="#a855f7" />
+            <circle cx="70" cy="68" r="6" fill="white" />
+          </svg>
+        </div>
+        <div class="bg-white/95 backdrop-blur-sm py-2.5 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-lg font-black text-purple-950 tracking-wider">
+            扇形練功區
+          </span>
+        </div>
+      </a>
+
+      <!-- 按鈕 4：應用練習區 -->
+      <a href="challenge.html" class="btn-3d-blue block rounded-3xl p-5 relative border border-sky-300/40 cursor-pointer group">
+        <div class="absolute top-2 left-4 right-4 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+        <div class="w-24 h-24 mx-auto mt-2 mb-5 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform duration-200">
+          <svg class="w-14 h-14 text-white" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+            <!-- 拼圖與組合圖形象徵幾何應用題 -->
+            <circle cx="38" cy="38" r="18" stroke-width="5" fill="currentColor" fill-opacity="0.2" />
+            <rect x="45" y="45" width="32" height="32" rx="4" stroke-width="5" fill="currentColor" fill-opacity="0.3" />
+            <path d="M 45,60 L 60,60" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="bg-white/95 backdrop-blur-sm py-2.5 rounded-2xl border border-white/50 text-center shadow-md">
+          <span class="text-lg font-black text-sky-950 tracking-wider">
+            應用練習區
           </span>
         </div>
       </a>
@@ -140,25 +180,19 @@
     </main>
 
     <!-- 頁尾：熊貓頭像吉祥物 + 柚子老師製作 -->
-    <footer class="flex items-center justify-center gap-3 bg-white/10 px-5 py-2.5 rounded-full border border-white/15 backdrop-blur-sm shadow-sm">
-      <!-- 熊貓柚子頭像圖標（若同目錄有 teacher.png 會優先讀取，否則自動呈現向量備用圖標） -->
+    <footer class="flex items-center justify-center gap-3 bg-white/10 px-5 py-2 rounded-full border border-white/15 backdrop-blur-sm shadow-sm">
       <div class="w-9 h-9 rounded-full bg-white overflow-hidden flex items-center justify-center shadow-inner border border-white/40 flex-shrink-0">
         <img src="teacher.png" alt="柚子老師" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-        <!-- 備用向量 SVG（完全依照你提供的熊貓黑眼圈大眼鏡造型） -->
         <svg style="display:none;" class="w-8 h-8" viewBox="0 0 100 100" fill="none">
           <circle cx="28" cy="38" r="14" fill="#202020"/>
           <circle cx="72" cy="38" r="14" fill="#202020"/>
-          <!-- 柚子主體 -->
           <path d="M50 28 C32 28 22 45 22 62 C22 80 34 88 50 88 C66 88 78 80 78 62 C78 45 68 28 50 28 Z" fill="#ffffff" stroke="#202020" stroke-width="4"/>
-          <!-- 蒂頭與葉 -->
           <path d="M49 28 L49 18 M49 22 C56 16 64 20 64 24 C58 28 52 26 49 22" stroke="#202020" stroke-width="3" fill="#ffffff"/>
-          <!-- 熊貓眼圈與眼鏡 -->
           <ellipse cx="40" cy="58" rx="8" ry="7" fill="#252528" transform="rotate(-15 40 58)"/>
           <ellipse cx="60" cy="58" rx="8" ry="7" fill="#252528" transform="rotate(15 60 58)"/>
           <circle cx="40" cy="58" r="9" stroke="#101010" stroke-width="2.5"/>
           <circle cx="60" cy="58" r="9" stroke="#101010" stroke-width="2.5"/>
           <path d="M49 58 L51 58" stroke="#101010" stroke-width="2.5"/>
-          <!-- 厭世撇嘴 -->
           <path d="M47 72 Q50 74 53 71" stroke="#202020" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
       </div>
@@ -180,17 +214,14 @@
       const windowWidth = window.innerWidth;
       const windowHeight = window.innerHeight;
 
-      // 取得寬高縮放比率取小值，保證滿版不被裁切
       const scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight) * 0.96;
       wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
     }
 
-    // 監聽螢幕旋轉與解析度變更
     window.addEventListener('resize', autoScale);
     window.addEventListener('orientationchange', autoScale);
     window.addEventListener('DOMContentLoaded', autoScale);
 
-    // 防止 iOS Safari 雙指捏合誤縮放
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
