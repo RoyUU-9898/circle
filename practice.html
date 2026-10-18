@@ -43,16 +43,6 @@
       -webkit-appearance: none; 
       margin: 0; 
     }
-
-    #cursor-preview {
-      pointer-events: none;
-      position: absolute;
-      border-radius: 50%;
-      display: none;
-      transform: translate(-50%, -50%);
-      z-index: 50;
-      will-change: transform, left, top;
-    }
   </style>
 </head>
 <body class="flex items-center justify-center">
@@ -141,7 +131,6 @@
 
           <div id="calc-container" class="relative flex-1 w-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden my-1 flex items-center justify-center">
             <canvas id="m3CalcCanvas" width="520" height="340" class="max-w-full max-h-full aspect-[520/340] cursor-crosshair block" style="touch-action: none;"></canvas>
-            <div id="cursor-preview"></div>
             <div id="calc-placeholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-white/20 text-sm font-bold tracking-widest select-none">
               在此處書寫計算過程
             </div>
@@ -1002,7 +991,7 @@
           drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -18, `${curDim}cm`, 'left');
           drawBrightCurvedBracket(m3Ctx, topX, topY + topSize, topX + topSize, topY + topSize, 18, `${curDim}cm`, 'bottom');
 
-          // 零件庫右移並保持距離 (libX = 185)
+          // 零件庫右移並保持距離
           const libX = 185;
           const libY = 14;
           const libW = 320;
@@ -1658,11 +1647,9 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 高靈敏度手寫板邏輯 ====================
+      // ==================== 高靈敏低延遲防掌觸手寫引擎 ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
-      const calcCtx = calcCanvas.getContext('2d');
-      const calcContainer = document.getElementById('calc-container');
-      const cursorPreview = document.getElementById('cursor-preview');
+      const calcCtx = calcCanvas.getContext('2d', { desynchronized: true });
       const placeholder = document.getElementById('calc-placeholder');
 
       let currentTool = 'pen';
@@ -1671,21 +1658,10 @@
       let activePointerType = null;
       let lastPoint = { x: 0, y: 0 };
 
-      function updateCursorStyle() {
-        if (currentTool === 'pen') {
-          cursorPreview.style.width = '8px';
-          cursorPreview.style.height = '8px';
-          cursorPreview.style.borderRadius = '50%';
-          cursorPreview.style.border = '1.5px solid #fef08a';
-          cursorPreview.style.background = 'rgba(254, 240, 138, 0.5)';
-        } else {
-          cursorPreview.style.width = '26px';
-          cursorPreview.style.height = '26px';
-          cursorPreview.style.borderRadius = '6px';
-          cursorPreview.style.border = '2px dashed #ffffff';
-          cursorPreview.style.background = 'rgba(255, 255, 255, 0.25)';
-        }
-      }
+      // 座標快取變數
+      let cachedCanvasRect = null;
+      let cachedScaleX = 1;
+      let cachedScaleY = 1;
 
       function clearCalcCanvas() {
         calcCtx.clearRect(0, 0, calcCanvas.width, calcCanvas.height);
@@ -1694,30 +1670,25 @@
 
       document.getElementById('draw-tool-pen').addEventListener('click', () => {
         currentTool = 'pen';
-        updateCursorStyle();
         document.getElementById('draw-tool-pen').className = "bg-sky-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1 active:scale-95 transition-all";
         document.getElementById('draw-tool-eraser').className = "bg-slate-700/80 hover:bg-slate-600 text-slate-200 font-bold px-3.5 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1 active:scale-95 transition-all";
       });
 
       document.getElementById('draw-tool-eraser').addEventListener('click', () => {
         currentTool = 'eraser';
-        updateCursorStyle();
         document.getElementById('draw-tool-eraser').className = "bg-sky-500 text-white font-bold px-3.5 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1 active:scale-95 transition-all";
         document.getElementById('draw-tool-pen').className = "bg-slate-700/80 hover:bg-slate-600 text-slate-200 font-bold px-3.5 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1 active:scale-95 transition-all";
       });
 
       document.getElementById('draw-tool-clear').addEventListener('click', clearCalcCanvas);
 
-      calcContainer.addEventListener('pointerenter', () => {
-        updateCursorStyle();
-        cursorPreview.style.display = 'block';
-      });
+      function getFastCanvasCoords(e) {
+        return {
+          x: (e.clientX - cachedCanvasRect.left) * cachedScaleX,
+          y: (e.clientY - cachedCanvasRect.top) * cachedScaleY
+        };
+      }
 
-      calcContainer.addEventListener('pointerleave', () => {
-        cursorPreview.style.display = 'none';
-      });
-
-      // 針對下筆與劃線進行平滑高頻繪製
       function drawSegment(x1, y1, x2, y2) {
         calcCtx.beginPath();
         calcCtx.moveTo(x1, y1);
@@ -1740,7 +1711,7 @@
       }
 
       calcCanvas.addEventListener('pointerdown', (e) => {
-        // 防掌觸：若偵測到是觸控筆操作，手掌 (touch) 壓在螢幕上一律不理會
+        // 防手掌觸控誤觸
         if (activePointerType === 'pen' && e.pointerType === 'touch') {
           return;
         }
@@ -1750,7 +1721,12 @@
         isDrawing = true;
         placeholder.style.display = 'none';
         
-        lastPoint = getCanvasCoords(calcCanvas, e);
+        // 下筆當下快取邊界，移動時極速計算
+        cachedCanvasRect = calcCanvas.getBoundingClientRect();
+        cachedScaleX = calcCanvas.width / cachedCanvasRect.width;
+        cachedScaleY = calcCanvas.height / cachedCanvasRect.height;
+
+        lastPoint = getFastCanvasCoords(e);
         try { calcCanvas.setPointerCapture(e.pointerId); } catch(err) {}
 
         calcCtx.beginPath();
@@ -1768,18 +1744,12 @@
       });
 
       calcCanvas.addEventListener('pointermove', (e) => {
-        // 更新游標位置
-        const containerRect = calcContainer.getBoundingClientRect();
-        cursorPreview.style.left = `${e.clientX - containerRect.left}px`;
-        cursorPreview.style.top = `${e.clientY - containerRect.top}px`;
-        cursorPreview.style.display = 'block';
-
         if (!isDrawing || e.pointerId !== activePointerId) return;
 
-        // 使用 getCoalescedEvents 提升 Apple Pencil 感應流暢度（消除延遲與折線感）
+        // 支援 iOS 批次事件，筆劃平滑緊跟筆尖
         const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
         for (const ev of events) {
-          const pt = getCanvasCoords(calcCanvas, ev);
+          const pt = getFastCanvasCoords(ev);
           drawSegment(lastPoint.x, lastPoint.y, pt.x, pt.y);
           lastPoint = pt;
         }
@@ -1789,6 +1759,7 @@
         if (!isDrawing || e.pointerId !== activePointerId) return;
         isDrawing = false;
         activePointerId = null;
+        activePointerType = null;
         try { calcCanvas.releasePointerCapture(e.pointerId); } catch(err) {}
       }
 
