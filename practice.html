@@ -803,7 +803,6 @@
             m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
             m3Ctx.lineWidth = 1.5;
             m3Ctx.strokeRect(topX, topY, mark, mark);
-            m3Ctx.strokeRect(topX, topY + topSize - mark, mark, mark);
 
             drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -22, `${curDim}cm`, 'left');
             drawBrightCurvedBracket(m3Ctx, topX, topY + topSize, topX + topSize, topY + topSize, 22, `${curDim}cm`, 'bottom');
@@ -950,7 +949,7 @@
           }
 
         } else if (m3CurrentType === "leaf") {
-          // 題型 6：整體適度右移 (topX = 64)，長度標示在【左】與【下】，徹底不佔用上方與右側空間
+          // 題型 6：圖形整體往右平移 (topX 改為 64)，長度標示在左側與下方，淨空右側
           const topSize = 88;
           const topX = 64;
           const topY = 26;
@@ -987,7 +986,7 @@
             m3Ctx.stroke();
           });
 
-          // 長度標示：標在正方形【左側】與【下方】，右邊完全淨空
+          // 長度標示：標在正方形【左側】與【下方】
           drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -18, `${curDim}cm`, 'left');
           drawBrightCurvedBracket(m3Ctx, topX, topY + topSize, topX + topSize, topY + topSize, 18, `${curDim}cm`, 'bottom');
 
@@ -1647,21 +1646,24 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 高靈敏低延遲防掌觸手寫引擎 ====================
+      // ==================== 解除鎖死、零延遲連續筆畫手寫引擎 ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
       const calcCtx = calcCanvas.getContext('2d', { desynchronized: true });
       const placeholder = document.getElementById('calc-placeholder');
 
       let currentTool = 'pen';
       let isDrawing = false;
-      let activePointerId = null;
-      let activePointerType = null;
       let lastPoint = { x: 0, y: 0 };
 
-      // 座標快取變數
       let cachedCanvasRect = null;
       let cachedScaleX = 1;
       let cachedScaleY = 1;
+
+      function updateCanvasMetrics() {
+        cachedCanvasRect = calcCanvas.getBoundingClientRect();
+        cachedScaleX = calcCanvas.width / cachedCanvasRect.width;
+        cachedScaleY = calcCanvas.height / cachedCanvasRect.height;
+      }
 
       function clearCalcCanvas() {
         calcCtx.clearRect(0, 0, calcCanvas.width, calcCanvas.height);
@@ -1683,6 +1685,7 @@
       document.getElementById('draw-tool-clear').addEventListener('click', clearCalcCanvas);
 
       function getFastCanvasCoords(e) {
+        if (!cachedCanvasRect) updateCanvasMetrics();
         return {
           x: (e.clientX - cachedCanvasRect.left) * cachedScaleX,
           y: (e.clientY - cachedCanvasRect.top) * cachedScaleY
@@ -1711,23 +1714,16 @@
       }
 
       calcCanvas.addEventListener('pointerdown', (e) => {
-        // 防手掌觸控誤觸
-        if (activePointerType === 'pen' && e.pointerType === 'touch') {
+        // 筆尖無條件優先下筆；手指觸碰在非筆輸入時才允許
+        if (e.pointerType === 'touch' && e.pressure === 0 && !e.isPrimary) {
           return;
         }
-        
-        activePointerId = e.pointerId;
-        activePointerType = e.pointerType;
+
+        updateCanvasMetrics();
         isDrawing = true;
         placeholder.style.display = 'none';
-        
-        // 下筆當下快取邊界，移動時極速計算
-        cachedCanvasRect = calcCanvas.getBoundingClientRect();
-        cachedScaleX = calcCanvas.width / cachedCanvasRect.width;
-        cachedScaleY = calcCanvas.height / cachedCanvasRect.height;
 
         lastPoint = getFastCanvasCoords(e);
-        try { calcCanvas.setPointerCapture(e.pointerId); } catch(err) {}
 
         calcCtx.beginPath();
         calcCtx.arc(lastPoint.x, lastPoint.y, currentTool === 'pen' ? 1.75 : 13, 0, Math.PI * 2);
@@ -1744,9 +1740,9 @@
       });
 
       calcCanvas.addEventListener('pointermove', (e) => {
-        if (!isDrawing || e.pointerId !== activePointerId) return;
+        if (!isDrawing) return;
 
-        // 支援 iOS 批次事件，筆劃平滑緊跟筆尖
+        // 支援 iOS 批次事件，筆劃緊跟筆尖
         const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
         for (const ev of events) {
           const pt = getFastCanvasCoords(ev);
@@ -1755,16 +1751,14 @@
         }
       });
 
-      function onCalcPointerEnd(e) {
-        if (!isDrawing || e.pointerId !== activePointerId) return;
+      // 提筆即刻重置，完全解除 PointerCapture 佇列延遲
+      function onInstantPointerEnd() {
         isDrawing = false;
-        activePointerId = null;
-        activePointerType = null;
-        try { calcCanvas.releasePointerCapture(e.pointerId); } catch(err) {}
       }
 
-      calcCanvas.addEventListener('pointerup', onCalcPointerEnd);
-      calcCanvas.addEventListener('pointercancel', onCalcPointerEnd);
+      calcCanvas.addEventListener('pointerup', onInstantPointerEnd);
+      calcCanvas.addEventListener('pointercancel', onInstantPointerEnd);
+      calcCanvas.addEventListener('pointerleave', onInstantPointerEnd);
 
       // ==================== 答案核對 ====================
       document.getElementById('m3-btn-check-ans').addEventListener('click', () => {
