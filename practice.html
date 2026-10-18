@@ -111,7 +111,7 @@
         </div>
       </div>
 
-      <!-- 右側面板：依題型切換（1~5 為手寫板；6 為零件拖曳列式） -->
+      <!-- 右側面板：全題型統一手寫計算空間 -->
       <div class="col-span-6 h-full flex flex-col justify-between space-y-2 overflow-hidden">
         
         <!-- 觀察策略卡片 -->
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <!-- A. 手寫計算板（適用於題型 1~5） -->
+        <!-- 手寫計算工作面板 (1~6 題統一提供手寫計算區與填答) -->
         <div id="right-draw-panel" class="glass-panel rounded-3xl p-3 flex-1 flex flex-col justify-between items-center relative overflow-hidden">
           <div class="w-full flex items-center justify-between px-1 mb-1 flex-shrink-0">
             <div class="flex items-center gap-2">
@@ -163,35 +163,6 @@
               </button>
             </div>
             <div id="m3-msg-feedback" class="hidden text-center text-xs font-bold py-1 px-3 rounded-xl"></div>
-          </div>
-        </div>
-
-        <!-- B. 題型 6 (葉片) 專屬面板 -->
-        <div id="right-standard-panel" class="hidden flex-1 flex flex-col space-y-2.5 overflow-y-auto pr-1 custom-scroll">
-          <div class="glass-panel p-3.5 rounded-2xl border border-white/15 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-black text-sky-300 flex items-center gap-1">
-                <span>📐</span> 圖形計算式
-              </span>
-              <span class="text-[11px] text-sky-200/80 font-mono">π ≈ 3.14</span>
-            </div>
-
-            <div class="bg-black/30 p-2.5 rounded-xl border border-white/10 text-xs font-mono space-y-2">
-              <div id="m3-formula-step-guide" class="text-slate-300 leading-relaxed">
-                幾何拆解步驟：
-              </div>
-
-              <div class="pt-1.5 border-t border-white/10 flex items-center gap-2">
-                <span class="text-amber-300 font-bold">最終計算面積：</span>
-                <input type="number" step="any" id="m3-std-input-ans" placeholder="請計算" class="w-28 bg-white/20 border-2 border-emerald-400 rounded-lg px-2 py-0.5 text-center font-black text-emerald-300 text-sm focus:outline-none">
-                <span class="text-xs">cm²</span>
-              </div>
-            </div>
-
-            <button id="m3-std-btn-check" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2 rounded-xl text-xs tracking-wider shadow-lg active:scale-95 transition-all">
-              送出核對答案 ➜
-            </button>
-            <div id="m3-std-msg-feedback" class="hidden text-center text-xs font-bold py-1.5 px-3 rounded-xl"></div>
           </div>
         </div>
 
@@ -234,10 +205,7 @@
           title: "1.太極圖形",
           dims: [20, 40, 10],
           dimIdx: 0,
-          badge: null,
           desc: "想想看，如何透過旋轉、移動，拼出另一個圖形",
-          tip: "",
-          isDrawMode: true,
           calc(d) {
             const r = d / 2;
             const ans = +(r * r * PI / 2).toFixed(2);
@@ -251,10 +219,7 @@
           title: "2.準星環狀",
           dims: [20, 40, 10],
           dimIdx: 0,
-          badge: null,
           desc: "想想看，如何透過旋轉、移動，拼出另一個圖形",
-          tip: "",
-          isDrawMode: true,
           calc(d) {
             const r = d / 2;
             const w = r / 2;
@@ -269,10 +234,7 @@
           title: "3.扇形拼湊",
           dims: [40, 20, 10],
           dimIdx: 0,
-          badge: null,
           desc: "想想看，如何透過旋轉、移動，拼出另一個圖形",
-          tip: "",
-          isDrawMode: true,
           calc(a) {
             const ans = +(a * a * PI / 4).toFixed(2);
             return {
@@ -285,10 +247,7 @@
           title: "4.扇形(複合型一)",
           dims: [20, 10, 40],
           dimIdx: 0,
-          badge: null,
           desc: "透過移動，先想解題策略，再計算面積！",
-          tip: "",
-          isDrawMode: true,
           calc(a) {
             const sq = a * a;
             const sec = +(a * a * PI / 4).toFixed(2);
@@ -303,10 +262,7 @@
           title: "5.扇形(複合型二)",
           dims: [10, 20, 4],
           dimIdx: 0,
-          badge: null,
           desc: "透過移動，先想解題策略，再計算面積！",
-          tip: "",
-          isDrawMode: true,
           calc(r) {
             const sec = +(r * r * PI / 4).toFixed(2);
             const tri = +(r * r / 2).toFixed(2);
@@ -321,10 +277,7 @@
           title: "6.扇形(複合型三)",
           dims: [10, 20, 40],
           dimIdx: 0,
-          badge: null,
           desc: "透過移動，先想解題策略，再計算面積！<br><span class='text-amber-300 text-sm font-bold'>(記得！計算常常不只有一種策略哦！)</span>",
-          tip: "",
-          isDrawMode: false,
           calc(a) {
             const sec = +(a * a * PI / 4).toFixed(2);
             const tri = +(a * a / 2).toFixed(2);
@@ -332,7 +285,6 @@
             const ans = +(bow * 2).toFixed(2);
             return {
               badge: `邊長 ${a} cm`,
-              guide: `① 單片弓形 ＝ (${a}×${a}×3.14÷4) － (${a}×${a}÷2) ＝ ${bow}<br>② 完整葉片 ＝ ${bow} × 2 ＝`,
               ans
             };
           }
@@ -504,6 +456,7 @@
         m3Ctx.save();
 
         if (m3CurrentType === "taiji") {
+          // 題型 1：太極圖形
           const R = 110, r = R / 2;
 
           m3Ctx.beginPath();
@@ -616,6 +569,7 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "cross") {
+          // 題型 2：準星環狀
           const R = 110;
           const r = R / 2;
           const curR = curDim / 2;
@@ -713,6 +667,7 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "diag") {
+          // 題型 3：扇形拼湊
           const S = 170;
           const sx = cx - S / 2;
           const sy = cy - S / 2;
@@ -804,6 +759,7 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "sub_sq" || m3CurrentType === "bow") {
+          // 題型 4 & 5
           const topSize = 120;
           const topX = cx - 110;
           const topY = 20;
@@ -1037,6 +993,7 @@
           }
 
         } else if (m3CurrentType === "leaf") {
+          // 題型 6：扇形(複合型三)
           const topSize = 98;
           const topX = 24;
           const topY = 26;
@@ -1310,30 +1267,10 @@
         document.getElementById('m3-canvas-badge').textContent = calcData.badge;
         document.getElementById('m3-strategy-desc').innerHTML = conf.desc;
 
-        const badgeEl = document.getElementById('m3-strategy-badge');
-        if (conf.badge) {
-          badgeEl.textContent = conf.badge;
-          badgeEl.classList.remove('hidden');
-        } else {
-          badgeEl.classList.add('hidden');
-        }
-
-        const drawPanel = document.getElementById('right-draw-panel');
-        const stdPanel = document.getElementById('right-standard-panel');
-
-        if (conf.isDrawMode) {
-          drawPanel.classList.remove('hidden');
-          stdPanel.classList.add('hidden');
-          document.getElementById('m3-input-ans-area').value = '';
-          document.getElementById('m3-msg-feedback').className = 'hidden';
-          clearCalcCanvas();
-        } else {
-          drawPanel.classList.add('hidden');
-          stdPanel.classList.remove('hidden');
-          document.getElementById('m3-std-input-ans').value = '';
-          document.getElementById('m3-std-msg-feedback').className = 'hidden';
-          document.getElementById('m3-formula-step-guide').innerHTML = `幾何拆解步驟：<br>${calcData.guide}`;
-        }
+        // 全題型皆使用手寫計算與填答面板
+        document.getElementById('m3-input-ans-area').value = '';
+        document.getElementById('m3-msg-feedback').className = 'hidden';
+        clearCalcCanvas();
 
         m3Pos = { x: 0, y: 0 };
         m3AngleDeg = 0;
@@ -1754,7 +1691,7 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 右側手寫板邏輯 (適用於 1~5) ====================
+      // ==================== 右側手寫板邏輯 (全題型共用) ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
       const calcCtx = calcCanvas.getContext('2d');
       const placeholder = document.getElementById('calc-placeholder');
@@ -1837,7 +1774,7 @@
       calcCanvas.addEventListener('pointerup', onCalcPointerEnd);
       calcCanvas.addEventListener('pointercancel', onCalcPointerEnd);
 
-      // ==================== 答案核對（適用於 1~5 手寫模式） ====================
+      // ==================== 答案核對（全題型共用手寫面板填答） ====================
       document.getElementById('m3-btn-check-ans').addEventListener('click', () => {
         const userVal = parseFloat(document.getElementById('m3-input-ans-area').value.trim());
         const msg = document.getElementById('m3-msg-feedback');
@@ -1856,29 +1793,6 @@
           msg.innerHTML = `🎉 太優秀了！完全正確！面積為 <strong>${calcData.ans} cm²</strong>！`;
         } else {
           msg.className = "text-center text-xs font-bold py-1 px-3 rounded-xl bg-rose-500/25 text-rose-200 block";
-          msg.innerHTML = `⚠️ 檢查看看算式：答案應該是 <strong>${calcData.ans} cm²</strong>！`;
-        }
-      });
-
-      // ==================== 答案核對（適用於 6 葉片模式） ====================
-      document.getElementById('m3-std-btn-check').addEventListener('click', () => {
-        const userVal = parseFloat(document.getElementById('m3-std-input-ans').value.trim());
-        const msg = document.getElementById('m3-std-msg-feedback');
-        const conf = M3_CONFIGS[m3CurrentType];
-        const curDim = conf.dims[conf.dimIdx];
-        const calcData = conf.calc(curDim);
-
-        if (isNaN(userVal)) {
-          msg.className = "text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-amber-500/20 text-amber-300 block";
-          msg.textContent = "請輸入計算出的面積數值喔！";
-          return;
-        }
-
-        if (Math.abs(userVal - calcData.ans) < 0.15) {
-          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-emerald-500/30 text-emerald-200 block";
-          msg.innerHTML = `🎉 太優秀了！完全正確！<br>面積為 <strong>${calcData.ans} cm²</strong>！`;
-        } else {
-          msg.className = "text-center text-xs font-bold py-2 px-3 rounded-xl bg-rose-500/25 text-rose-200 block";
           msg.innerHTML = `⚠️ 檢查看看算式：答案應該是 <strong>${calcData.ans} cm²</strong>！`;
         }
       });
