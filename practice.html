@@ -51,6 +51,7 @@
       display: none;
       transform: translate(-50%, -50%);
       z-index: 50;
+      will-change: transform, left, top;
     }
   </style>
 </head>
@@ -58,7 +59,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-4">
 
-    <!-- 頂部導覽列 -->
+    <!-- 頂部導覽列：僅保留回首頁 -->
     <header class="flex items-center justify-start glass-panel px-4 py-2 rounded-2xl mb-2 flex-shrink-0">
       <a href="index.html" class="flex items-center gap-1.5 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
@@ -95,7 +96,7 @@
           </span>
         </div>
 
-        <!-- 保持等比例容器，防止圖形被拉伸變形 -->
+        <!-- 保持等比例容器 -->
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
           <canvas id="m3GeoCanvas" width="520" height="390" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 max-w-full max-h-full aspect-[4/3] cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
         </div>
@@ -138,7 +139,6 @@
             <span class="text-xs text-sky-200/70 font-mono">π ≈ 3.14</span>
           </div>
 
-          <!-- 等比例手寫畫布，徹底鎖定比例並支援防掌觸 -->
           <div id="calc-container" class="relative flex-1 w-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden my-1 flex items-center justify-center">
             <canvas id="m3CalcCanvas" width="520" height="340" class="max-w-full max-h-full aspect-[520/340] cursor-crosshair block" style="touch-action: none;"></canvas>
             <div id="cursor-preview"></div>
@@ -427,7 +427,6 @@
         m3Ctx.save();
 
         if (m3CurrentType === "taiji") {
-          // 太極圖形保持正圓比例
           const R = 140, r = R / 2;
 
           m3Ctx.beginPath();
@@ -540,7 +539,6 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "cross") {
-          // 準星環狀保持正圓比例
           const R = 140;
           const r = R / 2;
           const curR = curDim / 2;
@@ -638,7 +636,6 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "diag") {
-          // 扇形拼湊保持正方形比例 (S = 180)
           const S = 180;
           const sx = cx - S / 2;
           const sy = cy - S / 2;
@@ -817,12 +814,12 @@
             m3Ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
             m3Ctx.lineWidth = 1.5;
             m3Ctx.strokeRect(topX, topY, mark, mark);
+            m3Ctx.strokeRect(topX, topY + topSize - mark, mark, mark);
 
             drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -22, `${curDim}cm`, 'left');
             drawBrightCurvedBracket(m3Ctx, topX, topY + topSize, topX + topSize, topY + topSize, 22, `${curDim}cm`, 'bottom');
           }
 
-          // 符號庫
           const opBoxX = cx + 80;
           const opBoxY = topY + 6;
 
@@ -861,7 +858,6 @@
           });
           m3Ctx.restore();
 
-          // 算式槽
           const slotSize = 88;
           const slotY = 235;
           const slotGap = 60;
@@ -965,10 +961,10 @@
           }
 
         } else if (m3CurrentType === "leaf") {
-          // 題型 6：標籤改至【上】與【左】，右側淨空無遮擋
+          // 題型 6：整體適度右移 (topX = 64)，長度標示在【左】與【下】，徹底不佔用上方與右側空間
           const topSize = 88;
-          const topX = 40;
-          const topY = 32;
+          const topX = 64;
+          const topY = 26;
 
           m3Ctx.fillStyle = 'rgba(187, 247, 208, 0.45)';
           m3Ctx.fillRect(topX, topY, topSize, topSize);
@@ -1002,14 +998,14 @@
             m3Ctx.stroke();
           });
 
-          // 尺寸標籤移到上方與左方，不擋右側
-          drawBrightCurvedBracket(m3Ctx, topX, topY, topX + topSize, topY, -14, `${curDim}cm`, 'top');
+          // 長度標示：標在正方形【左側】與【下方】，右邊完全淨空
           drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -18, `${curDim}cm`, 'left');
+          drawBrightCurvedBracket(m3Ctx, topX, topY + topSize, topX + topSize, topY + topSize, 18, `${curDim}cm`, 'bottom');
 
-          // 零件庫右移並保持距離
-          const libX = 180;
+          // 零件庫右移並保持距離 (libX = 185)
+          const libX = 185;
           const libY = 14;
-          const libW = 325;
+          const libW = 320;
           const libH = 126;
 
           m3Ctx.save();
@@ -1023,13 +1019,13 @@
 
           const pSize = 42;
           LEAF_SHAPE_PALETTE.forEach((type, i) => {
-            const bx = libX + 10 + i * 53;
+            const bx = libX + 10 + i * 51;
             const by = libY + 12;
             renderShapePiece(m3Ctx, type, bx, by, pSize);
           });
 
           LEAF_OP_PALETTE.forEach((sym, i) => {
-            const bx = libX + 31 + i * 53;
+            const bx = libX + 31 + i * 51;
             const by = libY + 88;
 
             m3Ctx.beginPath();
@@ -1417,12 +1413,12 @@
         const cx = m3Canvas.width / 2;
 
         if (m3CurrentType === "leaf") {
-          const libX = 180;
+          const libX = 185;
           const libY = 14;
           const pSize = 42;
 
           for (let i = 0; i < LEAF_SHAPE_PALETTE.length; i++) {
-            const bx = libX + 10 + i * 53 + pSize / 2;
+            const bx = libX + 10 + i * 51 + pSize / 2;
             const by = libY + 12 + pSize / 2;
             if (Math.hypot(pt.x - bx, pt.y - by) <= 32) {
               draggingItem = { kind: 'shape', value: LEAF_SHAPE_PALETTE[i], x: pt.x, y: pt.y };
@@ -1434,7 +1430,7 @@
           }
 
           for (let i = 0; i < LEAF_OP_PALETTE.length; i++) {
-            const bx = libX + 31 + i * 53;
+            const bx = libX + 31 + i * 51;
             const by = libY + 88;
             if (Math.hypot(pt.x - bx, pt.y - by) <= 30) {
               const val = LEAF_OP_PALETTE[i];
@@ -1662,7 +1658,7 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 防手掌誤觸手寫板邏輯 ====================
+      // ==================== 高靈敏度手寫板邏輯 ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
       const calcCtx = calcCanvas.getContext('2d');
       const calcContainer = document.getElementById('calc-container');
@@ -1671,16 +1667,17 @@
 
       let currentTool = 'pen';
       let isDrawing = false;
+      let activePointerId = null;
+      let activePointerType = null;
       let lastPoint = { x: 0, y: 0 };
-      let activePointerType = null; // 記錄當前書寫的輸入種類（例如 'pen'）
 
       function updateCursorStyle() {
         if (currentTool === 'pen') {
-          cursorPreview.style.width = '10px';
-          cursorPreview.style.height = '10px';
+          cursorPreview.style.width = '8px';
+          cursorPreview.style.height = '8px';
           cursorPreview.style.borderRadius = '50%';
-          cursorPreview.style.border = '2px solid #fef08a';
-          cursorPreview.style.background = 'rgba(254, 240, 138, 0.4)';
+          cursorPreview.style.border = '1.5px solid #fef08a';
+          cursorPreview.style.background = 'rgba(254, 240, 138, 0.5)';
         } else {
           cursorPreview.style.width = '26px';
           cursorPreview.style.height = '26px';
@@ -1720,50 +1717,11 @@
         cursorPreview.style.display = 'none';
       });
 
-      calcCanvas.addEventListener('pointerdown', (e) => {
-        // 防掌觸核心：若使用 Apple Pencil (pen)，則禁止手掌 (touch) 觸發下筆
-        if (e.pointerType === 'touch' && activePointerType === 'pen') {
-          return;
-        }
-        activePointerType = e.pointerType;
-
-        isDrawing = true;
-        placeholder.style.display = 'none';
-        lastPoint = getCanvasCoords(calcCanvas, e);
-        calcCanvas.setPointerCapture(e.pointerId);
-
+      // 針對下筆與劃線進行平滑高頻繪製
+      function drawSegment(x1, y1, x2, y2) {
         calcCtx.beginPath();
-        calcCtx.arc(lastPoint.x, lastPoint.y, currentTool === 'pen' ? 1.75 : 12, 0, Math.PI * 2);
-        if (currentTool === 'pen') {
-          calcCtx.fillStyle = '#fef08a';
-          calcCtx.fill();
-        } else {
-          calcCtx.save();
-          calcCtx.globalCompositeOperation = 'destination-out';
-          calcCtx.fillStyle = 'rgba(0,0,0,1)';
-          calcCtx.fill();
-          calcCtx.restore();
-        }
-      });
-
-      calcCanvas.addEventListener('pointermove', (e) => {
-        // 更新游標指示方框/圓圈位置
-        const canvasRect = calcCanvas.getBoundingClientRect();
-        const containerRect = calcContainer.getBoundingClientRect();
-        const cursorX = e.clientX - containerRect.left;
-        const cursorY = e.clientY - containerRect.top;
-        cursorPreview.style.left = `${cursorX}px`;
-        cursorPreview.style.top = `${cursorY}px`;
-        cursorPreview.style.display = 'block';
-
-        if (!isDrawing) return;
-        if (activePointerType && e.pointerType !== activePointerType) return;
-
-        const currentPoint = getCanvasCoords(calcCanvas, e);
-
-        calcCtx.beginPath();
-        calcCtx.moveTo(lastPoint.x, lastPoint.y);
-        calcCtx.lineTo(currentPoint.x, currentPoint.y);
+        calcCtx.moveTo(x1, y1);
+        calcCtx.lineTo(x2, y2);
         calcCtx.lineCap = 'round';
         calcCtx.lineJoin = 'round';
 
@@ -1779,16 +1737,58 @@
           calcCtx.stroke();
           calcCtx.restore();
         }
+      }
 
-        lastPoint = currentPoint;
+      calcCanvas.addEventListener('pointerdown', (e) => {
+        // 防掌觸：若偵測到是觸控筆操作，手掌 (touch) 壓在螢幕上一律不理會
+        if (activePointerType === 'pen' && e.pointerType === 'touch') {
+          return;
+        }
+        
+        activePointerId = e.pointerId;
+        activePointerType = e.pointerType;
+        isDrawing = true;
+        placeholder.style.display = 'none';
+        
+        lastPoint = getCanvasCoords(calcCanvas, e);
+        try { calcCanvas.setPointerCapture(e.pointerId); } catch(err) {}
+
+        calcCtx.beginPath();
+        calcCtx.arc(lastPoint.x, lastPoint.y, currentTool === 'pen' ? 1.75 : 13, 0, Math.PI * 2);
+        if (currentTool === 'pen') {
+          calcCtx.fillStyle = '#fef08a';
+          calcCtx.fill();
+        } else {
+          calcCtx.save();
+          calcCtx.globalCompositeOperation = 'destination-out';
+          calcCtx.fillStyle = 'rgba(0,0,0,1)';
+          calcCtx.fill();
+          calcCtx.restore();
+        }
+      });
+
+      calcCanvas.addEventListener('pointermove', (e) => {
+        // 更新游標位置
+        const containerRect = calcContainer.getBoundingClientRect();
+        cursorPreview.style.left = `${e.clientX - containerRect.left}px`;
+        cursorPreview.style.top = `${e.clientY - containerRect.top}px`;
+        cursorPreview.style.display = 'block';
+
+        if (!isDrawing || e.pointerId !== activePointerId) return;
+
+        // 使用 getCoalescedEvents 提升 Apple Pencil 感應流暢度（消除延遲與折線感）
+        const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
+        for (const ev of events) {
+          const pt = getCanvasCoords(calcCanvas, ev);
+          drawSegment(lastPoint.x, lastPoint.y, pt.x, pt.y);
+          lastPoint = pt;
+        }
       });
 
       function onCalcPointerEnd(e) {
-        if (!isDrawing) return;
-        if (activePointerType && e.pointerType === activePointerType) {
-          isDrawing = false;
-          activePointerType = null;
-        }
+        if (!isDrawing || e.pointerId !== activePointerId) return;
+        isDrawing = false;
+        activePointerId = null;
         try { calcCanvas.releasePointerCapture(e.pointerId); } catch(err) {}
       }
 
