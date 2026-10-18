@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>扇形面積探索 - 柚子老師數學教室</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -12,7 +12,7 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      touch-action: pan-x pan-y pinch-zoom;
+      touch-action: none;
       user-select: none;
       -webkit-user-select: none;
       -webkit-touch-callout: none;
@@ -44,7 +44,6 @@
       margin: 0; 
     }
 
-    /* 懸浮游標指標圈 */
     #cursor-preview {
       pointer-events: none;
       position: absolute;
@@ -52,7 +51,6 @@
       display: none;
       transform: translate(-50%, -50%);
       z-index: 50;
-      transition: width 0.05s, height 0.05s;
     }
   </style>
 </head>
@@ -60,7 +58,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-4">
 
-    <!-- 頂部導覽列：僅保留回首頁 -->
+    <!-- 頂部導覽列 -->
     <header class="flex items-center justify-start glass-panel px-4 py-2 rounded-2xl mb-2 flex-shrink-0">
       <a href="index.html" class="flex items-center gap-1.5 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
@@ -70,7 +68,7 @@
     <!-- 主操作面板 -->
     <div id="panel-composite" class="flex-1 w-full grid grid-cols-12 gap-4 items-stretch overflow-hidden">
       
-      <!-- 左側：幾何操作與算式積木畫布 -->
+      <!-- 左側：幾何操作畫布 -->
       <div class="col-span-6 h-full glass-panel rounded-3xl p-3.5 flex flex-col justify-between items-center relative">
         <div class="w-full flex items-center justify-between gap-2 px-1">
           <div class="flex items-center gap-2 flex-1">
@@ -97,12 +95,12 @@
           </span>
         </div>
 
-        <!-- 幾何互動畫布 -->
+        <!-- 保持等比例容器，防止圖形被拉伸變形 -->
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
-          <canvas id="m3GeoCanvas" width="520" height="390" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 w-full h-full cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
+          <canvas id="m3GeoCanvas" width="520" height="390" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 max-w-full max-h-full aspect-[4/3] cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
         </div>
 
-        <!-- 底部提示欄：僅保留清空重設按鈕 -->
+        <!-- 底部提示欄 -->
         <div class="w-full bg-black/30 p-2 rounded-2xl border border-white/10 flex items-center justify-center px-3">
           <button id="m3-btn-reset-pos" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold px-5 py-1.5 rounded-xl text-xs border border-white/10 active:scale-95 transition-all flex-shrink-0">
             清空重設 ↺
@@ -110,7 +108,7 @@
         </div>
       </div>
 
-      <!-- 右側面板：全題型手寫計算空間 -->
+      <!-- 右側面板：手寫計算空間 -->
       <div class="col-span-6 h-full flex flex-col justify-between space-y-2.5 overflow-hidden">
         
         <!-- 觀察策略卡片 -->
@@ -140,9 +138,9 @@
             <span class="text-xs text-sky-200/70 font-mono">π ≈ 3.14</span>
           </div>
 
-          <!-- 手寫畫布容器：移除 object-contain 防止黑邊脫鉤，加入動態懸浮預覽指示圈 -->
-          <div id="calc-container" class="relative flex-1 w-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden my-1">
-            <canvas id="m3CalcCanvas" width="520" height="300" class="w-full h-full cursor-crosshair block" style="touch-action: none;"></canvas>
+          <!-- 等比例手寫畫布，徹底鎖定比例並支援防掌觸 -->
+          <div id="calc-container" class="relative flex-1 w-full bg-slate-900/60 rounded-2xl border border-white/10 overflow-hidden my-1 flex items-center justify-center">
+            <canvas id="m3CalcCanvas" width="520" height="340" class="max-w-full max-h-full aspect-[520/340] cursor-crosshair block" style="touch-action: none;"></canvas>
             <div id="cursor-preview"></div>
             <div id="calc-placeholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-white/20 text-sm font-bold tracking-widest select-none">
               在此處書寫計算過程
@@ -193,7 +191,6 @@
 
       const PI = 3.14;
 
-      // ==================== 題型設定 ====================
       const M3_CONFIGS = {
         taiji: {
           title: "1.太極圖形",
@@ -272,12 +269,10 @@
       let m3AngleDeg = 0;
       let isSnapped = false;
 
-      // 題型 4 & 5
       const OP_LIST = ['＋', '－', '×', '÷'];
       let selectedOp = null;
       let compositeSlots = [null, null, null];
 
-      // 題型 6
       const LEAF_SHAPE_PALETTE = ['sec', 'tri', 'bow', 'leaf', 'sq', 'corner'];
       const LEAF_OP_PALETTE = ['＋', '－', '×', '÷', '＝', '2'];
       let leafBox1 = [];
@@ -300,8 +295,8 @@
         ctx.beginPath();
         ctx.moveTo(x1, y1);
 
-        const mx = (x1 + x2) / 2 + bendOffset;
-        const my = (y1 + y2) / 2;
+        const mx = (x1 + x2) / 2 + (textSide === 'top' || textSide === 'bottom' ? 0 : bendOffset);
+        const my = (y1 + y2) / 2 + (textSide === 'top' || textSide === 'bottom' ? bendOffset : 0);
         ctx.quadraticCurveTo(mx, my, x2, y2);
         ctx.stroke();
 
@@ -432,7 +427,8 @@
         m3Ctx.save();
 
         if (m3CurrentType === "taiji") {
-          const R = 145, r = R / 2;
+          // 太極圖形保持正圓比例
+          const R = 140, r = R / 2;
 
           m3Ctx.beginPath();
           m3Ctx.arc(cx, cy, R, Math.PI / 2, -Math.PI / 2, false);
@@ -544,7 +540,8 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "cross") {
-          const R = 145;
+          // 準星環狀保持正圓比例
+          const R = 140;
           const r = R / 2;
           const curR = curDim / 2;
           const curW = curR / 2;
@@ -641,7 +638,8 @@
           m3Ctx.restore();
 
         } else if (m3CurrentType === "diag") {
-          const S = 185;
+          // 扇形拼湊保持正方形比例 (S = 180)
+          const S = 180;
           const sx = cx - S / 2;
           const sy = cy - S / 2;
 
@@ -967,10 +965,10 @@
           }
 
         } else if (m3CurrentType === "leaf") {
-          // 題型 6：標籤改到上方與左側，徹底避開右側零件庫
+          // 題型 6：標籤改至【上】與【左】，右側淨空無遮擋
           const topSize = 88;
-          const topX = 38;
-          const topY = 28;
+          const topX = 40;
+          const topY = 32;
 
           m3Ctx.fillStyle = 'rgba(187, 247, 208, 0.45)';
           m3Ctx.fillRect(topX, topY, topSize, topSize);
@@ -1004,14 +1002,14 @@
             m3Ctx.stroke();
           });
 
-          // 長度標示：改標在【上】與【左】，右側完全不佔用！
-          drawBrightCurvedBracket(m3Ctx, topX, topY, topX + topSize, topY, -15, `${curDim}cm`, 'top');
-          drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -15, `${curDim}cm`, 'left');
+          // 尺寸標籤移到上方與左方，不擋右側
+          drawBrightCurvedBracket(m3Ctx, topX, topY, topX + topSize, topY, -14, `${curDim}cm`, 'top');
+          drawBrightCurvedBracket(m3Ctx, topX, topY, topX, topY + topSize, -18, `${curDim}cm`, 'left');
 
-          // 零件庫：X 從 175 開始，與題目圖形保持 50px 寬廣距離
-          const libX = 175;
+          // 零件庫右移並保持距離
+          const libX = 180;
           const libY = 14;
-          const libW = 328;
+          const libW = 325;
           const libH = 126;
 
           m3Ctx.save();
@@ -1058,7 +1056,7 @@
           m3Ctx.stroke();
           m3Ctx.setLineDash([]);
 
-          // 雙算式方框：寬度放寬至 470px，縱向空間充裕
+          // 雙算式方框
           const boxX = 25;
           const boxW = m3Canvas.width - 50;
           const boxH = 62;
@@ -1186,7 +1184,6 @@
             }
           }
 
-          // 智能算式判定
           const str1 = leafBox1.join('');
           const str2 = leafBox2.join('');
           const eqIdx1 = leafBox1.indexOf('＝');
@@ -1387,7 +1384,7 @@
             animateSnap(0, 0, 180);
           }
         } else if (m3CurrentType === "diag") {
-          const S = 185;
+          const S = 180;
           const dist = Math.hypot(m3Pos.x - (-S), m3Pos.y - S);
           const normAngle = ((m3AngleDeg % 360) + 360) % 360;
           const angleDiff = Math.min(Math.abs(normAngle - 225), Math.abs(normAngle - 225 + 360));
@@ -1396,7 +1393,7 @@
             animateSnap(-S, S, 225);
           }
         } else if (m3CurrentType === "taiji") {
-          const r = 72.5;
+          const r = 70;
           const dist = Math.hypot(m3Pos.x, m3Pos.y - (-r * 2));
           const normAngle = ((m3AngleDeg % 360) + 360) % 360;
           const angleDiff = Math.min(Math.abs(normAngle - 180), Math.abs(normAngle - 180 + 360));
@@ -1407,7 +1404,6 @@
         }
       }
 
-      // 精準座標換算（相對於渲染寬高的標準比例換算，完全消除縮放偏差）
       function getCanvasCoords(canvas, e) {
         const rect = canvas.getBoundingClientRect();
         return {
@@ -1421,7 +1417,7 @@
         const cx = m3Canvas.width / 2;
 
         if (m3CurrentType === "leaf") {
-          const libX = 175;
+          const libX = 180;
           const libY = 14;
           const pSize = 42;
 
@@ -1639,10 +1635,10 @@
         } else if (activeDragMode === 'rotate') {
           const cx = m3Canvas.width / 2;
           const cy = m3Canvas.height / 2;
-          let centerPt = { x: cx + m3Pos.x, y: cy + 72.5 + m3Pos.y };
+          let centerPt = { x: cx + m3Pos.x, y: cy + 70 + m3Pos.y };
 
           if (m3CurrentType === "diag") {
-            centerPt = { x: cx + 92.5 + m3Pos.x, y: cy - 92.5 + m3Pos.y };
+            centerPt = { x: cx + 90 + m3Pos.x, y: cy - 90 + m3Pos.y };
           }
 
           const angleCurrent = Math.atan2(pt.y - centerPt.y, pt.x - centerPt.x);
@@ -1666,7 +1662,7 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 右側手寫板邏輯 (游標預覽 + 筆尖咬合) ====================
+      // ==================== 防手掌誤觸手寫板邏輯 ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
       const calcCtx = calcCanvas.getContext('2d');
       const calcContainer = document.getElementById('calc-container');
@@ -1676,6 +1672,7 @@
       let currentTool = 'pen';
       let isDrawing = false;
       let lastPoint = { x: 0, y: 0 };
+      let activePointerType = null; // 記錄當前書寫的輸入種類（例如 'pen'）
 
       function updateCursorStyle() {
         if (currentTool === 'pen') {
@@ -1714,7 +1711,6 @@
 
       document.getElementById('draw-tool-clear').addEventListener('click', clearCalcCanvas);
 
-      // 監聽懸浮顯示游標大小
       calcContainer.addEventListener('pointerenter', () => {
         updateCursorStyle();
         cursorPreview.style.display = 'block';
@@ -1725,6 +1721,12 @@
       });
 
       calcCanvas.addEventListener('pointerdown', (e) => {
+        // 防掌觸核心：若使用 Apple Pencil (pen)，則禁止手掌 (touch) 觸發下筆
+        if (e.pointerType === 'touch' && activePointerType === 'pen') {
+          return;
+        }
+        activePointerType = e.pointerType;
+
         isDrawing = true;
         placeholder.style.display = 'none';
         lastPoint = getCanvasCoords(calcCanvas, e);
@@ -1746,14 +1748,17 @@
 
       calcCanvas.addEventListener('pointermove', (e) => {
         // 更新游標指示方框/圓圈位置
-        const contRect = calcContainer.getBoundingClientRect();
-        const cursorX = (e.clientX - contRect.left) * (calcContainer.offsetWidth / contRect.width);
-        const cursorY = (e.clientY - contRect.top) * (calcContainer.offsetHeight / contRect.height);
+        const canvasRect = calcCanvas.getBoundingClientRect();
+        const containerRect = calcContainer.getBoundingClientRect();
+        const cursorX = e.clientX - containerRect.left;
+        const cursorY = e.clientY - containerRect.top;
         cursorPreview.style.left = `${cursorX}px`;
         cursorPreview.style.top = `${cursorY}px`;
         cursorPreview.style.display = 'block';
 
         if (!isDrawing) return;
+        if (activePointerType && e.pointerType !== activePointerType) return;
+
         const currentPoint = getCanvasCoords(calcCanvas, e);
 
         calcCtx.beginPath();
@@ -1780,7 +1785,10 @@
 
       function onCalcPointerEnd(e) {
         if (!isDrawing) return;
-        isDrawing = false;
+        if (activePointerType && e.pointerType === activePointerType) {
+          isDrawing = false;
+          activePointerType = null;
+        }
         try { calcCanvas.releasePointerCapture(e.pointerId); } catch(err) {}
       }
 
