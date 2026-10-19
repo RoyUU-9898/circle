@@ -44,25 +44,17 @@
       margin: 0; 
     }
 
-    /* SVG 繪圖板基礎樣式 */
-    #svg-draw-board {
+    #calc-container {
       touch-action: none;
-      -webkit-touch-callout: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    #m3CalcCanvas {
+      touch-action: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
       cursor: crosshair;
-    }
-
-    .writing-path {
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      pointer-events: none;
-    }
-
-    /* 橡皮擦模式下游標可點擊刪除筆畫 */
-    .eraser-mode .writing-path {
-      pointer-events: stroke;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -70,7 +62,7 @@
 
   <div id="app-wrapper" class="flex flex-col justify-between p-4">
 
-    <!-- 頂部導覽列：僅保留回首頁 -->
+    <!-- 頂部導覽列 -->
     <header class="flex items-center justify-start glass-panel px-4 py-2 rounded-2xl mb-2 flex-shrink-0">
       <a href="index.html" class="flex items-center gap-1.5 text-sky-200 hover:text-white font-bold text-sm bg-white/10 px-4 py-2 rounded-xl border border-white/20 active:scale-95 transition-all">
         <span>⌂ 回首頁</span>
@@ -107,7 +99,7 @@
           </span>
         </div>
 
-        <!-- 保持等比例容器 -->
+        <!-- 幾何互動畫布 -->
         <div class="relative flex items-center justify-center flex-1 my-1 w-full overflow-hidden">
           <canvas id="m3GeoCanvas" width="520" height="390" class="rounded-2xl shadow-lg bg-slate-900/60 border border-white/10 max-w-full max-h-full aspect-[4/3] cursor-grab active:cursor-grabbing" style="touch-action: none;"></canvas>
         </div>
@@ -120,7 +112,7 @@
         </div>
       </div>
 
-      <!-- 右側面板：手寫計算空間（改用純白底色與向量 SVG 繪圖） -->
+      <!-- 右側面板：手寫計算空間（純白底色、黑筆/紅筆/局部擦除橡皮擦） -->
       <div class="col-span-6 h-full flex flex-col justify-between space-y-2.5 overflow-hidden">
         
         <!-- 觀察策略卡片 -->
@@ -135,7 +127,6 @@
 
         <!-- 手寫計算工作面板 -->
         <div id="right-draw-panel" class="glass-panel rounded-3xl p-3.5 flex-1 flex flex-col justify-between items-center relative overflow-hidden">
-          <!-- 工具列：黑筆、紅筆、橡皮擦、清空筆跡 -->
           <div class="w-full flex items-center justify-between px-1 mb-1.5 flex-shrink-0">
             <div class="flex items-center gap-2">
               <button id="draw-tool-black" class="bg-slate-900 text-white font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-amber-400 shadow flex items-center gap-1.5 active:scale-95 transition-all">
@@ -146,7 +137,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-red-600 border border-white/80"></span>
                 <span>紅筆</span>
               </button>
-              <button id="draw-tool-eraser" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1 active:scale-95 transition-all">
+              <button id="draw-tool-eraser" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1.5 active:scale-95 transition-all">
                 <span>🧹</span> 橡皮擦
               </button>
               <button id="draw-tool-clear" class="bg-rose-500/25 hover:bg-rose-500 text-rose-200 hover:text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-400/30 active:scale-95 transition-all">
@@ -156,11 +147,9 @@
             <span class="text-xs text-sky-200/70 font-mono">π ≈ 3.14</span>
           </div>
 
-          <!-- 純白底色向量 SVG 繪圖畫板 -->
+          <!-- 純白底色高效能手寫板容器 -->
           <div id="calc-container" class="relative flex-1 w-full bg-white rounded-2xl border-2 border-slate-300/40 shadow-inner overflow-hidden my-1 flex items-center justify-center">
-            <svg id="svg-draw-board" class="w-full h-full block" viewBox="0 0 520 340" preserveAspectRatio="none">
-              <!-- 動態筆畫路徑將注入在此 -->
-            </svg>
+            <canvas id="m3CalcCanvas" width="520" height="340" class="max-w-full max-h-full aspect-[520/340] block" style="touch-action: none;"></canvas>
             <div id="calc-placeholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-bold tracking-widest select-none">
               在此處書寫計算過程
             </div>
@@ -1103,7 +1092,7 @@
             const itemSpacing = 58;
             leafBox1.forEach((item, idx) => {
               const ix = startItemX + idx * itemSpacing;
-              const iy = box1Y + 31;
+              const iy = box1Y + boxH / 2;
 
               if (LEAF_SHAPE_PALETTE.includes(item)) {
                 renderShapePiece(m3Ctx, item, ix - 20, iy - 20, 40);
@@ -1136,7 +1125,7 @@
             const itemSpacing = 58;
             leafBox2.forEach((item, idx) => {
               const ix = startItemX + idx * itemSpacing;
-              const iy = box2Y + 31;
+              const iy = box2Y + boxH / 2;
 
               if (LEAF_SHAPE_PALETTE.includes(item)) {
                 renderShapePiece(m3Ctx, item, ix - 20, iy - 20, 40);
@@ -1256,7 +1245,7 @@
 
         document.getElementById('m3-input-ans-area').value = '';
         document.getElementById('m3-msg-feedback').className = 'hidden';
-        clearSvgBoard();
+        clearCalcCanvas();
 
         m3Pos = { x: 0, y: 0 };
         m3AngleDeg = 0;
@@ -1675,17 +1664,17 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 純白底色向量 SVG 繪圖引擎 ====================
-      const svgBoard = document.getElementById('svg-draw-board');
+      // ==================== 純 Touch 底層原生的連續手寫引擎（零延遲、支援 Apple Pencil 與真橡皮擦） ====================
+      const calcCanvas = document.getElementById('m3CalcCanvas');
+      const calcCtx = calcCanvas.getContext('2d');
       const placeholder = document.getElementById('calc-placeholder');
 
       let currentTool = 'black'; // 'black' | 'red' | 'eraser'
       let isDrawing = false;
-      let currentPath = null;
-      let pathD = '';
+      let lastPoint = { x: 0, y: 0 };
 
-      function clearSvgBoard() {
-        svgBoard.innerHTML = '';
+      function clearCalcCanvas() {
+        calcCtx.clearRect(0, 0, calcCanvas.width, calcCanvas.height);
         placeholder.style.display = 'flex';
       }
 
@@ -1694,20 +1683,19 @@
         const btnRed = document.getElementById('draw-tool-red');
         const btnEraser = document.getElementById('draw-tool-eraser');
 
-        // 重置為預設樣式
         btnBlack.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1.5 active:scale-95 transition-all";
         btnRed.className = "bg-slate-800 hover:bg-slate-700 text-rose-300 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1.5 active:scale-95 transition-all";
-        btnEraser.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1 active:scale-95 transition-all";
+        btnEraser.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1.5 active:scale-95 transition-all";
 
         if (currentTool === 'black') {
           btnBlack.className = "bg-slate-900 text-white font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-amber-400 shadow flex items-center gap-1.5 active:scale-95 transition-all";
-          svgBoard.classList.remove('eraser-mode');
+          calcCanvas.style.cursor = 'crosshair';
         } else if (currentTool === 'red') {
           btnRed.className = "bg-rose-950/80 text-rose-200 font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-rose-400 shadow flex items-center gap-1.5 active:scale-95 transition-all";
-          svgBoard.classList.remove('eraser-mode');
+          calcCanvas.style.cursor = 'crosshair';
         } else if (currentTool === 'eraser') {
-          btnEraser.className = "bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1 active:scale-95 transition-all";
-          svgBoard.classList.add('eraser-mode');
+          btnEraser.className = "bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1.5 active:scale-95 transition-all";
+          calcCanvas.style.cursor = 'cell';
         }
       }
 
@@ -1726,75 +1714,113 @@
         updateToolUI();
       });
 
-      document.getElementById('draw-tool-clear').addEventListener('click', clearSvgBoard);
+      document.getElementById('draw-tool-clear').addEventListener('click', clearCalcCanvas);
 
-      function getSvgCoords(e) {
-        const pt = svgBoard.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
-        const matrix = svgBoard.getScreenCTM().inverse();
-        const loc = pt.matrixTransform(matrix);
-        return { x: loc.x, y: loc.y };
+      function getTouchCanvasCoords(touch) {
+        const rect = calcCanvas.getBoundingClientRect();
+        return {
+          x: (touch.clientX - rect.left) * (calcCanvas.width / rect.width),
+          y: (touch.clientY - rect.top) * (calcCanvas.height / rect.height)
+        };
       }
 
-      svgBoard.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (currentTool === 'eraser') {
-          // 橡皮擦模式下若點到路徑直接刪除
-          if (e.target.tagName.toLowerCase() === 'path') {
-            e.target.remove();
-            if (svgBoard.children.length === 0) placeholder.style.display = 'flex';
-          }
-          return;
+      function applyBrushStyle() {
+        if (currentTool === 'black') {
+          calcCtx.globalCompositeOperation = 'source-over';
+          calcCtx.strokeStyle = '#0f172a';
+          calcCtx.fillStyle = '#0f172a';
+          calcCtx.lineWidth = 3.5;
+        } else if (currentTool === 'red') {
+          calcCtx.globalCompositeOperation = 'source-over';
+          calcCtx.strokeStyle = '#dc2626';
+          calcCtx.fillStyle = '#dc2626';
+          calcCtx.lineWidth = 3.5;
+        } else if (currentTool === 'eraser') {
+          // 在白色畫布上執行真實擦除（清除白色畫布上的筆跡，露出白色畫布）
+          calcCtx.globalCompositeOperation = 'destination-out';
+          calcCtx.fillStyle = 'rgba(0,0,0,1)';
+          calcCtx.strokeStyle = 'rgba(0,0,0,1)';
+          calcCtx.lineWidth = 26;
         }
+        calcCtx.lineCap = 'round';
+        calcCtx.lineJoin = 'round';
+      }
 
+      function startStroke(coords) {
         isDrawing = true;
         placeholder.style.display = 'none';
+        lastPoint = coords;
 
-        const coords = getSvgCoords(e);
-        currentPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        currentPath.setAttribute('class', 'writing-path');
-        currentPath.setAttribute('stroke', currentTool === 'red' ? '#dc2626' : '#0f172a');
-        currentPath.setAttribute('stroke-width', '3');
+        applyBrushStyle();
+        calcCtx.beginPath();
+        calcCtx.arc(lastPoint.x, lastPoint.y, currentTool === 'eraser' ? 13 : 1.75, 0, Math.PI * 2);
+        calcCtx.fill();
+      }
 
-        pathD = `M ${coords.x.toFixed(1)} ${coords.y.toFixed(1)} L ${(coords.x + 0.1).toFixed(1)} ${(coords.y + 0.1).toFixed(1)}`;
-        currentPath.setAttribute('d', pathD);
+      function moveStroke(coords) {
+        if (!isDrawing) return;
+        applyBrushStyle();
+        calcCtx.beginPath();
+        calcCtx.moveTo(lastPoint.x, lastPoint.y);
+        calcCtx.lineTo(coords.x, coords.y);
+        calcCtx.stroke();
+        lastPoint = coords;
+      }
 
-        // 綁定橡皮擦模式下的單筆清除
-        currentPath.addEventListener('pointerdown', (ev) => {
-          if (currentTool === 'eraser') {
-            ev.stopPropagation();
-            currentPath.remove();
-            if (svgBoard.children.length === 0) placeholder.style.display = 'flex';
-          }
-        });
+      function endStroke() {
+        isDrawing = false;
+      }
 
-        svgBoard.appendChild(currentPath);
-      });
-
-      svgBoard.addEventListener('pointermove', (e) => {
-        if (!isDrawing || !currentPath) return;
+      // 1. 純原生 Touch 事件監聽（完全避開 PointerEvent 對 Apple Pencil 的額外手勢排隊，下筆直接出墨）
+      calcCanvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        const events = (typeof e.getCoalescedEvents === 'function') ? e.getCoalescedEvents() : [e];
-        for (const ev of events) {
-          const coords = getSvgCoords(ev);
-          pathD += ` L ${coords.x.toFixed(1)} ${coords.y.toFixed(1)}`;
+        if (e.touches.length > 0) {
+          startStroke(getTouchCanvasCoords(e.touches[0]));
         }
-        currentPath.setAttribute('d', pathD);
+      }, { passive: false });
+
+      calcCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isDrawing && e.touches.length > 0) {
+          moveStroke(getTouchCanvasCoords(e.touches[0]));
+        }
+      }, { passive: false });
+
+      calcCanvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        endStroke();
+      }, { passive: false });
+
+      calcCanvas.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        endStroke();
+      }, { passive: false });
+
+      // 2. 電腦滑鼠事件備用相容
+      calcCanvas.addEventListener('mousedown', (e) => {
+        const rect = calcCanvas.getBoundingClientRect();
+        startStroke({
+          x: (e.clientX - rect.left) * (calcCanvas.width / rect.width),
+          y: (e.clientY - rect.top) * (calcCanvas.height / rect.height)
+        });
       });
 
-      const stopSvgDrawing = () => {
-        isDrawing = false;
-        currentPath = null;
-      };
+      window.addEventListener('mousemove', (e) => {
+        if (!isDrawing) return;
+        const rect = calcCanvas.getBoundingClientRect();
+        moveStroke({
+          x: (e.clientX - rect.left) * (calcCanvas.width / rect.width),
+          y: (e.clientY - rect.top) * (calcCanvas.height / rect.height)
+        });
+      });
 
-      svgBoard.addEventListener('pointerup', stopSvgDrawing);
-      svgBoard.addEventListener('pointercancel', stopSvgDrawing);
-      svgBoard.addEventListener('pointerleave', stopSvgDrawing);
+      window.addEventListener('mouseup', () => {
+        if (isDrawing) endStroke();
+      });
 
       // ==================== 答案核對 ====================
       document.getElementById('m3-btn-check-ans').addEventListener('click', () => {
