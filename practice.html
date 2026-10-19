@@ -55,6 +55,7 @@
       -webkit-user-select: none;
       -webkit-touch-callout: none;
       cursor: crosshair;
+      display: block;
     }
   </style>
 </head>
@@ -112,7 +113,7 @@
         </div>
       </div>
 
-      <!-- 右側面板：手寫計算空間（純白底色、黑筆/紅筆/局部擦除橡皮擦） -->
+      <!-- 右側面板：手寫計算空間（純白底色、全區域填滿無邊界可寫） -->
       <div class="col-span-6 h-full flex flex-col justify-between space-y-2.5 overflow-hidden">
         
         <!-- 觀察策略卡片 -->
@@ -137,7 +138,7 @@
                 <span class="w-2.5 h-2.5 rounded-full bg-red-600 border border-white/80"></span>
                 <span>紅筆</span>
               </button>
-              <button id="draw-tool-eraser" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1.5 active:scale-95 transition-all">
+              <button id="draw-tool-eraser" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-3 py-1.5 rounded-xl text-xs border border-white/10 flex items-center gap-1 active:scale-95 transition-all">
                 <span>🧹</span> 橡皮擦
               </button>
               <button id="draw-tool-clear" class="bg-rose-500/25 hover:bg-rose-500 text-rose-200 hover:text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-rose-400/30 active:scale-95 transition-all">
@@ -147,9 +148,9 @@
             <span class="text-xs text-sky-200/70 font-mono">π ≈ 3.14</span>
           </div>
 
-          <!-- 純白底色高效能手寫板容器 -->
-          <div id="calc-container" class="relative flex-1 w-full bg-white rounded-2xl border-2 border-slate-300/40 shadow-inner overflow-hidden my-1 flex items-center justify-center">
-            <canvas id="m3CalcCanvas" width="520" height="340" class="max-w-full max-h-full aspect-[520/340] block" style="touch-action: none;"></canvas>
+          <!-- 白色容器完全 100% 填滿，畫布動態拉伸至全域無死角 -->
+          <div id="calc-container" class="relative flex-1 w-full bg-white rounded-2xl border-2 border-slate-300/40 shadow-inner overflow-hidden my-1">
+            <canvas id="m3CalcCanvas" class="w-full h-full block" style="touch-action: none;"></canvas>
             <div id="calc-placeholder" class="pointer-events-none absolute inset-0 flex items-center justify-center text-slate-400 text-sm font-bold tracking-widest select-none">
               在此處書寫計算過程
             </div>
@@ -186,8 +187,14 @@
         wrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
       }
 
-      window.addEventListener('resize', autoScale);
-      window.addEventListener('orientationchange', () => setTimeout(autoScale, 150));
+      window.addEventListener('resize', () => {
+        autoScale();
+        resizeCalcCanvas();
+      });
+      window.addEventListener('orientationchange', () => setTimeout(() => {
+        autoScale();
+        resizeCalcCanvas();
+      }, 150));
       if (window.visualViewport) window.visualViewport.addEventListener('resize', autoScale);
 
       let lastTouchEnd = 0;
@@ -1092,7 +1099,7 @@
             const itemSpacing = 58;
             leafBox1.forEach((item, idx) => {
               const ix = startItemX + idx * itemSpacing;
-              const iy = box1Y + boxH / 2;
+              const iy = box1Y + 31;
 
               if (LEAF_SHAPE_PALETTE.includes(item)) {
                 renderShapePiece(m3Ctx, item, ix - 20, iy - 20, 40);
@@ -1125,7 +1132,7 @@
             const itemSpacing = 58;
             leafBox2.forEach((item, idx) => {
               const ix = startItemX + idx * itemSpacing;
-              const iy = box2Y + boxH / 2;
+              const iy = box2Y + 31;
 
               if (LEAF_SHAPE_PALETTE.includes(item)) {
                 renderShapePiece(m3Ctx, item, ix - 20, iy - 20, 40);
@@ -1664,14 +1671,35 @@
       m3Canvas.addEventListener('pointerup', onPointerEnd);
       m3Canvas.addEventListener('pointercancel', onPointerEnd);
 
-      // ==================== 純 Touch 底層原生的連續手寫引擎（零延遲、支援 Apple Pencil 與真橡皮擦） ====================
+      // ==================== 全幅無死角手寫板引擎（全白底色、黑/紅筆、真橡皮擦、無邊界） ====================
       const calcCanvas = document.getElementById('m3CalcCanvas');
       const calcCtx = calcCanvas.getContext('2d');
+      const calcContainer = document.getElementById('calc-container');
       const placeholder = document.getElementById('calc-placeholder');
 
       let currentTool = 'black'; // 'black' | 'red' | 'eraser'
       let isDrawing = false;
       let lastPoint = { x: 0, y: 0 };
+
+      // 動態調整內部解析度完全符合容器長寬
+      function resizeCalcCanvas() {
+        if (!calcContainer) return;
+        const w = calcContainer.clientWidth || 520;
+        const h = calcContainer.clientHeight || 340;
+
+        if (calcCanvas.width !== w || calcCanvas.height !== h) {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = calcCanvas.width;
+          tempCanvas.height = calcCanvas.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.drawImage(calcCanvas, 0, 0);
+
+          calcCanvas.width = w;
+          calcCanvas.height = h;
+
+          calcCtx.drawImage(tempCanvas, 0, 0);
+        }
+      }
 
       function clearCalcCanvas() {
         calcCtx.clearRect(0, 0, calcCanvas.width, calcCanvas.height);
@@ -1694,7 +1722,7 @@
           btnRed.className = "bg-rose-950/80 text-rose-200 font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-rose-400 shadow flex items-center gap-1.5 active:scale-95 transition-all";
           calcCanvas.style.cursor = 'crosshair';
         } else if (currentTool === 'eraser') {
-          btnEraser.className = "bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1.5 active:scale-95 transition-all";
+          btnEraser.className = "bg-sky-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs border border-sky-300 shadow flex items-center gap-1 active:scale-95 transition-all";
           calcCanvas.style.cursor = 'cell';
         }
       }
@@ -1736,7 +1764,6 @@
           calcCtx.fillStyle = '#dc2626';
           calcCtx.lineWidth = 3.5;
         } else if (currentTool === 'eraser') {
-          // 在白色畫布上執行真實擦除（清除白色畫布上的筆跡，露出白色畫布）
           calcCtx.globalCompositeOperation = 'destination-out';
           calcCtx.fillStyle = 'rgba(0,0,0,1)';
           calcCtx.strokeStyle = 'rgba(0,0,0,1)';
@@ -1771,7 +1798,7 @@
         isDrawing = false;
       }
 
-      // 1. 純原生 Touch 事件監聽（完全避開 PointerEvent 對 Apple Pencil 的額外手勢排隊，下筆直接出墨）
+      // 純 Touch 原生事件（零延遲連續書寫）
       calcCanvas.addEventListener('touchstart', (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1800,7 +1827,7 @@
         endStroke();
       }, { passive: false });
 
-      // 2. 電腦滑鼠事件備用相容
+      // 滑鼠備用
       calcCanvas.addEventListener('mousedown', (e) => {
         const rect = calcCanvas.getBoundingClientRect();
         startStroke({
@@ -1847,6 +1874,8 @@
 
       // 初始化：進入第 1 題「1.太極圖形」
       autoScale();
+      resizeCalcCanvas();
+      setTimeout(resizeCalcCanvas, 100);
       m3CurrentType = "taiji";
       document.getElementById('m3-shape-select').value = "taiji";
       m3UpdateUI();
