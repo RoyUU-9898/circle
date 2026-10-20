@@ -1,1 +1,1383 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>牛吃草移動範圍 - 幾何教學系統</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      background-color: #0b1329;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .custom-card {
+      background: #162039;
+      border: 1px solid #233358;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    input[type=range] {
+      accent-color: #f59e0b;
+    }
+  </style>
+</head>
+<body class="flex flex-col p-2 md:p-3 justify-between h-full">
 
+  <!-- 頂部列：模式選擇與規格標記 -->
+  <header class="w-full max-w-7xl mx-auto flex items-center justify-between mb-2 flex-shrink-0">
+    <div class="flex items-center space-x-3">
+      <a href="index.html" class="bg-[#1e2c4f] hover:bg-[#283b6a] text-blue-200 px-3 py-1.5 rounded-xl text-xs md:text-sm font-medium border border-blue-500/20 flex items-center transition shadow-sm decoration-0">
+        <i class="fa-solid fa-house mr-1.5"></i> 回首頁
+      </a>
+      
+      <div class="flex items-center space-x-2">
+        <span class="text-xs md:text-sm font-bold text-slate-300">模式：</span>
+        <select id="lessonModeSelect" onchange="switchLessonMode(this.value)" class="bg-[#1e293b] text-amber-300 font-bold border border-amber-400/40 rounded-xl px-2.5 py-1 text-xs md:text-sm focus:outline-none cursor-pointer shadow-sm">
+          <option value="farm_inside" selected>長方形圍欄內（無牛舍）</option>
+          <option value="barn_obstacle">牛舍角落障礙物（有牛舍）</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 尺寸標籤 -->
+    <div id="sizeBadge" class="bg-blue-950/70 border border-blue-500/30 px-3 py-1 rounded-xl text-xs text-blue-200 shadow-sm flex items-center">
+      <span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>
+      草地：長 <b class="text-amber-400 mx-0.5">16m</b> × 寬 <b class="text-amber-400 mx-0.5">10m</b>
+    </div>
+  </header>
+
+  <!-- 主操作舞台 -->
+  <main class="w-full max-w-7xl mx-auto flex-1 flex flex-col custom-card rounded-2xl p-3 md:p-4 relative overflow-hidden shadow-2xl min-h-0">
+    
+    <!-- 控制功能橫列 -->
+    <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-700/60 flex-shrink-0">
+      
+      <!-- 題型一專屬控制：木樁位置快速選取 -->
+      <div id="ctrls_mode1" class="flex items-center space-x-1.5">
+        <span class="text-xs text-slate-300 font-medium">位置：</span>
+        <div class="inline-flex rounded-xl p-1 bg-slate-900/80 border border-slate-700/80">
+          <button id="btn_center" onclick="setSlotPreset('center')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">正中央</button>
+          <button id="btn_edge" onclick="setSlotPreset('bottom_edge')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">邊界</button>
+          <button id="btn_corner" onclick="setSlotPreset('bottom_left')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">角落</button>
+        </div>
+        <span class="text-[11px] text-slate-400 ml-1">（木樁可以移動到藍色的點）</span>
+      </div>
+
+      <!-- 題型二專屬控制：基礎 / 進階 -->
+      <div id="ctrls_mode2" class="hidden items-center space-x-1.5">
+        <span class="text-xs text-slate-300 font-medium">難度：</span>
+        <div class="inline-flex rounded-xl p-1 bg-slate-900/80 border border-slate-700/80 space-x-1">
+          <button id="btn_barn_basic" onclick="setBarnDifficulty('basic')" class="barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm transition">
+            基礎
+          </button>
+          <button id="btn_barn_adv" onclick="setBarnDifficulty('advanced')" class="barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition">
+            進階
+          </button>
+        </div>
+      </div>
+
+      <!-- 繩長顯示/滑桿 (題型一為整數 1、2、3、4) -->
+      <div class="flex items-center space-x-2 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-700/80 shadow-sm">
+        <span class="text-xs text-amber-300 font-bold flex items-center">
+          <i class="fa-solid fa-ruler-horizontal mr-1 text-amber-400"></i> 繩長：
+        </span>
+        <input type="range" id="ropeSlider" min="1" max="4" step="1" value="2" class="w-24 md:w-32 cursor-pointer" oninput="handleRopeChange(this.value)">
+        <span id="ropeValueText" class="text-xs font-mono font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
+          2 m
+        </span>
+      </div>
+
+      <!-- 操作按鈕群 -->
+      <div class="flex items-center space-x-1.5">
+        <button onclick="autoWalkCircle()" class="px-2.5 py-1 text-xs rounded-xl bg-indigo-600/70 hover:bg-indigo-600 text-white font-medium transition flex items-center shadow-sm">
+          <i class="fa-solid fa-play mr-1"></i> 自動走一圈
+        </button>
+        <button onclick="resetExtractedSlices()" id="resetSliceBtn" class="px-2.5 py-1 text-xs rounded-xl bg-emerald-800/40 text-emerald-300 border border-emerald-500/30 transition flex items-center shadow-sm opacity-50 pointer-events-none">
+          <i class="fa-solid fa-magnet mr-1"></i> 色塊歸位
+        </button>
+        <button onclick="resetCanvas()" class="px-2.5 py-1 text-xs rounded-xl bg-rose-900/40 hover:bg-rose-800 text-rose-200 transition flex items-center shadow-sm">
+          <i class="fa-solid fa-rotate-right mr-1"></i> 清空
+        </button>
+      </div>
+    </div>
+
+    <!-- 主畫布 -->
+    <div class="flex-1 w-full my-2 relative flex items-center justify-center bg-[#528d44] rounded-xl border border-emerald-900/60 overflow-hidden shadow-inner" id="canvasContainer">
+      <canvas id="mainCanvas" class="block cursor-grab active:cursor-grabbing"></canvas>
+      
+      <!-- 浮動提示條 -->
+      <div class="absolute top-2.5 left-2.5 bg-slate-900/85 border border-slate-700/80 text-[11px] text-slate-200 px-3 py-1.5 rounded-lg pointer-events-none backdrop-blur-sm flex items-center shadow">
+        <i class="fa-solid fa-hand-pointer text-amber-400 mr-2"></i>
+        <span id="canvasHintText">拖曳木樁📍可吸附至藍點；按住黃牛🐂繞完後，可將色塊拉至右側比對！</span>
+      </div>
+    </div>
+
+    <!-- 底部：計算面積與核對區 -->
+    <div class="pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-2 flex-shrink-0 text-xs md:text-sm">
+      <div class="flex items-center space-x-2 text-slate-400">
+        <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
+          <span id="statusLabelPrefix">木樁位置</span>：<b id="statusLessonText" class="text-amber-300 font-semibold">正中央</b>
+        </span>
+        <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
+          目前繩長：<b id="statusRopeText" class="text-amber-300 font-mono">2 m</b>
+        </span>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <span class="font-medium text-slate-200">計算吃草面積：</span>
+        <div class="relative flex items-center">
+          <input type="number" id="userAnswer" step="0.01" placeholder="填寫答案" class="bg-slate-900 border border-slate-600 rounded-lg px-2.5 py-1 text-sm text-amber-300 font-mono w-28 md:w-32 focus:outline-none focus:border-amber-400">
+          <span class="ml-1.5 text-xs text-slate-400 font-mono font-medium">m²</span>
+        </div>
+        <button onclick="verifyAnswer()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs md:text-sm tracking-wider shadow-md transition flex items-center">
+          核對答案 <i class="fa-solid fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 自訂提示視窗 -->
+  <div id="modalBackdrop" class="fixed inset-0 bg-black/75 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-[#162039] border border-blue-500/40 rounded-2xl max-w-md w-full p-5 shadow-2xl text-center transform transition-all scale-95" id="modalBox">
+      <div id="modalIcon" class="w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3"></div>
+      <h3 id="modalTitle" class="text-lg font-bold mb-1.5 text-white"></h3>
+      <p id="modalDesc" class="text-xs md:text-sm text-slate-300 mb-5 leading-relaxed whitespace-pre-line text-left bg-slate-900/60 p-3 rounded-xl border border-slate-800"></p>
+      <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition text-sm">
+        確定
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('canvasContainer');
+
+    // 狀態同步初始化（預設無牛舍）
+    let currentMode = 'farm_inside';
+    let meterScale = 1;
+    let ropeRadiusM = 2;
+
+    let isDraggingCow = false;
+    let isDraggingPeg = false;
+    let activeDragSlice = null;
+    let dragSliceOffset = { x: 0, y: 0 };
+    let prevCowAngle = null;
+
+    let grassTufts = [];
+
+    const cowSkin = {
+      bodyColor: '#b45309',
+      bellyColor: '#fde68a',
+      spotColor: '#78350f',
+      snoutColor: '#fed7aa',
+      hoofColor: '#451a03',
+      hornColor: '#fbbf24'
+    };
+
+    // 題型一（農場內部）狀態：16m × 10m
+    const FARM1_W_M = 16;
+    const FARM1_H_M = 10;
+    let farmRect = { x: 0, y: 0, w: 0, h: 0 };
+    let slots = {};
+    let currentSlotKey = 'center';
+    let peg = { x: 0, y: 0 };
+    let cowAngle = 0;
+    let sweptIntervals = [];
+
+    // 題型二（牛舍障礙物）狀態：長 10m × 寬 8m
+    const BARN_W_M = 10;
+    const BARN_H_M = 8;
+    let barnDifficulty = 'basic'; // 'basic' (8m) 或 'advanced' (10m)
+    let barnRect = { x: 0, y: 0, w: 0, h: 0 };
+    let barnPegP0 = { x: 0, y: 0 };
+    let barnCornerC = { x: 0, y: 0 };
+    let cowParamT = 0;
+    let barnMaxSweptT = 0;
+
+    let isWalkCompleted = false;
+    let draggableSlices = [];
+
+    function initGrassTufts(width, height) {
+      grassTufts = [];
+      const count = Math.floor((width * height) / 12000);
+      for (let i = 0; i < count; i++) {
+        grassTufts.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          scale: 0.7 + Math.random() * 0.5
+        });
+      }
+    }
+
+    // 題型一 9 個槽位
+    function initSlots() {
+      const left = farmRect.x;
+      const right = farmRect.x + farmRect.w;
+      const top = farmRect.y;
+      const bottom = farmRect.y + farmRect.h;
+      const cx = farmRect.x + farmRect.w / 2;
+      const cy = farmRect.y + farmRect.h / 2;
+
+      slots = {
+        center: { id: 'center', type: 'center', name: '正中央', x: cx, y: cy, minAng: -Math.PI, maxAng: Math.PI, fraction: 1, maxR: 4, minR: 1, step: 1 },
+        top_edge: { id: 'top_edge', type: 'edge', name: '上邊界', x: cx, y: top, minAng: 0, maxAng: Math.PI, fraction: 0.5, maxR: 4, minR: 1, step: 1 },
+        bottom_edge: { id: 'bottom_edge', type: 'edge', name: '下邊界', x: cx, y: bottom, minAng: -Math.PI, maxAng: 0, fraction: 0.5, maxR: 4, minR: 1, step: 1 },
+        left_edge: { id: 'left_edge', type: 'edge', name: '左邊界', x: left, y: cy, minAng: -Math.PI / 2, maxAng: Math.PI / 2, fraction: 0.5, maxR: 4, minR: 1, step: 1 },
+        right_edge: { id: 'right_edge', type: 'edge', name: '右邊界', x: right, y: cy, minAng: Math.PI / 2, maxAng: 1.5 * Math.PI, fraction: 0.5, maxR: 4, minR: 1, step: 1 },
+        top_left: { id: 'top_left', type: 'corner', name: '左上角', x: left, y: top, minAng: 0, maxAng: Math.PI / 2, fraction: 0.25, maxR: 4, minR: 1, step: 1 },
+        top_right: { id: 'top_right', type: 'corner', name: '右上角', x: right, y: top, minAng: Math.PI / 2, maxAng: Math.PI, fraction: 0.25, maxR: 4, minR: 1, step: 1 },
+        bottom_left: { id: 'bottom_left', type: 'corner', name: '左下角', x: left, y: bottom, minAng: -Math.PI / 2, maxAng: 0, fraction: 0.25, maxR: 4, minR: 1, step: 1 },
+        bottom_right: { id: 'bottom_right', type: 'corner', name: '右下角', x: right, y: bottom, minAng: -Math.PI, maxAng: -Math.PI / 2, fraction: 0.25, maxR: 4, minR: 1, step: 1 }
+      };
+    }
+
+    // iPad 自適應縮放演算法
+    function resizeCanvas() {
+      const rect = container.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      if (!w || !h || w < 50 || h < 50) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
+
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+
+      initGrassTufts(w, h);
+
+      const halfW = w * 0.50; // 左右 5:5 對半分割
+
+      if (currentMode === 'farm_inside') {
+        const paddingLeft = 85;
+        const paddingRight = 25;
+        const paddingTop = 45;
+        const paddingBottom = 25;
+        const availableW = Math.max(100, halfW - paddingLeft - paddingRight);
+        const availableH = Math.max(100, h - paddingTop - paddingBottom);
+        meterScale = Math.min(availableW / FARM1_W_M, availableH / FARM1_H_M);
+
+        farmRect.w = FARM1_W_M * meterScale;
+        farmRect.h = FARM1_H_M * meterScale;
+        farmRect.x = paddingLeft + (availableW - farmRect.w) / 2;
+        farmRect.y = paddingTop + (availableH - farmRect.h) / 2;
+
+        initSlots();
+
+        const slot = slots[currentSlotKey] || slots['center'];
+        peg.x = slot.x;
+        peg.y = slot.y;
+      } else {
+        const rMax = ropeRadiusM; // 8m 或 10m
+        const spanW_M = rMax + BARN_W_M;
+        const spanH_M = rMax + (barnDifficulty === 'advanced' ? (BARN_H_M + 2.5) : (BARN_H_M + 1));
+
+        const padX = 35;
+        const padY = 55;
+        const availW = Math.max(100, halfW - padX * 2);
+        const availH = Math.max(100, h - padY * 2);
+
+        meterScale = Math.min(availW / spanW_M, availH / spanH_M);
+
+        barnRect.w = BARN_W_M * meterScale;
+        barnRect.h = BARN_H_M * meterScale;
+
+        const minPegX = padX + rMax * meterScale;
+        const maxPegX = halfW - padX - barnRect.w;
+        barnPegP0.x = minPegX + Math.max(0, (maxPegX - minPegX) / 2);
+
+        const minPegY = padY + rMax * meterScale;
+        const maxPegY = h - padY - (barnRect.h + (barnDifficulty === 'advanced' ? 2 * meterScale : 0));
+        barnPegP0.y = minPegY + Math.max(0, (maxPegY - minPegY) / 2);
+
+        barnRect.x = barnPegP0.x;
+        barnRect.y = barnPegP0.y;
+        barnCornerC = { x: barnRect.x, y: barnRect.y + barnRect.h };
+      }
+
+      if (isWalkCompleted) buildDraggableSlices();
+      render();
+    }
+
+    function checkWalkCompletion() {
+      if (isWalkCompleted) return;
+      if (currentMode === 'farm_inside') {
+        const slot = slots[currentSlotKey];
+        if (!slot) return;
+        
+        let totalRad = 0;
+        sweptIntervals.forEach(([s, e]) => totalRad += (e - s));
+        const maxSpan = slot.maxAng - slot.minAng;
+
+        if (slot.fraction === 1) {
+          if (totalRad >= maxSpan * 0.995 && sweptIntervals.length === 1) {
+            triggerWalkCompleted();
+          }
+        } else {
+          const nearStart = sweptIntervals.some(i => i[0] <= slot.minAng + 0.05);
+          const nearEnd = sweptIntervals.some(i => i[1] >= slot.maxAng - 0.05);
+          if (totalRad >= maxSpan * 0.995 && nearStart && nearEnd) {
+            triggerWalkCompleted();
+          }
+        }
+      } else {
+        const maxT = barnDifficulty === 'basic' ? 0.75 : 1.0;
+        if (barnMaxSweptT >= maxT - 0.015) triggerWalkCompleted();
+      }
+    }
+
+    function triggerWalkCompleted() {
+      isWalkCompleted = true;
+      buildDraggableSlices();
+      const resetBtn = document.getElementById('resetSliceBtn');
+      resetBtn.classList.remove('opacity-50', 'pointer-events-none');
+      document.getElementById('canvasHintText').innerHTML = '🎉 <b>牛牛走完囉！</b> 現在可以直接按住左邊吃草色塊，拉到右側比對！';
+      render();
+    }
+
+    // 色塊初始位置設定在左側原處，並保存半徑公尺數
+    function buildDraggableSlices() {
+      draggableSlices = [];
+
+      if (currentMode === 'farm_inside') {
+        const slot = slots[currentSlotKey];
+        if (!slot) return;
+
+        // 原地生成：重疊在木樁位置，帶上 rM: ropeRadiusM
+        draggableSlices.push({
+          id: 'farm_slice',
+          name: '',
+          rM: ropeRadiusM, // 記錄半徑公尺數
+          showRadiusLabel: true, // 標記顯示半徑直線與長度
+          homeX: peg.x,
+          homeY: peg.y,
+          x: peg.x,
+          y: peg.y,
+          rPx: ropeRadiusM * meterScale,
+          minAng: slot.minAng,
+          maxAng: slot.maxAng,
+          fraction: slot.fraction,
+          fillColor: 'rgba(52, 211, 153, 0.75)',
+          strokeColor: '#10b981'
+        });
+      } else {
+        // 主範圍：原地生成在牛舍左上角木樁處 (綠色)
+        draggableSlices.push({
+          id: 'barn_main_slice',
+          name: '',
+          rM: ropeRadiusM,
+          showRadiusLabel: false,
+          homeX: barnPegP0.x,
+          homeY: barnPegP0.y,
+          x: barnPegP0.x,
+          y: barnPegP0.y,
+          rPx: ropeRadiusM * meterScale,
+          minAng: -1.5 * Math.PI,
+          maxAng: 0,
+          fraction: 0.75,
+          fillColor: 'rgba(52, 211, 153, 0.75)',
+          strokeColor: '#10b981'
+        });
+
+        // 進階題：原地生成在牛舍左下角折角處 (黃色)
+        if (barnDifficulty === 'advanced') {
+          const remRadiusM = ropeRadiusM - BARN_H_M;
+          const remRadius = remRadiusM * meterScale;
+          draggableSlices.push({
+            id: 'barn_sub_slice',
+            name: '',
+            rM: remRadiusM,
+            showRadiusLabel: false,
+            homeX: barnCornerC.x,
+            homeY: barnCornerC.y,
+            x: barnCornerC.x,
+            y: barnCornerC.y,
+            rPx: remRadius,
+            minAng: 0,
+            maxAng: 0.5 * Math.PI,
+            fraction: 0.25,
+            fillColor: 'rgba(251, 191, 36, 0.85)',
+            strokeColor: '#f59e0b'
+          });
+        }
+      }
+    }
+
+    function resetExtractedSlices() {
+      draggableSlices.forEach(s => {
+        s.x = s.homeX;
+        s.y = s.homeY;
+      });
+      render();
+    }
+
+    function applySlot(key, resetSweep = true, resetAngle = true) {
+      currentSlotKey = key;
+      const slot = slots[key];
+      if (!slot) return;
+      peg.x = slot.x;
+      peg.y = slot.y;
+
+      const slider = document.getElementById('ropeSlider');
+      slider.min = slot.minR || 1;
+      slider.max = slot.maxR || 4;
+      slider.step = slot.step || 1;
+      if (ropeRadiusM > slot.maxR) ropeRadiusM = slot.maxR;
+      if (ropeRadiusM < slider.min) ropeRadiusM = parseInt(slider.min);
+      slider.value = ropeRadiusM;
+      document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
+
+      document.querySelectorAll('.pos-btn').forEach(b => b.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition");
+      const activeBtn = document.getElementById(`btn_${slot.type}`);
+      if (activeBtn) activeBtn.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition";
+
+      if (resetAngle) {
+        cowAngle = (slot.minAng + slot.maxAng) / 2;
+      } else {
+        cowAngle = clampAngleForSlot(slot, cowAngle);
+      }
+      prevCowAngle = cowAngle;
+
+      if (resetSweep) {
+        sweptIntervals = [];
+        isWalkCompleted = false;
+        draggableSlices = [];
+        document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('canvasHintText').innerText = '拖曳木樁📍可吸附至藍點；按住黃牛🐂繞完後，可將色塊拉至右側比對！';
+      }
+
+      document.getElementById('statusLessonText').innerText = slot.name;
+      document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+    }
+
+    function setSlotPreset(key) {
+      applySlot(key, true, true);
+      render();
+    }
+
+    function setBarnDifficulty(diff) {
+      barnDifficulty = diff;
+      const bBasic = document.getElementById('btn_barn_basic');
+      const bAdv = document.getElementById('btn_barn_adv');
+
+      if (diff === 'basic') {
+        ropeRadiusM = 8;
+        bBasic.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm transition";
+        bAdv.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition";
+        document.getElementById('ropeValueText').innerText = '8 m (固定)';
+        document.getElementById('statusLessonText').innerText = '牛舍角落 (基礎)';
+        document.getElementById('statusRopeText').innerText = '8 m';
+      } else {
+        ropeRadiusM = 10;
+        bAdv.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm transition";
+        bBasic.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition";
+        document.getElementById('ropeValueText').innerText = '10 m (固定)';
+        document.getElementById('statusLessonText').innerText = '牛舍角落 (進階)';
+        document.getElementById('statusRopeText').innerText = '10 m';
+      }
+
+      resetCanvas();
+      resizeCanvas();
+    }
+
+    function switchLessonMode(mode) {
+      currentMode = mode;
+      const sizeBadge = document.getElementById('sizeBadge');
+      const ctrls1 = document.getElementById('ctrls_mode1');
+      const ctrls2 = document.getElementById('ctrls_mode2');
+      const slider = document.getElementById('ropeSlider');
+      const statusLabel = document.getElementById('statusLabelPrefix');
+
+      if (mode === 'farm_inside') {
+        sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>草地：長 <b class="text-amber-400 mx-0.5">16m</b> × 寬 <b class="text-amber-400 mx-0.5">10m</b>';
+        ctrls1.classList.remove('hidden'); ctrls1.classList.add('flex');
+        ctrls2.classList.remove('flex'); ctrls2.classList.add('hidden');
+        slider.classList.remove('hidden');
+        slider.min = 1; slider.max = 4; slider.step = 1;
+        ropeRadiusM = 2;
+        slider.value = 2;
+        statusLabel.innerText = '木樁位置';
+        document.getElementById('statusLessonText').innerText = '正中央';
+        document.getElementById('ropeValueText').innerText = '2 m';
+        document.getElementById('statusRopeText').innerText = '2 m';
+      } else {
+        sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>牛舍：長 <b class="text-amber-400 mx-0.5">10m</b> × 寬 <b class="text-amber-400 mx-0.5">8m</b>';
+        ctrls1.classList.remove('flex'); ctrls1.classList.add('hidden');
+        ctrls2.classList.remove('hidden'); ctrls2.classList.add('flex');
+        slider.classList.add('hidden');
+        statusLabel.innerText = '題型';
+        setBarnDifficulty('basic');
+      }
+
+      resetCanvas();
+      resizeCanvas();
+    }
+
+    function handleRopeChange(val) {
+      ropeRadiusM = parseInt(val, 10);
+      document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
+      document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+
+      sweptIntervals = [];
+      barnMaxSweptT = 0;
+      isWalkCompleted = false;
+      draggableSlices = [];
+      prevCowAngle = null;
+      document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
+      document.getElementById('canvasHintText').innerText = `繩長已變更為 ${ropeRadiusM}m，請重新拖曳黃牛 🐂 繞行吃草！`;
+
+      render();
+    }
+
+    function resetCanvas() {
+      sweptIntervals = [];
+      barnMaxSweptT = 0;
+      cowParamT = 0;
+      isWalkCompleted = false;
+      draggableSlices = [];
+      prevCowAngle = null;
+      if (currentMode === 'farm_inside') {
+        const slot = slots[currentSlotKey];
+        if (slot) cowAngle = (slot.minAng + slot.maxAng) / 2;
+      }
+      document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
+      document.getElementById('canvasHintText').innerText = currentMode === 'farm_inside' ? '拖曳木樁📍可吸附至藍點；按住黃牛🐂繞完後，可將色塊拉至右側比對！' : '按住黃牛🐂繞完吃草範圍後，可將色塊拉至右側比對！';
+      render();
+    }
+
+    function clampAngleForSlot(slot, rawAng) {
+      if (!slot || slot.fraction === 1) return rawAng;
+
+      const sid = slot.id;
+      if (sid === 'top_edge') {
+        if (rawAng < 0) return (rawAng > -Math.PI / 2) ? 0 : Math.PI;
+        return Math.max(0, Math.min(Math.PI, rawAng));
+      } else if (sid === 'bottom_edge') {
+        if (rawAng > 0) return (rawAng < Math.PI / 2) ? 0 : -Math.PI;
+        return Math.max(-Math.PI, Math.min(0, rawAng));
+      } else if (sid === 'left_edge') {
+        if (rawAng > Math.PI / 2) return Math.PI / 2;
+        if (rawAng < -Math.PI / 2) return -Math.PI / 2;
+        return rawAng;
+      } else if (sid === 'right_edge') {
+        let a = rawAng;
+        if (a < 0) a += Math.PI * 2;
+        if (a < Math.PI / 2) return Math.PI / 2;
+        if (a > 1.5 * Math.PI) return 1.5 * Math.PI;
+        return a;
+      } else if (sid === 'top_left') {
+        if (rawAng < 0) return 0;
+        if (rawAng > Math.PI / 2) return Math.PI / 2;
+        return rawAng;
+      } else if (sid === 'top_right') {
+        if (rawAng < 0) return (rawAng > -Math.PI / 2) ? Math.PI / 2 : Math.PI;
+        if (rawAng < Math.PI / 2) return Math.PI / 2;
+        if (rawAng > Math.PI) return Math.PI;
+        return rawAng;
+      } else if (sid === 'bottom_left') {
+        if (rawAng > 0) return (rawAng < Math.PI / 2) ? 0 : -Math.PI / 2;
+        if (rawAng < -Math.PI / 2) return -Math.PI / 2;
+        return rawAng;
+      } else if (sid === 'bottom_right') {
+        if (rawAng > 0) return (rawAng > Math.PI / 2) ? -Math.PI : -Math.PI / 2;
+        if (rawAng > -Math.PI / 2) return -Math.PI / 2;
+        if (rawAng < -Math.PI) return -Math.PI;
+        return rawAng;
+      }
+      return rawAng;
+    }
+
+    function addSweepInterval(ang1, ang2) {
+      const slot = slots[currentSlotKey];
+      if (!slot) return;
+      let minA = Math.min(ang1, ang2);
+      let maxA = Math.max(ang1, ang2);
+
+      if (slot.fraction === 1 && (maxA - minA) > Math.PI) {
+        addSingleInterval(maxA, Math.PI);
+        addSingleInterval(-Math.PI, minA);
+      } else {
+        addSingleInterval(Math.max(slot.minAng, minA), Math.min(slot.maxAng, maxA));
+      }
+    }
+
+    function addSingleInterval(s, e) {
+      if (s >= e) return;
+      sweptIntervals.push([s, e]);
+      sweptIntervals.sort((a, b) => a[0] - b[0]);
+      const merged = [];
+      for (let seg of sweptIntervals) {
+        if (!merged.length) merged.push([...seg]);
+        else {
+          let prev = merged[merged.length - 1];
+          if (seg[0] <= prev[1] + 0.05) {
+            prev[1] = Math.max(prev[1], seg[1]);
+          } else {
+            merged.push([...seg]);
+          }
+        }
+      }
+
+      const slot = slots[currentSlotKey];
+      if (slot && slot.fraction === 1 && merged.length > 1) {
+        const first = merged[0];
+        const last = merged[merged.length - 1];
+        if (first[0] <= -Math.PI + 0.05 && last[1] >= Math.PI - 0.05) {
+          const span = (first[1] - first[0]) + (last[1] - last[0]);
+          if (span >= Math.PI * 2 - 0.08 && merged.length === 2) {
+            sweptIntervals = [[-Math.PI, Math.PI]];
+            return;
+          }
+        }
+      }
+
+      sweptIntervals = merged;
+    }
+
+    function autoWalkCircle() {
+      sweptIntervals = [];
+      barnMaxSweptT = 0;
+      isWalkCompleted = false;
+      draggableSlices = [];
+
+      if (currentMode === 'farm_inside') {
+        const slot = slots[currentSlotKey];
+        if (!slot) return;
+        let cur = slot.minAng;
+        function step1() {
+          if (cur <= slot.maxAng) {
+            cowAngle = cur;
+            addSingleInterval(slot.minAng, cur);
+            cur += 0.02;
+            render();
+            requestAnimationFrame(step1);
+          } else {
+            cowAngle = slot.maxAng;
+            addSingleInterval(slot.minAng, slot.maxAng);
+            triggerWalkCompleted();
+            render();
+          }
+        }
+        step1();
+      } else {
+        cowParamT = 0;
+        const targetMax = barnDifficulty === 'basic' ? 0.75 : 1.0;
+        function step2() {
+          if (cowParamT < targetMax) {
+            cowParamT += 0.005;
+            barnMaxSweptT = cowParamT;
+            render();
+            requestAnimationFrame(step2);
+          } else {
+            cowParamT = targetMax;
+            barnMaxSweptT = targetMax;
+            triggerWalkCompleted();
+            render();
+          }
+        }
+        step2();
+      }
+    }
+
+    // ==========================================
+    // 渲染核心
+    // ==========================================
+    function render() {
+      const rect = container.getBoundingClientRect();
+      if (!rect || rect.width < 50) return;
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      ctx.fillStyle = '#528d44';
+      ctx.fillRect(0, 0, rect.width, rect.height);
+      drawGrassTufts();
+
+      drawRightDividerOnly(rect.width, rect.height);
+
+      if (currentMode === 'farm_inside') {
+        renderFarmInside();
+      } else {
+        renderBarnObstacle();
+      }
+
+      if (isWalkCompleted) {
+        drawDraggableSlices();
+      }
+    }
+
+    function drawGrassTufts() {
+      ctx.save();
+      grassTufts.forEach(g => {
+        ctx.save();
+        ctx.translate(g.x, g.y);
+        ctx.scale(g.scale, g.scale);
+        ctx.strokeStyle = '#3d6f31';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.quadraticCurveTo(-4, -8, -7, -9);
+        ctx.moveTo(0, 0); ctx.quadraticCurveTo(0, -9, 0, -12);
+        ctx.moveTo(0, 0); ctx.quadraticCurveTo(4, -8, 7, -9);
+        ctx.stroke();
+        ctx.restore();
+      });
+      ctx.restore();
+    }
+
+    function drawRightDividerOnly(totalW, totalH) {
+      const dividerX = totalW * 0.50; // 5:5 正中分割線
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(dividerX, 15);
+      ctx.lineTo(dividerX, totalH - 15);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function renderFarmInside() {
+      const slot = slots[currentSlotKey];
+      if (!slot) return;
+      const rPx = ropeRadiusM * meterScale;
+
+      ctx.strokeStyle = '#8d5b2d';
+      ctx.lineWidth = 8;
+      ctx.strokeRect(farmRect.x, farmRect.y, farmRect.w, farmRect.h);
+
+      // 長標記
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('長: 16m', farmRect.x + farmRect.w / 2, farmRect.y - 12);
+
+      // 寬標記
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      const labelX = farmRect.x - 70;
+      const labelY = farmRect.y + farmRect.h / 2;
+      
+      ctx.save();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+      ctx.roundRect(labelX - 6, labelY - 12, 64, 24, 6);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillText('寬: 10m', labelX, labelY);
+
+      // 9 個藍點
+      Object.values(slots).forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = s.id === currentSlotKey ? '#38bdf8' : '#1e40af';
+        ctx.fill();
+        ctx.strokeStyle = '#93c5fd';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+
+      // 吃草軌跡填滿
+      if (sweptIntervals.length > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.55)';
+        sweptIntervals.forEach(([s, e]) => {
+          ctx.beginPath();
+          ctx.moveTo(peg.x, peg.y);
+          ctx.arc(peg.x, peg.y, rPx, s, e, false);
+          ctx.closePath();
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
+      // 牽繩與牛隻
+      const cowX = peg.x + Math.cos(cowAngle) * rPx;
+      const cowY = peg.y + Math.sin(cowAngle) * rPx;
+
+      ctx.beginPath();
+      ctx.moveTo(peg.x, peg.y);
+      ctx.lineTo(cowX, cowY);
+      ctx.strokeStyle = '#f8fafc';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // 木樁
+      ctx.beginPath();
+      ctx.arc(peg.x, peg.y, 9.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0284c7';
+      ctx.fill();
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      drawTaiwanYellowCow(cowX, cowY, cowAngle + Math.PI / 2);
+    }
+
+    function renderBarnObstacle() {
+      const rMainPx = ropeRadiusM * meterScale;
+
+      // 1. 吃草軌跡填滿 (主要 3/4 圓綠色)
+      if (barnMaxSweptT > 0) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.55)';
+        const mainF = Math.min(1.0, barnMaxSweptT / 0.75);
+        if (mainF > 0.001) {
+          ctx.beginPath();
+          ctx.moveTo(barnPegP0.x, barnPegP0.y);
+          ctx.arc(barnPegP0.x, barnPegP0.y, rMainPx, 0, -mainF * (1.5 * Math.PI), true);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // 2. 進階題：折角在左下角繞出來的 1/4 圓【黃色】軌跡 (T: 0.75 ~ 1.0)
+        if (barnDifficulty === 'advanced' && barnMaxSweptT > 0.75) {
+          const subF = (barnMaxSweptT - 0.75) / 0.25;
+          const remRadius = (ropeRadiusM - BARN_H_M) * meterScale;
+          ctx.fillStyle = 'rgba(251, 191, 36, 0.72)';
+          ctx.beginPath();
+          ctx.moveTo(barnCornerC.x, barnCornerC.y);
+          ctx.arc(barnCornerC.x, barnCornerC.y, remRadius, 0.5 * Math.PI, 0.5 * Math.PI - subF * (0.5 * Math.PI), true);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 牛舍建築主體
+      ctx.save();
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
+
+      ctx.fillStyle = '#fef3c7';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('牛 舍', barnRect.x + barnRect.w / 2, barnRect.y + barnRect.h / 2);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('長: 10m', barnRect.x + barnRect.w / 2, barnRect.y - 8);
+      ctx.textAlign = 'left';
+      ctx.fillText('寬: 8m', barnRect.x + barnRect.w + 8, barnRect.y + barnRect.h / 2);
+      ctx.restore();
+
+      // 繩索與牛隻運動學渲染
+      const state = getBarnKinematics(cowParamT);
+      state.segments.forEach(seg => {
+        ctx.beginPath();
+        ctx.moveTo(seg.x1, seg.y1);
+        ctx.lineTo(seg.x2, seg.y2);
+        ctx.strokeStyle = '#f8fafc';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      });
+
+      // 木樁
+      ctx.beginPath();
+      ctx.arc(barnPegP0.x, barnPegP0.y, 8.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#0284c7';
+      ctx.fill();
+      ctx.strokeStyle = '#e0f2fe';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // 折角固定點 (進階題左下角落)
+      if (barnDifficulty === 'advanced') {
+        ctx.beginPath();
+        ctx.arc(barnCornerC.x, barnCornerC.y, 5.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#f59e0b';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      drawTaiwanYellowCow(state.cowX, state.cowY, state.heading);
+    }
+
+    // 繪製可拖曳色塊：半徑直線與文字依形狀設計（扇形沿直邊外側標註，文字水平正向不顛倒）
+    function drawDraggableSlices() {
+      draggableSlices.forEach(slice => {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(slice.x, slice.y);
+        ctx.arc(slice.x, slice.y, slice.rPx, slice.minAng, slice.maxAng, false);
+        ctx.closePath();
+
+        ctx.fillStyle = slice.fillColor;
+        ctx.fill();
+        ctx.strokeStyle = slice.strokeColor;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // 圓心小白錨點
+        ctx.beginPath();
+        ctx.arc(slice.x, slice.y, 6.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = slice.strokeColor;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // 題型一（無牛舍）：半徑長度標註
+        if (slice.showRadiusLabel && slice.rM !== undefined) {
+          ctx.save();
+          const textStr = `${slice.rM}m`;
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          if (slice.fraction < 1) {
+            // 1/2 或 1/4 圓（扇形）：沿著第一條直邊 (minAng) 的外側標註，完全不擋住內部
+            const lineAng = slice.minAng;
+            const endX = slice.x + Math.cos(lineAng) * slice.rPx;
+            const endY = slice.y + Math.sin(lineAng) * slice.rPx;
+
+            // 繪製直邊的高亮虛線
+            ctx.beginPath();
+            ctx.moveTo(slice.x, slice.y);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([4, 3]);
+            ctx.stroke();
+
+            // 線段中點
+            const midX = (slice.x + endX) / 2;
+            const midY = (slice.y + endY) / 2;
+
+            // 往扇形「外側」用法向量位移，絕對不進入圖形內部
+            const outAng = lineAng - Math.PI / 2;
+            const distOut = 20;
+            const labelX = midX + Math.cos(outAng) * distOut;
+            const labelY = midY + Math.sin(outAng) * distOut;
+
+            // 標籤底色徽章
+            const tW = ctx.measureText(textStr).width + 12;
+            const tH = 20;
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            ctx.beginPath();
+            ctx.roundRect(labelX - tW / 2, labelY - tH / 2, tW, tH, 5);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            // 水平正向文字
+            ctx.fillStyle = '#fef08a';
+            ctx.fillText(textStr, labelX, labelY);
+          } else {
+            // 完整圓：自圓心向右畫半徑線，標籤置於圓周外側
+            const endX = slice.x + slice.rPx;
+            const endY = slice.y;
+
+            ctx.beginPath();
+            ctx.moveTo(slice.x, slice.y);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([4, 3]);
+            ctx.stroke();
+
+            // 標籤放在圓周外側右方
+            const labelX = endX + 18;
+            const labelY = endY;
+            const tW = ctx.measureText(textStr).width + 12;
+            const tH = 20;
+
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+            ctx.beginPath();
+            ctx.roundRect(labelX - tW / 2, labelY - tH / 2, tW, tH, 5);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            ctx.fillStyle = '#fef08a';
+            ctx.fillText(textStr, labelX, labelY);
+          }
+          ctx.restore();
+        }
+
+        // 拖曳引導文字：稍微向下錯開，不遮擋小色塊
+        ctx.save();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'rgba(0,0,0,0.85)';
+        ctx.shadowBlur = 4;
+        const dragTextY = slice.fraction <= 0.25 ? (slice.y + slice.rPx + 18) : (slice.y + slice.rPx * 0.65 + 16);
+        ctx.fillText('✋ 拖曳我', slice.x, dragTextY);
+        ctx.restore();
+
+        ctx.restore();
+      });
+    }
+
+    function getBarnKinematics(t) {
+      const rMain = ropeRadiusM * meterScale;
+      const maxT = barnDifficulty === 'basic' ? 0.75 : 1.0;
+      const validT = Math.max(0, Math.min(maxT, t));
+
+      if (validT <= 0.75) {
+        const alpha = (validT / 0.75) * (1.5 * Math.PI);
+        const curCowAngle = -alpha;
+        const cowX = barnPegP0.x + Math.cos(curCowAngle) * rMain;
+        const cowY = barnPegP0.y + Math.sin(curCowAngle) * rMain;
+        return {
+          cowX, cowY, heading: curCowAngle - Math.PI / 2,
+          segments: [{ x1: barnPegP0.x, y1: barnPegP0.y, x2: cowX, y2: cowY }]
+        };
+      } else {
+        const subF = (validT - 0.75) / 0.25;
+        const subAngle = 0.5 * Math.PI - subF * (0.5 * Math.PI);
+        const remRadius = (ropeRadiusM - BARN_H_M) * meterScale;
+        const cowX = barnCornerC.x + Math.cos(subAngle) * remRadius;
+        const cowY = barnCornerC.y + Math.sin(subAngle) * remRadius;
+        return {
+          cowX, cowY, heading: subAngle - Math.PI / 2,
+          segments: [
+            { x1: barnPegP0.x, y1: barnPegP0.y, x2: barnCornerC.x, y2: barnCornerC.y },
+            { x1: barnCornerC.x, y1: barnCornerC.y, x2: cowX, y2: cowY }
+          ]
+        };
+      }
+    }
+
+    function solveBarnTFromPoint(px, py, currentT) {
+      const maxT = barnDifficulty === 'basic' ? 0.75 : 1.0;
+
+      if (barnDifficulty === 'advanced') {
+        const dxC = px - barnCornerC.x;
+        const dyC = py - barnCornerC.y;
+
+        if (currentT >= 0.72 || (dxC >= -15 && dyC >= 0)) {
+          if (dyC < 0 && dxC > 0) {
+            return 1.0;
+          }
+
+          let angC = Math.atan2(dyC, dxC);
+          if (angC < 0) angC = 0;
+          if (angC > Math.PI / 2) angC = Math.PI / 2;
+
+          const subF = (Math.PI / 2 - angC) / (Math.PI / 2);
+          const candidateT = 0.75 + subF * 0.25;
+
+          if (candidateT >= 0.75) {
+            return Math.min(1.0, candidateT);
+          }
+        }
+      }
+
+      const dx = px - barnPegP0.x;
+      const dy = py - barnPegP0.y;
+      let theta = Math.atan2(dy, dx);
+
+      let alpha = -theta;
+      if (alpha < 0) alpha += Math.PI * 2;
+
+      if (alpha > 1.5 * Math.PI) {
+        if (currentT > 0.45) {
+          return barnDifficulty === 'advanced' ? (currentT >= 0.75 ? 1.0 : 0.75) : 0.75;
+        } else {
+          return 0;
+        }
+      }
+
+      const calculatedT = (alpha / (1.5 * Math.PI)) * 0.75;
+
+      if (Math.abs(calculatedT - currentT) > 0.45) {
+        return currentT;
+      }
+
+      return Math.max(0, Math.min(maxT, calculatedT));
+    }
+
+    function drawTaiwanYellowCow(x, y, heading) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(heading);
+
+      const legs = [{ x: -12, y: 6 }, { x: -6, y: 6 }, { x: 6, y: 6 }, { x: 12, y: 6 }];
+      legs.forEach(leg => {
+        ctx.fillStyle = cowSkin.bodyColor;
+        ctx.fillRect(leg.x - 2, leg.y, 4, 9);
+        ctx.fillStyle = cowSkin.hoofColor;
+        ctx.fillRect(leg.x - 2, leg.y + 6.5, 4, 3);
+      });
+
+      ctx.strokeStyle = cowSkin.bodyColor;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(15, -2); ctx.quadraticCurveTo(22, -5, 23, 3);
+      ctx.stroke();
+
+      ctx.fillStyle = cowSkin.bodyColor;
+      ctx.beginPath();
+      ctx.roundRect(-15, -10, 30, 16, 6);
+      ctx.fill();
+      ctx.strokeStyle = '#451a03';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      ctx.fillStyle = cowSkin.bellyColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 1, 9, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = cowSkin.bodyColor;
+      ctx.beginPath();
+      ctx.roundRect(-24, -14, 11, 12, 3.5);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = cowSkin.hornColor;
+      ctx.beginPath();
+      ctx.moveTo(-21, -14);
+      ctx.quadraticCurveTo(-25, -20, -27, -18);
+      ctx.quadraticCurveTo(-24, -16, -19, -14);
+      ctx.fill();
+
+      ctx.fillStyle = cowSkin.snoutColor;
+      ctx.beginPath();
+      ctx.ellipse(-16, -13, 3, 1.5, Math.PI / 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(-19, -9, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // iPad 觸控判定（黃色小色塊擴大熱區判定 +35px）
+    function handlePointerDown(px, py) {
+      if (isWalkCompleted) {
+        for (let i = draggableSlices.length - 1; i >= 0; i--) {
+          const slice = draggableSlices[i];
+          const dist = Math.hypot(px - slice.x, py - slice.y);
+          
+          if (slice.id === 'barn_sub_slice') {
+            if (dist <= slice.rPx + 35) {
+              activeDragSlice = slice;
+              dragSliceOffset.x = px - slice.x;
+              dragSliceOffset.y = py - slice.y;
+              return;
+            }
+          } else {
+            if (dist <= slice.rPx + 20) {
+              activeDragSlice = slice;
+              dragSliceOffset.x = px - slice.x;
+              dragSliceOffset.y = py - slice.y;
+              return;
+            }
+          }
+        }
+      }
+
+      if (currentMode === 'farm_inside' && Math.hypot(px - peg.x, py - peg.y) < 32) {
+        isDraggingPeg = true;
+        return;
+      }
+
+      if (currentMode === 'farm_inside') {
+        const rPx = ropeRadiusM * meterScale;
+        const cowX = peg.x + Math.cos(cowAngle) * rPx;
+        const cowY = peg.y + Math.sin(cowAngle) * rPx;
+        if (Math.hypot(px - cowX, py - cowY) < 60) {
+          isDraggingCow = true;
+          prevCowAngle = cowAngle;
+        }
+      } else {
+        const st = getBarnKinematics(cowParamT);
+        if (Math.hypot(px - st.cowX, py - st.cowY) < 60) {
+          isDraggingCow = true;
+        }
+      }
+    }
+
+    function handlePointerMove(px, py) {
+      if (activeDragSlice) {
+        activeDragSlice.x = px - dragSliceOffset.x;
+        activeDragSlice.y = py - dragSliceOffset.y;
+        render();
+        return;
+      }
+
+      if (isDraggingPeg) {
+        let nearestKey = currentSlotKey;
+        let minDist = Infinity;
+        Object.entries(slots).forEach(([k, s]) => {
+          const d = Math.hypot(px - s.x, py - s.y);
+          if (d < minDist) {
+            minDist = d;
+            nearestKey = k;
+          }
+        });
+        if (nearestKey !== currentSlotKey) {
+          applySlot(nearestKey, true, false);
+        }
+        render();
+        return;
+      }
+
+      if (isDraggingCow) {
+        if (currentMode === 'farm_inside') {
+          const slot = slots[currentSlotKey];
+          const dx = px - peg.x;
+          const dy = py - peg.y;
+          let ang = Math.atan2(dy, dx);
+
+          cowAngle = clampAngleForSlot(slot, ang);
+
+          if (prevCowAngle !== null) {
+            addSweepInterval(prevCowAngle, cowAngle);
+          }
+          prevCowAngle = cowAngle;
+
+          checkWalkCompletion();
+          render();
+        } else {
+          const targetT = solveBarnTFromPoint(px, py, cowParamT);
+          cowParamT = targetT;
+          if (targetT > barnMaxSweptT) barnMaxSweptT = targetT;
+          checkWalkCompletion();
+          render();
+        }
+      }
+    }
+
+    function handlePointerUp() {
+      isDraggingCow = false;
+      isDraggingPeg = false;
+      activeDragSlice = null;
+      prevCowAngle = null;
+      render();
+    }
+
+    function verifyAnswer() {
+      const val = parseFloat(document.getElementById('userAnswer').value);
+      if (isNaN(val)) {
+        showModal('請輸入答案', '請先輸入您計算出的吃草面積！', 'info');
+        return;
+      }
+
+      if (currentMode === 'farm_inside') {
+        const slot = slots[currentSlotKey];
+        const exact = ropeRadiusM * ropeRadiusM * 3.14 * slot.fraction;
+        if (Math.abs(val - exact) < 0.2) {
+          showModal('🎉 答對了！', `算式：${ropeRadiusM} × ${ropeRadiusM} × 3.14 × ${slot.fraction} = ${exact.toFixed(2)} 平方公尺`, 'success');
+        } else {
+          showModal('再試一次', `提示：把色塊拉到右邊比對，確認是幾分之幾圓！\n半徑是 ${ropeRadiusM}m`, 'error');
+        }
+      } else {
+        if (barnDifficulty === 'basic') {
+          const rMain = 8;
+          const mainA = rMain * rMain * 3.14 * 0.75;
+          if (Math.abs(val - mainA) < 0.2) {
+            let desc = `🎉 完全正確！\n\n【詳細計算步驟】\n牛舍左上角可走活動範圍為 3/4 圓：\n8 × 8 × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺\n\n(因為繩長剛好等於牛舍寬度 8m，因此在角落剛好貼緊，不會折彎！)`;
+            showModal('🎉 答對了！', desc, 'success');
+          } else {
+            showModal('算式提醒', `【解題提示】\n1. 繩長是 8m\n2. 木樁在牛舍左上角，被牛舍阻擋 1/4 圓\n3. 活動範圍為 3/4 圓：8 × 8 × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺`, 'error');
+          }
+        } else {
+          const mainA = 10 * 10 * 3.14 * 0.75;
+          const remA = 2 * 2 * 3.14 * 0.25;
+          const totalA = mainA + remA;
+          if (Math.abs(val - totalA) < 0.2) {
+            let desc = `🎉 太厲害了！進階題完全正確！\n\n【詳細計算步驟】\n1. 主要綠色 3/4 圓 (半徑 10m)：\n   10 × 10 × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺\n2. 繞過角落折彎黃色 1/4 圓 (半徑 10 - 8 = 2m)：\n   2 × 2 × 3.14 × 1/4 = ${remA.toFixed(2)} 平方公尺\n總面積：${mainA.toFixed(2)} + ${remA.toFixed(2)} = ${totalA.toFixed(2)} 平方公尺`;
+            showModal('🎉 答對了！', desc, 'success');
+          } else {
+            showModal('算式提醒', `【進階解題提示】\n1. 繩長 10m，牛舍寬 8m，在角落下折後還剩 10 - 8 = 2m！\n2. 主要綠色吃草範圍 (3/4 圓)：10 × 10 × 3.14 × 3/4 = ${mainA.toFixed(2)}\n3. 角落折彎黃色吃草範圍 (1/4 圓)：2 × 2 × 3.14 × 1/4 = ${remA.toFixed(2)}\n兩者相加即為答案！`, 'error');
+          }
+        }
+      }
+    }
+
+    function showModal(title, desc, type) {
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalDesc').innerText = desc;
+      const icon = document.getElementById('modalIcon');
+      if (type === 'success') {
+        icon.className = 'w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3 bg-emerald-500/20 text-emerald-400';
+        icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+      } else {
+        icon.className = 'w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3 bg-amber-500/20 text-amber-400';
+        icon.innerHTML = '<i class="fa-solid fa-lightbulb"></i>';
+      }
+      document.getElementById('modalBackdrop').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').classList.add('hidden');
+    }
+
+    // 事件監聽（滑鼠與觸控）
+    canvas.addEventListener('mousedown', e => {
+      const r = canvas.getBoundingClientRect();
+      handlePointerDown(e.clientX - r.left, e.clientY - r.top);
+    });
+    window.addEventListener('mousemove', e => {
+      const r = canvas.getBoundingClientRect();
+      handlePointerMove(e.clientX - r.left, e.clientY - r.top);
+    });
+    window.addEventListener('mouseup', handlePointerUp);
+
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) {
+        const r = canvas.getBoundingClientRect();
+        handlePointerDown(e.touches[0].clientX - r.left, e.touches[0].clientY - r.top);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', e => {
+      if ((isDraggingCow || isDraggingPeg || activeDragSlice) && e.touches.length === 1) {
+        const r = canvas.getBoundingClientRect();
+        handlePointerMove(e.touches[0].clientX - r.left, e.touches[0].clientY - r.top);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', handlePointerUp);
+
+    window.addEventListener('resize', resizeCanvas);
+
+    // 啟動初始化（預設無牛舍模式）
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        resizeCanvas();
+        applySlot('center', true, true);
+        render();
+      }, 50);
+    });
+  </script>
+</body>
+</html>
