@@ -664,6 +664,12 @@
     }
 
     function autoWalkCircle() {
+      // 司令台模式：若學生尚未拉出繩長半徑，阻止走動並給予提示
+      if (currentMode === 'barn_obstacle' && ropeRadiusM === 0) {
+        showModal('請先拉出半徑', '請先按住小立鼠往右拉出繩長半徑，再點擊「自動走一圈」喔！', 'info');
+        return;
+      }
+
       sweptIntervals = [];
       barnMaxSweptT = 0;
       draggableSlices = [];
@@ -689,11 +695,6 @@
         }
         step1();
       } else {
-        if (ropeRadiusM === 0) {
-          ropeRadiusM = (barnDifficulty === 'basic') ? 8 : 10;
-          document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
-          document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
-        }
         barnExploreStage = 'walk';
         updateStepIndicator(2);
         cowParamT = 0;
@@ -874,14 +875,15 @@
         ctx.restore();
       }
 
+      // 司令台建築主體（灰色風格）
       ctx.save();
-      ctx.fillStyle = '#b45309';
+      ctx.fillStyle = '#64748b'; // 石板灰
       ctx.fillRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
-      ctx.strokeStyle = '#451a03';
+      ctx.strokeStyle = '#334155'; // 深灰邊框
       ctx.lineWidth = 4;
       ctx.strokeRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
 
-      ctx.fillStyle = '#fef3c7';
+      ctx.fillStyle = '#f8fafc';
       ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
