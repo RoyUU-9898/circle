@@ -82,15 +82,25 @@
     <!-- 控制功能橫列 -->
     <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-700/60 flex-shrink-0">
       
-      <!-- 題型一專屬控制：木樁位置快速選取 -->
-      <div id="ctrls_mode1" class="flex items-center space-x-1.5">
-        <span class="text-xs text-slate-300 font-medium">位置：</span>
-        <div class="inline-flex rounded-xl p-1 bg-slate-900/80 border border-slate-700/80">
-          <button id="btn_center" onclick="setSlotPreset('center')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">正中央</button>
-          <button id="btn_edge" onclick="setSlotPreset('bottom_edge')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">邊界</button>
-          <button id="btn_corner" onclick="setSlotPreset('bottom_left')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">角落</button>
+      <!-- 題型一專屬控制：多隻小立鼠管理 + 木樁位置 -->
+      <div id="ctrls_mode1" class="flex flex-wrap items-center gap-2">
+        <!-- 小立鼠分頁籤與新增按鈕 -->
+        <div class="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80">
+          <div id="mouseTabsContainer" class="flex items-center space-x-1"></div>
+          <button id="addMouseBtn" onclick="addFarmMouse()" class="px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white transition flex items-center shadow-sm" title="新增小立鼠進行比較">
+            <i class="fa-solid fa-plus mr-1"></i> 新增
+          </button>
         </div>
-        <span class="text-[11px] text-slate-400 ml-1">（木樁可以移動到藍色的點）</span>
+
+        <!-- 位置快速選取 -->
+        <div class="flex items-center space-x-1">
+          <span class="text-xs text-slate-300 font-medium hidden sm:inline">位置：</span>
+          <div class="inline-flex rounded-xl p-1 bg-slate-900/80 border border-slate-700/80">
+            <button id="btn_center" onclick="setSlotPreset('center')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition">正中央</button>
+            <button id="btn_edge" onclick="setSlotPreset('bottom_edge')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">邊界</button>
+            <button id="btn_corner" onclick="setSlotPreset('bottom_left')" class="pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">角落</button>
+          </div>
+        </div>
       </div>
 
       <!-- 題型二專屬控制：基礎 / 進階 -->
@@ -106,12 +116,12 @@
         </div>
       </div>
 
-      <!-- 繩長顯示/滑桿 (題型一為滑桿；題型二動態顯示整數公尺) -->
+      <!-- 繩長顯示/滑桿 -->
       <div class="flex items-center space-x-2 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-700/80 shadow-sm">
         <span class="text-xs text-amber-300 font-bold flex items-center">
           <i class="fa-solid fa-ruler-horizontal mr-1 text-amber-400"></i> 繩長：
         </span>
-        <input type="range" id="ropeSlider" min="1" max="4" step="1" value="2" class="w-24 md:w-32 cursor-pointer" oninput="handleRopeChange(this.value)">
+        <input type="range" id="ropeSlider" min="1" max="4" step="1" value="2" class="w-20 md:w-28 cursor-pointer" oninput="handleRopeChange(this.value)">
         <span id="ropeValueText" class="text-xs font-mono font-bold text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">
           2 m
         </span>
@@ -120,7 +130,7 @@
       <!-- 操作按鈕群 -->
       <div class="flex items-center space-x-1.5">
         <button onclick="autoWalkCircle()" class="px-2.5 py-1 text-xs rounded-xl bg-indigo-600/70 hover:bg-indigo-600 text-white font-medium transition flex items-center shadow-sm">
-          <i class="fa-solid fa-play mr-1"></i> 自動走一圈
+          <i class="fa-solid fa-play mr-1"></i> <span id="autoWalkBtnText">全部走一圈</span>
         </button>
         <button onclick="resetExtractedSlices()" id="resetSliceBtn" class="px-2.5 py-1 text-xs rounded-xl bg-emerald-800/40 text-emerald-300 border border-emerald-500/30 transition flex items-center shadow-sm opacity-50 pointer-events-none">
           <i class="fa-solid fa-magnet mr-1"></i> 色塊歸位
@@ -139,7 +149,7 @@
       <div id="hintBadge" class="absolute top-2.5 left-2.5 bg-slate-900/85 border border-slate-700/80 text-[11px] text-slate-200 px-3 py-1.5 rounded-lg pointer-events-none backdrop-blur-sm flex items-center shadow max-w-[85%]">
         <i class="fa-solid fa-hand-pointer text-amber-400 mr-2 flex-shrink-0"></i>
         <span id="canvasHintText" class="truncate flex items-center">
-          拖曳木樁📍可吸附至藍點；按住小立鼠<img src="Image.png" class="mouse-inline-icon">繞完後，可將色塊拉至右側比對！
+          可點上方「+新增」比較多隻小立鼠<img src="Image.png" class="mouse-inline-icon">；繞完後將色塊拖至右側比對大小！
         </span>
       </div>
     </div>
@@ -148,7 +158,7 @@
     <div class="pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-2 flex-shrink-0 text-xs md:text-sm">
       <div class="flex items-center space-x-2 text-slate-400">
         <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
-          <span id="statusLabelPrefix">木樁位置</span>：<b id="statusLessonText" class="text-amber-300 font-semibold">正中央</b>
+          <span id="statusLabelPrefix">目前選取</span>：<b id="statusLessonText" class="text-amber-300 font-semibold">1號鼠 (正中央)</b>
         </span>
         <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
           目前繩長：<b id="statusRopeText" class="text-amber-300 font-mono">2 m</b>
@@ -189,8 +199,9 @@
 
     let currentMode = 'farm_inside';
     let meterScale = 1;
-    let ropeRadiusM = 2;
+    let ropeRadiusM = 2; // 司令台模式專用
 
+    // 互動狀態
     let isDraggingCow = false;
     let isDraggingPeg = false;
     let isStretchingRope = false;
@@ -199,11 +210,10 @@
 
     let activeDragSlice = null;
     let dragSliceOffset = { x: 0, y: 0 };
-    let prevCowAngle = null;
 
     let grassTufts = [];
 
-    // 載入去背小立鼠圖片
+    // 載入小立鼠圖片
     const squirrelImg = new Image();
     squirrelImg.src = 'Image.png';
     let isSquirrelLoaded = false;
@@ -212,15 +222,192 @@
       render();
     };
 
+    // --- 題型一：長方形圍欄（支援多隻小立鼠） ---
     const FARM1_W_M = 16;
     const FARM1_H_M = 10;
     let farmRect = { x: 0, y: 0, w: 0, h: 0 };
     let slots = {};
-    let currentSlotKey = 'center';
-    let peg = { x: 0, y: 0 };
-    let cowAngle = 0;
-    let sweptIntervals = [];
 
+    // 3組高對比色系，供多隻小立鼠比對使用
+    const MOUSE_PALETTES = [
+      {
+        label: '1號鼠',
+        dotColor: '#10b981',
+        sweepFill: 'rgba(16, 185, 129, 0.50)',
+        sliceFill: 'rgba(52, 211, 153, 0.78)',
+        stroke: '#10b981',
+        badgeBg: '#065f46'
+      },
+      {
+        label: '2號鼠',
+        dotColor: '#f59e0b',
+        sweepFill: 'rgba(245, 158, 11, 0.50)',
+        sliceFill: 'rgba(251, 191, 36, 0.78)',
+        stroke: '#f59e0b',
+        badgeBg: '#92400e'
+      },
+      {
+        label: '3號鼠',
+        dotColor: '#38bdf8',
+        sweepFill: 'rgba(56, 189, 248, 0.50)',
+        sliceFill: 'rgba(56, 189, 248, 0.78)',
+        stroke: '#0284c7',
+        badgeBg: '#075985'
+      }
+    ];
+
+    let farmMice = [];
+    let activeMouseId = null;
+    let mouseCounter = 0;
+
+    function getActiveMouse() {
+      return farmMice.find(m => m.id === activeMouseId) || farmMice[0];
+    }
+
+    function initDefaultFarmMice() {
+      farmMice = [];
+      mouseCounter = 0;
+      addFarmMouse('center', true);
+    }
+
+    function addFarmMouse(preferredSlot = null, isInit = false) {
+      if (farmMice.length >= 3) {
+        showModal('數量上限', '畫面上最多可同時放置 3 隻小立鼠進行比較喔！', 'info');
+        return;
+      }
+
+      // 找出尚未被使用的色系索引
+      const usedPaletteIndices = farmMice.map(m => m.paletteIdx);
+      let paletteIdx = 0;
+      for (let i = 0; i < MOUSE_PALETTES.length; i++) {
+        if (!usedPaletteIndices.includes(i)) {
+          paletteIdx = i;
+          break;
+        }
+      }
+
+      // 自動挑選尚未佔用的典型位置（正中央 -> 下邊界 -> 左下角）
+      let slotKey = preferredSlot;
+      if (!slotKey) {
+        const usedSlots = farmMice.map(m => m.slotKey);
+        const candidates = ['center', 'bottom_edge', 'bottom_left', 'top_edge', 'top_right'];
+        slotKey = candidates.find(k => !usedSlots.includes(k)) || 'center';
+      }
+
+      const slot = slots[slotKey] || { x: 0, y: 0, minAng: -Math.PI, maxAng: Math.PI };
+      const activeM = getActiveMouse();
+      const defaultR = activeM ? activeM.ropeRadiusM : 2;
+
+      mouseCounter++;
+      const newMouse = {
+        id: 'mouse_' + mouseCounter,
+        paletteIdx: paletteIdx,
+        slotKey: slotKey,
+        pegX: slot.x,
+        pegY: slot.y,
+        ropeRadiusM: defaultR,
+        cowAngle: (slot.minAng + slot.maxAng) / 2,
+        prevCowAngle: null,
+        sweptIntervals: []
+      };
+
+      farmMice.push(newMouse);
+      activeMouseId = newMouse.id;
+
+      if (!isInit) {
+        updateFarmUI();
+        render();
+      }
+    }
+
+    function selectFarmMouse(id) {
+      if (activeMouseId === id) return;
+      activeMouseId = id;
+      updateFarmUI();
+      render();
+    }
+
+    function removeFarmMouse(id, event) {
+      if (event) event.stopPropagation();
+      if (farmMice.length <= 1) {
+        showModal('無法刪除', '畫面上至少需要保留 1 隻小立鼠喔！', 'info');
+        return;
+      }
+
+      const idx = farmMice.findIndex(m => m.id === id);
+      if (idx === -1) return;
+
+      farmMice.splice(idx, 1);
+      // 移除該隻小立鼠對應的已抽出色塊
+      draggableSlices = draggableSlices.filter(s => s.ownerMouseId !== id);
+      updateResetSliceBtnState();
+
+      if (activeMouseId === id) {
+        activeMouseId = farmMice[Math.max(0, idx - 1)].id;
+      }
+
+      updateFarmUI();
+      render();
+    }
+
+    function updateFarmUI() {
+      if (currentMode !== 'farm_inside') return;
+      const m = getActiveMouse();
+      if (!m) return;
+      const slot = slots[m.slotKey];
+
+      // 1. 渲染小立鼠分頁籤
+      const containerEl = document.getElementById('mouseTabsContainer');
+      containerEl.innerHTML = '';
+      farmMice.forEach(mouse => {
+        const pal = MOUSE_PALETTES[mouse.paletteIdx];
+        const isSelected = mouse.id === activeMouseId;
+        const mSlot = slots[mouse.slotKey];
+        const shortPos = mSlot ? mSlot.name.replace('正', '') : '';
+
+        const tab = document.createElement('div');
+        tab.onclick = () => selectFarmMouse(mouse.id);
+        tab.className = `flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer transition select-none ${
+          isSelected
+            ? 'bg-slate-700 text-white ring-1 ring-amber-400 shadow-sm'
+            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/70'
+        }`;
+
+        tab.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style="background-color: ${pal.dotColor};"></span>
+          <span>${pal.label}<span class="text-[10px] font-normal opacity-80 ml-0.5">(${shortPos})</span></span>
+          ${farmMice.length > 1 ? `<button onclick="removeFarmMouse('${mouse.id}', event)" class="ml-1 text-slate-400 hover:text-rose-400 px-0.5 rounded" title="刪除此小立鼠"><i class="fa-solid fa-xmark text-[11px]"></i></button>` : ''}
+        `;
+        containerEl.appendChild(tab);
+      });
+
+      // 控制新增按鈕狀態
+      const addBtn = document.getElementById('addMouseBtn');
+      if (farmMice.length >= 3) {
+        addBtn.classList.add('opacity-40', 'pointer-events-none');
+      } else {
+        addBtn.classList.remove('opacity-40', 'pointer-events-none');
+      }
+
+      // 2. 更新位置按鈕高亮
+      document.querySelectorAll('.pos-btn').forEach(b => b.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition");
+      if (slot) {
+        const activeBtn = document.getElementById(`btn_${slot.type}`);
+        if (activeBtn) activeBtn.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition";
+      }
+
+      // 3. 更新繩長滑桿與文字
+      const slider = document.getElementById('ropeSlider');
+      slider.value = m.ropeRadiusM;
+      document.getElementById('ropeValueText').innerText = `${m.ropeRadiusM} m`;
+      document.getElementById('statusRopeText').innerText = `${m.ropeRadiusM} m`;
+
+      // 4. 更新底部狀態列
+      const pal = MOUSE_PALETTES[m.paletteIdx];
+      document.getElementById('statusLessonText').innerText = `${pal.label} (${slot ? slot.name : ''})`;
+    }
+
+    // --- 題型二：司令台障礙物 ---
     const BARN_W_M = 10;
     const BARN_H_M = 8;
     let barnDifficulty = 'basic';
@@ -231,6 +418,15 @@
     let barnMaxSweptT = 0;
 
     let draggableSlices = [];
+
+    function updateResetSliceBtnState() {
+      const btn = document.getElementById('resetSliceBtn');
+      if (draggableSlices.length > 0) {
+        btn.classList.remove('opacity-50', 'pointer-events-none');
+      } else {
+        btn.classList.add('opacity-50', 'pointer-events-none');
+      }
+    }
 
     function updateStepIndicator(step) {
       if (currentMode !== 'barn_obstacle') return;
@@ -316,9 +512,23 @@
 
         initSlots();
 
-        const slot = slots[currentSlotKey] || slots['center'];
-        peg.x = slot.x;
-        peg.y = slot.y;
+        // 同步更新所有小立鼠的座標與半徑像素
+        farmMice.forEach(m => {
+          const slot = slots[m.slotKey] || slots['center'];
+          m.pegX = slot.x;
+          m.pegY = slot.y;
+          const slice = draggableSlices.find(s => s.ownerMouseId === m.id);
+          if (slice) {
+            const wasAtHome = Math.hypot(slice.x - slice.homeX, slice.y - slice.homeY) < 5;
+            slice.homeX = slot.x;
+            slice.homeY = slot.y;
+            slice.rPx = m.ropeRadiusM * meterScale;
+            if (wasAtHome) {
+              slice.x = slot.x;
+              slice.y = slot.y;
+            }
+          }
+        });
       } else {
         const rMax = 10;
         const spanW_M = rMax + BARN_W_M;
@@ -353,32 +563,39 @@
 
     function syncDraggableSlices() {
       if (currentMode === 'farm_inside') {
-        const slot = slots[currentSlotKey];
-        if (!slot) return;
-        let totalRad = 0;
-        sweptIntervals.forEach(([s, e]) => totalRad += (e - s));
-        const maxSpan = slot.maxAng - slot.minAng;
-        const completed = slot.fraction === 1 ? (totalRad >= maxSpan * 0.995 && sweptIntervals.length === 1) : (totalRad >= maxSpan * 0.995);
+        farmMice.forEach(m => {
+          const slot = slots[m.slotKey];
+          if (!slot) return;
+          let totalRad = 0;
+          m.sweptIntervals.forEach(([s, e]) => totalRad += (e - s));
+          const maxSpan = slot.maxAng - slot.minAng;
+          const completed = slot.fraction === 1
+            ? (totalRad >= maxSpan * 0.995 && m.sweptIntervals.length === 1)
+            : (totalRad >= maxSpan * 0.995);
 
-        if (completed && !draggableSlices.some(s => s.id === 'farm_slice')) {
-          draggableSlices.push({
-            id: 'farm_slice',
-            name: '',
-            rM: ropeRadiusM,
-            showRadiusLabel: true,
-            homeX: peg.x,
-            homeY: peg.y,
-            x: peg.x,
-            y: peg.y,
-            rPx: ropeRadiusM * meterScale,
-            minAng: slot.minAng,
-            maxAng: slot.maxAng,
-            fraction: slot.fraction,
-            fillColor: 'rgba(52, 211, 153, 0.75)',
-            strokeColor: '#10b981'
-          });
-          document.getElementById('resetSliceBtn').classList.remove('opacity-50', 'pointer-events-none');
-        }
+          const sliceId = 'farm_slice_' + m.id;
+          if (completed && !draggableSlices.some(s => s.id === sliceId)) {
+            const pal = MOUSE_PALETTES[m.paletteIdx];
+            draggableSlices.push({
+              id: sliceId,
+              ownerMouseId: m.id,
+              name: pal.label,
+              rM: m.ropeRadiusM,
+              showRadiusLabel: true,
+              homeX: m.pegX,
+              homeY: m.pegY,
+              x: m.pegX,
+              y: m.pegY,
+              rPx: m.ropeRadiusM * meterScale,
+              minAng: slot.minAng,
+              maxAng: slot.maxAng,
+              fraction: slot.fraction,
+              fillColor: pal.sliceFill,
+              strokeColor: pal.stroke
+            });
+          }
+        });
+        updateResetSliceBtnState();
       } else {
         if (barnMaxSweptT >= 0.745 && ropeRadiusM > 0) {
           if (!draggableSlices.some(s => s.id === 'barn_main_slice')) {
@@ -398,7 +615,7 @@
               fillColor: 'rgba(52, 211, 153, 0.75)',
               strokeColor: '#10b981'
             });
-            document.getElementById('resetSliceBtn').classList.remove('opacity-50', 'pointer-events-none');
+            updateResetSliceBtnState();
             updateStepIndicator(3);
           }
         }
@@ -436,46 +653,36 @@
       render();
     }
 
-    function applySlot(key, resetSweep = true, resetAngle = true) {
-      currentSlotKey = key;
+    function applySlotToMouse(mouse, key, resetSweep = true, resetAngle = true) {
+      if (!mouse) return;
+      mouse.slotKey = key;
       const slot = slots[key];
       if (!slot) return;
-      peg.x = slot.x;
-      peg.y = slot.y;
 
-      const slider = document.getElementById('ropeSlider');
-      slider.min = slot.minR || 1;
-      slider.max = slot.maxR || 4;
-      slider.step = slot.step || 1;
-      if (ropeRadiusM > slot.maxR) ropeRadiusM = slot.maxR;
-      if (ropeRadiusM < slider.min) ropeRadiusM = parseInt(slider.min);
-      slider.value = ropeRadiusM;
-      document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
-
-      document.querySelectorAll('.pos-btn').forEach(b => b.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition");
-      const activeBtn = document.getElementById(`btn_${slot.type}`);
-      if (activeBtn) activeBtn.className = "pos-btn px-2.5 py-1 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-sm transition";
+      mouse.pegX = slot.x;
+      mouse.pegY = slot.y;
 
       if (resetAngle) {
-        cowAngle = (slot.minAng + slot.maxAng) / 2;
+        mouse.cowAngle = (slot.minAng + slot.maxAng) / 2;
       } else {
-        cowAngle = clampAngleForSlot(slot, cowAngle);
+        mouse.cowAngle = clampAngleForSlot(slot, mouse.cowAngle);
       }
-      prevCowAngle = cowAngle;
+      mouse.prevCowAngle = mouse.cowAngle;
 
       if (resetSweep) {
-        sweptIntervals = [];
-        draggableSlices = [];
-        document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
+        mouse.sweptIntervals = [];
+        draggableSlices = draggableSlices.filter(s => s.ownerMouseId !== mouse.id);
+        updateResetSliceBtnState();
         document.getElementById('canvasHintText').innerHTML = `拖曳木樁📍可吸附至藍點；按住小立鼠${MOUSE_ICON_HTML}繞完後，可將色塊拉至右側比對！`;
       }
 
-      document.getElementById('statusLessonText').innerText = slot.name;
-      document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+      updateFarmUI();
     }
 
     function setSlotPreset(key) {
-      applySlot(key, true, true);
+      const m = getActiveMouse();
+      if (!m) return;
+      applySlotToMouse(m, key, true, true);
       render();
     }
 
@@ -506,6 +713,7 @@
       const slider = document.getElementById('ropeSlider');
       const statusLabel = document.getElementById('statusLabelPrefix');
       const stepGroup = document.getElementById('stepIndicatorGroup');
+      const autoWalkText = document.getElementById('autoWalkBtnText');
 
       if (mode === 'farm_inside') {
         sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>草地：長 <b class="text-amber-400 mx-0.5">16m</b> × 寬 <b class="text-amber-400 mx-0.5">10m</b>';
@@ -514,12 +722,16 @@
         slider.classList.remove('hidden');
         stepGroup.classList.remove('flex'); stepGroup.classList.add('hidden');
         slider.min = 1; slider.max = 4; slider.step = 1;
-        ropeRadiusM = 2;
-        slider.value = 2;
-        statusLabel.innerText = '木樁位置';
-        document.getElementById('statusLessonText').innerText = '正中央';
-        document.getElementById('ropeValueText').innerText = '2 m';
-        document.getElementById('statusRopeText').innerText = '2 m';
+        statusLabel.innerText = '目前選取';
+        autoWalkText.innerText = '全部走一圈';
+
+        resizeCanvas();
+        if (farmMice.length === 0) {
+          initDefaultFarmMice();
+        }
+        farmMice.forEach(m => applySlotToMouse(m, m.slotKey, true, true));
+        updateFarmUI();
+        render();
       } else {
         sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>司令台：長 <b class="text-amber-400 mx-0.5">10m</b> × 寬 <b class="text-amber-400 mx-0.5">8m</b>';
         ctrls1.classList.remove('flex'); ctrls1.classList.add('hidden');
@@ -527,41 +739,51 @@
         slider.classList.add('hidden');
         stepGroup.classList.remove('hidden'); stepGroup.classList.add('flex');
         statusLabel.innerText = '題型';
+        autoWalkText.innerText = '自動走一圈';
         setBarnDifficulty('basic');
       }
-
-      resetCanvas();
-      resizeCanvas();
     }
 
     function handleRopeChange(val) {
-      ropeRadiusM = Math.round(parseFloat(val));
-      document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
-      document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
-
-      sweptIntervals = [];
-      barnMaxSweptT = 0;
-      draggableSlices = [];
-      prevCowAngle = null;
-      document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
-      document.getElementById('canvasHintText').innerHTML = `繩長已變更為 ${ropeRadiusM}m，請重新拖曳小立鼠${MOUSE_ICON_HTML}繞行活動！`;
-
+      const r = Math.round(parseFloat(val));
+      if (currentMode === 'farm_inside') {
+        const m = getActiveMouse();
+        if (!m) return;
+        m.ropeRadiusM = r;
+        m.sweptIntervals = [];
+        m.prevCowAngle = null;
+        draggableSlices = draggableSlices.filter(s => s.ownerMouseId !== m.id);
+        updateResetSliceBtnState();
+        updateFarmUI();
+        const pal = MOUSE_PALETTES[m.paletteIdx];
+        document.getElementById('canvasHintText').innerHTML = `${pal.label}繩長已變更為 ${r}m，請重新拖曳小立鼠${MOUSE_ICON_HTML}繞行活動！`;
+      } else {
+        ropeRadiusM = r;
+        document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
+        document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+        barnMaxSweptT = 0;
+        draggableSlices = [];
+        updateResetSliceBtnState();
+      }
       render();
     }
 
     function resetCanvas() {
-      sweptIntervals = [];
-      barnMaxSweptT = 0;
-      cowParamT = 0;
-      barnCornerBlocked = false;
       draggableSlices = [];
-      prevCowAngle = null;
+      updateResetSliceBtnState();
 
       if (currentMode === 'farm_inside') {
-        const slot = slots[currentSlotKey];
-        if (slot) cowAngle = (slot.minAng + slot.maxAng) / 2;
-        document.getElementById('canvasHintText').innerHTML = `拖曳木樁📍可吸附至藍點；按住小立鼠${MOUSE_ICON_HTML}繞完後，可將色塊拉至右側比對！`;
+        farmMice.forEach(m => {
+          m.sweptIntervals = [];
+          m.prevCowAngle = null;
+          const slot = slots[m.slotKey];
+          if (slot) m.cowAngle = (slot.minAng + slot.maxAng) / 2;
+        });
+        document.getElementById('canvasHintText').innerHTML = `可點上方「+新增」比較多隻小立鼠${MOUSE_ICON_HTML}；繞完後將色塊拖至右側比對大小！`;
       } else {
+        barnMaxSweptT = 0;
+        cowParamT = 0;
+        barnCornerBlocked = false;
         barnExploreStage = 'stretch';
         ropeRadiusM = 0;
         document.getElementById('ropeValueText').innerText = '0 m';
@@ -570,7 +792,6 @@
         updateStepIndicator(1);
       }
 
-      document.getElementById('resetSliceBtn').classList.add('opacity-50', 'pointer-events-none');
       render();
     }
 
@@ -616,26 +837,26 @@
       return rawAng;
     }
 
-    function addSweepInterval(ang1, ang2) {
-      const slot = slots[currentSlotKey];
+    function addSweepIntervalForMouse(mouse, ang1, ang2) {
+      const slot = slots[mouse.slotKey];
       if (!slot) return;
       let minA = Math.min(ang1, ang2);
       let maxA = Math.max(ang1, ang2);
 
       if (slot.fraction === 1 && (maxA - minA) > Math.PI) {
-        addSingleInterval(maxA, Math.PI);
-        addSingleInterval(-Math.PI, minA);
+        addSingleIntervalForMouse(mouse, maxA, Math.PI);
+        addSingleIntervalForMouse(mouse, -Math.PI, minA);
       } else {
-        addSingleInterval(Math.max(slot.minAng, minA), Math.min(slot.maxAng, maxA));
+        addSingleIntervalForMouse(mouse, Math.max(slot.minAng, minA), Math.min(slot.maxAng, maxA));
       }
     }
 
-    function addSingleInterval(s, e) {
+    function addSingleIntervalForMouse(mouse, s, e) {
       if (s >= e) return;
-      sweptIntervals.push([s, e]);
-      sweptIntervals.sort((a, b) => a[0] - b[0]);
+      mouse.sweptIntervals.push([s, e]);
+      mouse.sweptIntervals.sort((a, b) => a[0] - b[0]);
       const merged = [];
-      for (let seg of sweptIntervals) {
+      for (let seg of mouse.sweptIntervals) {
         if (!merged.length) merged.push([...seg]);
         else {
           let prev = merged[merged.length - 1];
@@ -647,54 +868,65 @@
         }
       }
 
-      const slot = slots[currentSlotKey];
+      const slot = slots[mouse.slotKey];
       if (slot && slot.fraction === 1 && merged.length > 1) {
         const first = merged[0];
         const last = merged[merged.length - 1];
         if (first[0] <= -Math.PI + 0.05 && last[1] >= Math.PI - 0.05) {
           const span = (first[1] - first[0]) + (last[1] - last[0]);
           if (span >= Math.PI * 2 - 0.08 && merged.length === 2) {
-            sweptIntervals = [[-Math.PI, Math.PI]];
+            mouse.sweptIntervals = [[-Math.PI, Math.PI]];
             return;
           }
         }
       }
 
-      sweptIntervals = merged;
+      mouse.sweptIntervals = merged;
     }
 
     function autoWalkCircle() {
-      // 司令台模式：若學生尚未拉出繩長半徑，阻止走動並給予提示
       if (currentMode === 'barn_obstacle' && ropeRadiusM === 0) {
         showModal('請先拉出半徑', '請先按住小立鼠往右拉出繩長半徑，再點擊「自動走一圈」喔！', 'info');
         return;
       }
 
-      sweptIntervals = [];
-      barnMaxSweptT = 0;
       draggableSlices = [];
+      updateResetSliceBtnState();
       barnCornerBlocked = false;
 
       if (currentMode === 'farm_inside') {
-        const slot = slots[currentSlotKey];
-        if (!slot) return;
-        let cur = slot.minAng;
-        function step1() {
-          if (cur <= slot.maxAng) {
-            cowAngle = cur;
-            addSingleInterval(slot.minAng, cur);
-            cur += 0.02;
+        // 讓畫面上所有小立鼠同步自動走完一圈，方便學生比較
+        farmMice.forEach(m => {
+          m.sweptIntervals = [];
+        });
+
+        let progress = 0; // 0 ~ 1
+        function stepAllMice() {
+          if (progress <= 1) {
+            farmMice.forEach(m => {
+              const slot = slots[m.slotKey];
+              if (!slot) return;
+              const cur = slot.minAng + (slot.maxAng - slot.minAng) * progress;
+              m.cowAngle = cur;
+              addSingleIntervalForMouse(m, slot.minAng, cur);
+            });
+            progress += 0.015;
             render();
-            requestAnimationFrame(step1);
+            requestAnimationFrame(stepAllMice);
           } else {
-            cowAngle = slot.maxAng;
-            addSingleInterval(slot.minAng, slot.maxAng);
+            farmMice.forEach(m => {
+              const slot = slots[m.slotKey];
+              if (!slot) return;
+              m.cowAngle = slot.maxAng;
+              addSingleIntervalForMouse(m, slot.minAng, slot.maxAng);
+            });
             syncDraggableSlices();
             render();
           }
         }
-        step1();
+        stepAllMice();
       } else {
+        barnMaxSweptT = 0;
         barnExploreStage = 'walk';
         updateStepIndicator(2);
         cowParamT = 0;
@@ -761,25 +993,29 @@
     function drawRightDividerOnly(totalW, totalH) {
       const dividerX = totalW * 0.50;
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
       ctx.setLineDash([6, 6]);
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(dividerX, 15);
       ctx.lineTo(dividerX, totalH - 15);
       ctx.stroke();
+
+      // 右側比對區淡浮水印提示
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('色塊大小比對區（可將扇形拖曳至此重疊比較）', dividerX + (totalW - dividerX) / 2, totalH - 18);
       ctx.restore();
     }
 
     function renderFarmInside() {
-      const slot = slots[currentSlotKey];
-      if (!slot) return;
-      const rPx = ropeRadiusM * meterScale;
-
+      // 圍欄外框
       ctx.strokeStyle = '#8d5b2d';
       ctx.lineWidth = 8;
       ctx.strokeRect(farmRect.x, farmRect.y, farmRect.w, farmRect.h);
 
+      // 尺寸標示
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
@@ -803,48 +1039,100 @@
       ctx.fillStyle = '#f8fafc';
       ctx.fillText('寬: 10m', labelX, labelY);
 
+      // 藍色吸附點
       Object.values(slots).forEach(s => {
         ctx.beginPath();
-        ctx.arc(s.x, s.y, 6.5, 0, Math.PI * 2);
-        ctx.fillStyle = s.id === currentSlotKey ? '#38bdf8' : '#1e40af';
+        ctx.arc(s.x, s.y, 6, 0, Math.PI * 2);
+        ctx.fillStyle = '#1e40af';
         ctx.fill();
         ctx.strokeStyle = '#93c5fd';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.8;
         ctx.stroke();
       });
 
-      if (sweptIntervals.length > 0) {
-        ctx.save();
-        ctx.fillStyle = 'rgba(16, 185, 129, 0.55)';
-        sweptIntervals.forEach(([s, e]) => {
+      // 排序繪製：非選取的先畫，目前選取的畫在最上層
+      const orderedMice = [...farmMice].sort((a, b) => (a.id === activeMouseId ? 1 : b.id === activeMouseId ? -1 : 0));
+
+      // 第一層：先畫所有掃過面積，避免小立鼠本體被遮擋
+      orderedMice.forEach(m => {
+        const pal = MOUSE_PALETTES[m.paletteIdx];
+        const rPx = m.ropeRadiusM * meterScale;
+        if (m.sweptIntervals.length > 0) {
+          ctx.save();
+          ctx.fillStyle = pal.sweepFill;
+          m.sweptIntervals.forEach(([s, e]) => {
+            ctx.beginPath();
+            ctx.moveTo(m.pegX, m.pegY);
+            ctx.arc(m.pegX, m.pegY, rPx, s, e, false);
+            ctx.closePath();
+            ctx.fill();
+          });
+          ctx.restore();
+        }
+      });
+
+      // 第二層：畫牽繩、木樁、小立鼠與編號標籤
+      orderedMice.forEach(m => {
+        const pal = MOUSE_PALETTES[m.paletteIdx];
+        const isSelected = m.id === activeMouseId;
+        const rPx = m.ropeRadiusM * meterScale;
+        const cowX = m.pegX + Math.cos(m.cowAngle) * rPx;
+        const cowY = m.pegY + Math.sin(m.cowAngle) * rPx;
+
+        // 牽繩
+        ctx.beginPath();
+        ctx.moveTo(m.pegX, m.pegY);
+        ctx.lineTo(cowX, cowY);
+        ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(255, 255, 255, 0.75)';
+        ctx.lineWidth = isSelected ? 3.5 : 2.5;
+        ctx.stroke();
+
+        // 木樁
+        ctx.beginPath();
+        ctx.arc(m.pegX, m.pegY, isSelected ? 10 : 8, 0, Math.PI * 2);
+        ctx.fillStyle = pal.dotColor;
+        ctx.fill();
+        ctx.strokeStyle = isSelected ? '#ffffff' : '#0f172a';
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.stroke();
+
+        // 選取外光圈
+        if (isSelected) {
           ctx.beginPath();
-          ctx.moveTo(peg.x, peg.y);
-          ctx.arc(peg.x, peg.y, rPx, s, e, false);
-          ctx.closePath();
-          ctx.fill();
-        });
+          ctx.arc(cowX, cowY, 27, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([4, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // 小立鼠
+        drawLittleSquirrel(cowX, cowY, m.cowAngle + Math.PI / 2);
+
+        // 小立鼠頭頂編號名牌
+        ctx.save();
+        const tagText = `${pal.label} (${m.ropeRadiusM}m)`;
+        ctx.font = 'bold 11px sans-serif';
+        const tw = ctx.measureText(tagText).width + 10;
+        const th = 18;
+        const tx = cowX - tw / 2;
+        const ty = cowY - 38;
+
+        ctx.fillStyle = pal.badgeBg;
+        ctx.beginPath();
+        ctx.roundRect(tx, ty, tw, th, 5);
+        ctx.fill();
+        ctx.strokeStyle = isSelected ? '#fde047' : 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = isSelected ? 1.5 : 1;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(tagText, cowX, ty + th / 2);
         ctx.restore();
-      }
-
-      const cowX = peg.x + Math.cos(cowAngle) * rPx;
-      const cowY = peg.y + Math.sin(cowAngle) * rPx;
-
-      ctx.beginPath();
-      ctx.moveTo(peg.x, peg.y);
-      ctx.lineTo(cowX, cowY);
-      ctx.strokeStyle = '#f8fafc';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(peg.x, peg.y, 9.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#0284c7';
-      ctx.fill();
-      ctx.strokeStyle = '#e0f2fe';
-      ctx.lineWidth = 3;
-      ctx.stroke();
-
-      drawLittleSquirrel(cowX, cowY, cowAngle + Math.PI / 2);
+      });
     }
 
     function renderBarnObstacle() {
@@ -875,11 +1163,11 @@
         ctx.restore();
       }
 
-      // 司令台建築主體（灰色風格）
+      // 司令台建築主體
       ctx.save();
-      ctx.fillStyle = '#64748b'; // 石板灰
+      ctx.fillStyle = '#64748b';
       ctx.fillRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
-      ctx.strokeStyle = '#334155'; // 深灰邊框
+      ctx.strokeStyle = '#334155';
       ctx.lineWidth = 4;
       ctx.strokeRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
 
@@ -985,8 +1273,8 @@
 
         if (slice.showRadiusLabel && slice.rM !== undefined) {
           ctx.save();
-          const textStr = `${slice.rM}m`;
-          ctx.font = 'bold 13px sans-serif';
+          const textStr = slice.name ? `${slice.name} ${slice.rM}m` : `${slice.rM}m`;
+          ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
 
@@ -1015,7 +1303,7 @@
             ctx.beginPath();
             ctx.roundRect(labelX - tW / 2, labelY - tH / 2, tW, tH, 5);
             ctx.fill();
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.strokeStyle = slice.strokeColor;
             ctx.lineWidth = 1.2;
             ctx.stroke();
 
@@ -1033,7 +1321,7 @@
             ctx.setLineDash([4, 3]);
             ctx.stroke();
 
-            const labelX = endX + 18;
+            const labelX = endX + 26;
             const labelY = endY;
             const tW = ctx.measureText(textStr).width + 12;
             const tH = 20;
@@ -1042,7 +1330,7 @@
             ctx.beginPath();
             ctx.roundRect(labelX - tW / 2, labelY - tH / 2, tW, tH, 5);
             ctx.fill();
-            ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+            ctx.strokeStyle = slice.strokeColor;
             ctx.lineWidth = 1.2;
             ctx.stroke();
 
@@ -1059,7 +1347,7 @@
         ctx.shadowColor = 'rgba(0,0,0,0.85)';
         ctx.shadowBlur = 4;
         const dragTextY = slice.fraction <= 0.25 ? (slice.y + slice.rPx + 18) : (slice.y + slice.rPx * 0.65 + 16);
-        ctx.fillText('✋ 拖曳我', slice.x, dragTextY);
+        ctx.fillText('✋ 拖曳比對', slice.x, dragTextY);
         ctx.restore();
 
         ctx.restore();
@@ -1138,7 +1426,6 @@
       return Math.max(0, Math.min(maxT, calculatedT));
     }
 
-    // 畫布上的角色繪製
     function drawLittleSquirrel(x, y, heading) {
       ctx.save();
       ctx.translate(x, y);
@@ -1173,6 +1460,7 @@
     }
 
     function handlePointerDown(px, py) {
+      // 1. 優先檢查是否點擊已抽出的比對色塊
       if (draggableSlices.length > 0) {
         for (let i = draggableSlices.length - 1; i >= 0; i--) {
           const slice = draggableSlices[i];
@@ -1197,16 +1485,33 @@
       }
 
       if (currentMode === 'farm_inside') {
-        if (Math.hypot(px - peg.x, py - peg.y) < 32) {
-          isDraggingPeg = true;
-          return;
+        // 優先檢測目前選取的小立鼠，再檢測其他小立鼠（方便直接點選切換）
+        const orderedMice = [...farmMice].sort((a, b) => (a.id === activeMouseId ? -1 : b.id === activeMouseId ? 1 : 0));
+
+        // 2. 檢查是否點到任何木樁
+        for (const m of orderedMice) {
+          if (Math.hypot(px - m.pegX, py - m.pegY) < 30) {
+            activeMouseId = m.id;
+            updateFarmUI();
+            isDraggingPeg = true;
+            render();
+            return;
+          }
         }
-        const rPx = ropeRadiusM * meterScale;
-        const cowX = peg.x + Math.cos(cowAngle) * rPx;
-        const cowY = peg.y + Math.sin(cowAngle) * rPx;
-        if (Math.hypot(px - cowX, py - cowY) < 60) {
-          isDraggingCow = true;
-          prevCowAngle = cowAngle;
+
+        // 3. 檢查是否點到任何小立鼠本體
+        for (const m of orderedMice) {
+          const rPx = m.ropeRadiusM * meterScale;
+          const cowX = m.pegX + Math.cos(m.cowAngle) * rPx;
+          const cowY = m.pegY + Math.sin(m.cowAngle) * rPx;
+          if (Math.hypot(px - cowX, py - cowY) < 55) {
+            activeMouseId = m.id;
+            updateFarmUI();
+            isDraggingCow = true;
+            m.prevCowAngle = m.cowAngle;
+            render();
+            return;
+          }
         }
       } else {
         if (barnExploreStage === 'stretch') {
@@ -1233,8 +1538,10 @@
         return;
       }
 
-      if (isDraggingPeg) {
-        let nearestKey = currentSlotKey;
+      if (isDraggingPeg && currentMode === 'farm_inside') {
+        const m = getActiveMouse();
+        if (!m) return;
+        let nearestKey = m.slotKey;
         let minDist = Infinity;
         Object.entries(slots).forEach(([k, s]) => {
           const d = Math.hypot(px - s.x, py - s.y);
@@ -1243,8 +1550,8 @@
             nearestKey = k;
           }
         });
-        if (nearestKey !== currentSlotKey) {
-          applySlot(nearestKey, true, false);
+        if (nearestKey !== m.slotKey) {
+          applySlotToMouse(m, nearestKey, true, false);
         }
         render();
         return;
@@ -1266,17 +1573,19 @@
 
       if (isDraggingCow) {
         if (currentMode === 'farm_inside') {
-          const slot = slots[currentSlotKey];
-          const dx = px - peg.x;
-          const dy = py - peg.y;
+          const m = getActiveMouse();
+          if (!m) return;
+          const slot = slots[m.slotKey];
+          const dx = px - m.pegX;
+          const dy = py - m.pegY;
           let ang = Math.atan2(dy, dx);
 
-          cowAngle = clampAngleForSlot(slot, ang);
+          m.cowAngle = clampAngleForSlot(slot, ang);
 
-          if (prevCowAngle !== null) {
-            addSweepInterval(prevCowAngle, cowAngle);
+          if (m.prevCowAngle !== null) {
+            addSweepIntervalForMouse(m, m.prevCowAngle, m.cowAngle);
           }
-          prevCowAngle = cowAngle;
+          m.prevCowAngle = m.cowAngle;
 
           syncDraggableSlices();
           render();
@@ -1319,7 +1628,7 @@
       isDraggingCow = false;
       isDraggingPeg = false;
       activeDragSlice = null;
-      prevCowAngle = null;
+      farmMice.forEach(m => m.prevCowAngle = null);
       render();
     }
 
@@ -1331,12 +1640,16 @@
       }
 
       if (currentMode === 'farm_inside') {
-        const slot = slots[currentSlotKey];
-        const exact = ropeRadiusM * ropeRadiusM * 3.14 * slot.fraction;
+        const m = getActiveMouse();
+        if (!m) return;
+        const slot = slots[m.slotKey];
+        const pal = MOUSE_PALETTES[m.paletteIdx];
+        const r = m.ropeRadiusM;
+        const exact = r * r * 3.14 * slot.fraction;
         if (Math.abs(val - exact) < 0.2) {
-          showModal('🎉 答對了！', `算式：${ropeRadiusM} × ${ropeRadiusM} × 3.14 × ${slot.fraction} = ${exact.toFixed(2)} 平方公尺`, 'success');
+          showModal(`🎉 ${pal.label}答對了！`, `位置：${slot.name}\n算式：${r} × ${r} × 3.14 × ${slot.fraction} = ${exact.toFixed(2)} 平方公尺`, 'success');
         } else {
-          showModal('再試一次', `提示：把色塊拉到右邊比對，確認是幾分之幾圓！\n半徑是 ${ropeRadiusM}m`, 'error');
+          showModal('再試一次', `目前核對的是【${pal.label}】（位於${slot.name}，繩長 ${r}m）。\n提示：把色塊拉到右邊比對，確認是幾分之幾圓！`, 'error');
         }
       } else {
         if (barnDifficulty === 'basic' || ropeRadiusM <= BARN_H_M) {
@@ -1414,7 +1727,8 @@
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         resizeCanvas();
-        applySlot('center', true, true);
+        initDefaultFarmMice();
+        applySlotToMouse(getActiveMouse(), 'center', true, true);
         render();
       }, 50);
     });
