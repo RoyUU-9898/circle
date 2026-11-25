@@ -40,6 +40,14 @@
       object-fit: contain;
       margin: 0 2px;
     }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
   </style>
 </head>
 <body class="flex flex-col p-2 md:p-3 justify-between h-full">
@@ -84,7 +92,6 @@
       
       <!-- 題型一專屬控制：多隻小立鼠管理 + 木樁位置 -->
       <div id="ctrls_mode1" class="flex flex-wrap items-center gap-2">
-        <!-- 小立鼠分頁籤與新增按鈕 -->
         <div class="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/80">
           <div id="mouseTabsContainer" class="flex items-center space-x-1"></div>
           <button id="addMouseBtn" onclick="addFarmMouse()" class="px-2 py-1 text-xs font-bold rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white transition flex items-center shadow-sm" title="新增小立鼠進行比較">
@@ -92,7 +99,6 @@
           </button>
         </div>
 
-        <!-- 位置快速選取 -->
         <div class="flex items-center space-x-1">
           <span class="text-xs text-slate-300 font-medium hidden sm:inline">位置：</span>
           <div class="inline-flex rounded-xl p-1 bg-slate-900/80 border border-slate-700/80">
@@ -154,36 +160,56 @@
       </div>
     </div>
 
-    <!-- 底部：計算面積與核對區 -->
-    <div class="pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-2 flex-shrink-0 text-xs md:text-sm">
+    <!-- 底部區塊 A：題型一專屬（三隻小立鼠各自計算 + 學生下拉選單比較大小） -->
+    <div id="bottomCalc_mode1" class="pt-2.5 border-t border-slate-700/60 flex flex-col gap-2.5 flex-shrink-0 text-xs md:text-sm">
+      <!-- 第一排：各隻小立鼠計算卡 -->
+      <div id="miceCalcList" class="flex flex-wrap items-center gap-2.5"></div>
+
+      <!-- 第二排：學生下拉式選單比較大小（當有 2 隻以上小立鼠時顯示） -->
+      <div id="miceCompareBar" class="hidden flex-wrap items-center justify-between gap-2 bg-slate-900/85 border border-slate-700/80 px-3 py-2 rounded-xl">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-bold text-amber-300 flex items-center">
+            <i class="fa-solid fa-scale-balanced mr-1.5"></i> 活動面積大小比較（由大到小）：
+          </span>
+          <div id="compareDropdownsContainer" class="flex flex-wrap items-center gap-1.5"></div>
+        </div>
+        <button onclick="verifyMouseOrder()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold px-3.5 py-1 rounded-lg text-xs md:text-sm tracking-wider shadow-md transition flex items-center">
+          核對大小 <i class="fa-solid fa-check ml-1.5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 底部區塊 B：題型二專屬（司令台單一算式核對） -->
+    <div id="bottomCalc_mode2" class="hidden pt-2.5 border-t border-slate-700/60 flex-wrap items-center justify-between gap-2 flex-shrink-0 text-xs md:text-sm">
       <div class="flex items-center space-x-2 text-slate-400">
         <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
-          <span id="statusLabelPrefix">目前選取</span>：<b id="statusLessonText" class="text-amber-300 font-semibold">1號鼠 (正中央)</b>
+          題型：<b id="statusLessonText2" class="text-amber-300 font-semibold">司令台角落 (基礎)</b>
         </span>
         <span class="bg-slate-800/90 border border-slate-700 px-2.5 py-1 rounded-lg">
-          目前繩長：<b id="statusRopeText" class="text-amber-300 font-mono">2 m</b>
+          目前繩長：<b id="statusRopeText2" class="text-amber-300 font-mono">0 m</b>
         </span>
       </div>
 
       <div class="flex items-center space-x-2">
         <span class="font-medium text-slate-200">計算活動面積：</span>
         <div class="relative flex items-center">
-          <input type="number" id="userAnswer" step="0.01" placeholder="填寫答案" class="bg-slate-900 border border-slate-600 rounded-lg px-2.5 py-1 text-sm text-amber-300 font-mono w-28 md:w-32 focus:outline-none focus:border-amber-400">
+          <input type="number" id="userAnswerBarn" step="0.01" placeholder="填寫答案" class="bg-slate-900 border border-slate-600 rounded-lg px-2.5 py-1 text-sm text-amber-300 font-mono w-28 md:w-32 focus:outline-none focus:border-amber-400">
           <span class="ml-1.5 text-xs text-slate-400 font-mono font-medium">m²</span>
         </div>
-        <button onclick="verifyAnswer()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs md:text-sm tracking-wider shadow-md transition flex items-center">
+        <button onclick="verifyBarnAnswer()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs md:text-sm tracking-wider shadow-md transition flex items-center">
           核對答案 <i class="fa-solid fa-arrow-right ml-1"></i>
         </button>
       </div>
     </div>
+
   </main>
 
   <!-- 自訂提示視窗 -->
   <div id="modalBackdrop" class="fixed inset-0 bg-black/75 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-    <div class="bg-[#162039] border border-blue-500/40 rounded-2xl max-w-md w-full p-5 shadow-2xl text-center transform transition-all scale-95" id="modalBox">
+    <div class="bg-[#162039] border border-blue-500/40 rounded-2xl max-w-lg w-full p-5 shadow-2xl text-center transform transition-all scale-95" id="modalBox">
       <div id="modalIcon" class="w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3"></div>
-      <h3 id="modalTitle" class="text-lg font-bold mb-1.5 text-white"></h3>
-      <p id="modalDesc" class="text-xs md:text-sm text-slate-300 mb-5 leading-relaxed whitespace-pre-line text-left bg-slate-900/60 p-3 rounded-xl border border-slate-800"></p>
+      <h3 id="modalTitle" class="text-lg font-bold mb-2 text-white"></h3>
+      <div id="modalBody" class="text-xs md:text-sm text-slate-300 mb-5 leading-relaxed text-left bg-slate-900/70 p-3.5 rounded-xl border border-slate-800"></div>
       <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 rounded-xl transition text-sm">
         確定
       </button>
@@ -228,7 +254,6 @@
     let farmRect = { x: 0, y: 0, w: 0, h: 0 };
     let slots = {};
 
-    // 3組高對比色系，供多隻小立鼠比對使用
     const MOUSE_PALETTES = [
       {
         label: '1號鼠',
@@ -236,7 +261,8 @@
         sweepFill: 'rgba(16, 185, 129, 0.50)',
         sliceFill: 'rgba(52, 211, 153, 0.78)',
         stroke: '#10b981',
-        badgeBg: '#065f46'
+        badgeBg: '#065f46',
+        borderCls: 'border-emerald-500/40'
       },
       {
         label: '2號鼠',
@@ -244,7 +270,8 @@
         sweepFill: 'rgba(245, 158, 11, 0.50)',
         sliceFill: 'rgba(251, 191, 36, 0.78)',
         stroke: '#f59e0b',
-        badgeBg: '#92400e'
+        badgeBg: '#92400e',
+        borderCls: 'border-amber-500/40'
       },
       {
         label: '3號鼠',
@@ -252,13 +279,18 @@
         sweepFill: 'rgba(56, 189, 248, 0.50)',
         sliceFill: 'rgba(56, 189, 248, 0.78)',
         stroke: '#0284c7',
-        badgeBg: '#075985'
+        badgeBg: '#075985',
+        borderCls: 'border-sky-500/40'
       }
     ];
 
     let farmMice = [];
     let activeMouseId = null;
     let mouseCounter = 0;
+
+    // 儲存學生在下拉選單的選擇狀態
+    let studentComparePicks = ['', '', ''];
+    let studentCompareOps = ['>', '>'];
 
     function getActiveMouse() {
       return farmMice.find(m => m.id === activeMouseId) || farmMice[0];
@@ -267,6 +299,8 @@
     function initDefaultFarmMice() {
       farmMice = [];
       mouseCounter = 0;
+      studentComparePicks = ['', '', ''];
+      studentCompareOps = ['>', '>'];
       addFarmMouse('center', true);
     }
 
@@ -276,7 +310,6 @@
         return;
       }
 
-      // 找出尚未被使用的色系索引
       const usedPaletteIndices = farmMice.map(m => m.paletteIdx);
       let paletteIdx = 0;
       for (let i = 0; i < MOUSE_PALETTES.length; i++) {
@@ -286,7 +319,6 @@
         }
       }
 
-      // 自動挑選尚未佔用的典型位置（正中央 -> 下邊界 -> 左下角）
       let slotKey = preferredSlot;
       if (!slotKey) {
         const usedSlots = farmMice.map(m => m.slotKey);
@@ -308,7 +340,9 @@
         ropeRadiusM: defaultR,
         cowAngle: (slot.minAng + slot.maxAng) / 2,
         prevCowAngle: null,
-        sweptIntervals: []
+        sweptIntervals: [],
+        userInput: '',
+        isSolved: false
       };
 
       farmMice.push(newMouse);
@@ -316,7 +350,7 @@
 
       if (!isInit) {
         updateFarmUI();
-        render();
+        resizeCanvas();
       }
     }
 
@@ -338,16 +372,138 @@
       if (idx === -1) return;
 
       farmMice.splice(idx, 1);
-      // 移除該隻小立鼠對應的已抽出色塊
       draggableSlices = draggableSlices.filter(s => s.ownerMouseId !== id);
       updateResetSliceBtnState();
+
+      studentComparePicks = studentComparePicks.map(p => (p === id ? '' : p));
 
       if (activeMouseId === id) {
         activeMouseId = farmMice[Math.max(0, idx - 1)].id;
       }
 
       updateFarmUI();
-      render();
+      resizeCanvas();
+    }
+
+    function handleMouseInputChange(id, val) {
+      const m = farmMice.find(item => item.id === id);
+      if (m) {
+        m.userInput = val;
+        m.isSolved = false;
+      }
+    }
+
+    function verifySingleMouseAnswer(id) {
+      const m = farmMice.find(item => item.id === id);
+      if (!m) return;
+      const val = parseFloat(m.userInput);
+      const pal = MOUSE_PALETTES[m.paletteIdx];
+      const slot = slots[m.slotKey];
+      const r = m.ropeRadiusM;
+
+      if (isNaN(val)) {
+        showModal('請輸入答案', `請先在【${pal.label}】的格子中輸入計算出的面積！`, 'info');
+        return;
+      }
+
+      const fracText = slot.fraction === 1 ? '1 (整圓)' : slot.fraction === 0.5 ? '1/2 (半圓)' : '1/4 (四分之一圓)';
+      const exact = r * r * 3.14 * slot.fraction;
+
+      if (Math.abs(val - exact) < 0.2) {
+        m.isSolved = true;
+        updateFarmUI();
+        showModal(
+          `🎉 ${pal.label} 算對了！`,
+          `位置：${slot.name}（${fracText}）\n繩長半徑：${r} m\n算式：${r} × ${r} × 3.14 × ${slot.fraction} = ${exact.toFixed(2)} m²`,
+          'success'
+        );
+      } else {
+        m.isSolved = false;
+        updateFarmUI();
+        showModal(
+          `${pal.label} 再算算看`,
+          `【解題提示】\n1. ${pal.label}位於「${slot.name}」，活動範圍是 ${fracText}\n2. 繩長半徑為 ${r} m\n3. 先算整圓面積（${r} × ${r} × 3.14），再乘上圓的比例喔！`,
+          'error'
+        );
+      }
+    }
+
+    function handleComparePickChange(index, val) {
+      studentComparePicks[index] = val;
+    }
+
+    function handleCompareOpChange(index, val) {
+      studentCompareOps[index] = val;
+    }
+
+    function verifyMouseOrder() {
+      const n = farmMice.length;
+      if (n < 2) return;
+
+      const picks = studentComparePicks.slice(0, n);
+      if (picks.some(p => !p)) {
+        showModal('尚未選完', '請在每個下拉選單中都選好對應的小立鼠再核對喔！', 'info');
+        return;
+      }
+
+      const uniqueCount = new Set(picks).size;
+      if (uniqueCount < n) {
+        showModal('選項重複了', '同一隻小立鼠不能重複選取兩次喔，請檢查一下下拉選單！', 'error');
+        return;
+      }
+
+      // 取得學生選擇的每一項對應的實際面積（僅用於背景驗證，不直接顯示面積數值）
+      const chosenDetails = picks.map(id => {
+        const m = farmMice.find(item => item.id === id);
+        const pal = MOUSE_PALETTES[m.paletteIdx];
+        const slot = slots[m.slotKey];
+        const r = m.ropeRadiusM;
+        const area = r * r * 3.14 * slot.fraction;
+        return { m, pal, slot, r, area };
+      });
+
+      let isAllCorrect = true;
+      for (let i = 0; i < n - 1; i++) {
+        const leftArea = chosenDetails[i].area;
+        const rightArea = chosenDetails[i + 1].area;
+        const op = studentCompareOps[i];
+        const isEqual = Math.abs(leftArea - rightArea) < 0.01;
+
+        if (op === '>') {
+          if (leftArea <= rightArea + 0.01) {
+            isAllCorrect = false;
+            break;
+          }
+        } else if (op === '=') {
+          if (!isEqual) {
+            isAllCorrect = false;
+            break;
+          }
+        }
+      }
+
+      if (isAllCorrect) {
+        let relationChain = '';
+        for (let i = 0; i < chosenDetails.length; i++) {
+          const d = chosenDetails[i];
+          relationChain += `${d.pal.label}（${d.slot.name}，繩長 ${d.r}m）`;
+          if (i < chosenDetails.length - 1) {
+            relationChain += `  ${studentCompareOps[i]}  `;
+          }
+        }
+
+        showModal(
+          '🎉 大小順序完全正確！',
+          `太棒了！你的比較結果完全正確：\n\n${relationChain}\n\n接下來請自己動手算算看，它們的活動面積分別是多少平方公尺，並填進下方的格子裡核對吧！`,
+          'success'
+        );
+      } else {
+        showModal(
+          '順序不太對喔，再想想看！',
+          '【比較小提示】\n1. 先讓小立鼠繞一圈，再把產生的扇形色塊拖到右邊重疊比比看大小。\n2. 觀察繩長（半徑）和木樁位置（整圓、半圓、1/4圓）的變化喔！',
+          'error'
+        );
+      }
     }
 
     function updateFarmUI() {
@@ -356,7 +512,7 @@
       if (!m) return;
       const slot = slots[m.slotKey];
 
-      // 1. 渲染小立鼠分頁籤
+      // 1. 渲染上方小立鼠分頁籤
       const containerEl = document.getElementById('mouseTabsContainer');
       containerEl.innerHTML = '';
       farmMice.forEach(mouse => {
@@ -381,7 +537,6 @@
         containerEl.appendChild(tab);
       });
 
-      // 控制新增按鈕狀態
       const addBtn = document.getElementById('addMouseBtn');
       if (farmMice.length >= 3) {
         addBtn.classList.add('opacity-40', 'pointer-events-none');
@@ -400,11 +555,97 @@
       const slider = document.getElementById('ropeSlider');
       slider.value = m.ropeRadiusM;
       document.getElementById('ropeValueText').innerText = `${m.ropeRadiusM} m`;
-      document.getElementById('statusRopeText').innerText = `${m.ropeRadiusM} m`;
 
-      // 4. 更新底部狀態列
-      const pal = MOUSE_PALETTES[m.paletteIdx];
-      document.getElementById('statusLessonText').innerText = `${pal.label} (${slot ? slot.name : ''})`;
+      // 4. 渲染底部「三隻小立鼠各自計算卡」
+      const calcListEl = document.getElementById('miceCalcList');
+      calcListEl.innerHTML = '';
+      farmMice.forEach(mouse => {
+        const pal = MOUSE_PALETTES[mouse.paletteIdx];
+        const mSlot = slots[mouse.slotKey];
+        const posLabel = mSlot ? mSlot.name.replace('正', '') : '';
+        const isSelected = mouse.id === activeMouseId;
+
+        const card = document.createElement('div');
+        card.onclick = () => selectFarmMouse(mouse.id);
+        card.className = `flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition cursor-pointer ${
+          isSelected
+            ? 'bg-slate-800 ' + pal.borderCls + ' ring-1 ring-amber-400/60'
+            : 'bg-slate-900/85 border-slate-700/80 hover:bg-slate-800/70'
+        }`;
+
+        card.innerHTML = `
+          <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${pal.dotColor};"></span>
+          <span class="font-bold text-slate-200 whitespace-nowrap">${pal.label}<span class="text-[11px] text-slate-400 font-normal ml-1">(${posLabel}·${mouse.ropeRadiusM}m)</span>：</span>
+          <input type="number" step="0.01" value="${mouse.userInput}" placeholder="填寫面積"
+            onclick="event.stopPropagation(); selectFarmMouse('${mouse.id}')"
+            oninput="handleMouseInputChange('${mouse.id}', this.value)"
+            onkeydown="if(event.key==='Enter') verifySingleMouseAnswer('${mouse.id}')"
+            class="bg-slate-950 border ${mouse.isSolved ? 'border-emerald-500 text-emerald-300' : 'border-slate-600 text-amber-300'} rounded-lg px-2.5 py-1 text-xs md:text-sm font-mono w-24 focus:outline-none focus:border-amber-400">
+          <span class="text-xs text-slate-400 font-mono">m²</span>
+          <button onclick="event.stopPropagation(); verifySingleMouseAnswer('${mouse.id}')"
+            class="${mouse.isSolved ? 'bg-emerald-600' : 'bg-blue-600 hover:bg-blue-500'} text-white font-bold px-2.5 py-1 rounded-lg text-xs transition shadow-sm">
+            ${mouse.isSolved ? '<i class="fa-solid fa-check"></i> 已對' : '核對'}
+          </button>
+        `;
+        calcListEl.appendChild(card);
+      });
+
+      // 5. 渲染底部「學生下拉式選單大小比較列」
+      const compareBar = document.getElementById('miceCompareBar');
+      const dropdownsContainer = document.getElementById('compareDropdownsContainer');
+
+      if (farmMice.length >= 2) {
+        compareBar.classList.remove('hidden');
+        compareBar.classList.add('flex');
+        dropdownsContainer.innerHTML = '';
+
+        for (let i = 0; i < farmMice.length; i++) {
+          const selectEl = document.createElement('select');
+          selectEl.onchange = (e) => handleComparePickChange(i, e.target.value);
+          selectEl.className = 'bg-slate-950 text-amber-200 font-bold border border-slate-600 rounded-lg px-2.5 py-1 text-xs md:text-sm focus:outline-none focus:border-amber-400 cursor-pointer';
+
+          const defaultOpt = document.createElement('option');
+          defaultOpt.value = '';
+          defaultOpt.textContent = `-- 選擇第 ${i + 1} 個 --`;
+          selectEl.appendChild(defaultOpt);
+
+          farmMice.forEach(mouse => {
+            const pal = MOUSE_PALETTES[mouse.paletteIdx];
+            const mSlot = slots[mouse.slotKey];
+            const posText = mSlot ? mSlot.name.replace('正', '') : '';
+            const opt = document.createElement('option');
+            opt.value = mouse.id;
+            opt.textContent = `${pal.label} (${posText})`;
+            if (studentComparePicks[i] === mouse.id) {
+              opt.selected = true;
+            }
+            selectEl.appendChild(opt);
+          });
+
+          dropdownsContainer.appendChild(selectEl);
+
+          if (i < farmMice.length - 1) {
+            const opSelect = document.createElement('select');
+            opSelect.onchange = (e) => handleCompareOpChange(i, e.target.value);
+            opSelect.className = 'bg-slate-800 text-amber-400 font-extrabold border border-amber-500/40 rounded-lg px-2 py-1 text-xs md:text-sm focus:outline-none cursor-pointer';
+
+            ['>', '='].forEach(sym => {
+              const opOpt = document.createElement('option');
+              opOpt.value = sym;
+              opOpt.textContent = sym;
+              if (studentCompareOps[i] === sym) {
+                opOpt.selected = true;
+              }
+              opSelect.appendChild(opOpt);
+            });
+
+            dropdownsContainer.appendChild(opSelect);
+          }
+        }
+      } else {
+        compareBar.classList.remove('flex');
+        compareBar.classList.add('hidden');
+      }
     }
 
     // --- 題型二：司令台障礙物 ---
@@ -512,7 +753,6 @@
 
         initSlots();
 
-        // 同步更新所有小立鼠的座標與半徑像素
         farmMice.forEach(m => {
           const slot = slots[m.slotKey] || slots['center'];
           m.pegX = slot.x;
@@ -661,6 +901,7 @@
 
       mouse.pegX = slot.x;
       mouse.pegY = slot.y;
+      mouse.isSolved = false;
 
       if (resetAngle) {
         mouse.cowAngle = (slot.minAng + slot.maxAng) / 2;
@@ -694,11 +935,11 @@
       if (diff === 'basic') {
         bBasic.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm transition";
         bAdv.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition";
-        document.getElementById('statusLessonText').innerText = '司令台角落 (基礎)';
+        document.getElementById('statusLessonText2').innerText = '司令台角落 (基礎)';
       } else {
         bAdv.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg bg-amber-600 text-white shadow-sm transition";
         bBasic.className = "barn-diff-btn px-3 py-1 text-xs font-bold rounded-lg text-slate-300 hover:text-white transition";
-        document.getElementById('statusLessonText').innerText = '司令台角落 (進階)';
+        document.getElementById('statusLessonText2').innerText = '司令台角落 (進階)';
       }
 
       resetCanvas();
@@ -710,8 +951,9 @@
       const sizeBadge = document.getElementById('sizeBadge');
       const ctrls1 = document.getElementById('ctrls_mode1');
       const ctrls2 = document.getElementById('ctrls_mode2');
+      const bottom1 = document.getElementById('bottomCalc_mode1');
+      const bottom2 = document.getElementById('bottomCalc_mode2');
       const slider = document.getElementById('ropeSlider');
-      const statusLabel = document.getElementById('statusLabelPrefix');
       const stepGroup = document.getElementById('stepIndicatorGroup');
       const autoWalkText = document.getElementById('autoWalkBtnText');
 
@@ -719,26 +961,28 @@
         sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>草地：長 <b class="text-amber-400 mx-0.5">16m</b> × 寬 <b class="text-amber-400 mx-0.5">10m</b>';
         ctrls1.classList.remove('hidden'); ctrls1.classList.add('flex');
         ctrls2.classList.remove('flex'); ctrls2.classList.add('hidden');
+        bottom1.classList.remove('hidden'); bottom1.classList.add('flex');
+        bottom2.classList.remove('flex'); bottom2.classList.add('hidden');
         slider.classList.remove('hidden');
         stepGroup.classList.remove('flex'); stepGroup.classList.add('hidden');
         slider.min = 1; slider.max = 4; slider.step = 1;
-        statusLabel.innerText = '目前選取';
         autoWalkText.innerText = '全部走一圈';
 
-        resizeCanvas();
         if (farmMice.length === 0) {
           initDefaultFarmMice();
         }
-        farmMice.forEach(m => applySlotToMouse(m, m.slotKey, true, true));
         updateFarmUI();
+        resizeCanvas();
+        farmMice.forEach(m => applySlotToMouse(m, m.slotKey, true, true));
         render();
       } else {
         sizeBadge.innerHTML = '<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-2"></span>司令台：長 <b class="text-amber-400 mx-0.5">10m</b> × 寬 <b class="text-amber-400 mx-0.5">8m</b>';
         ctrls1.classList.remove('flex'); ctrls1.classList.add('hidden');
         ctrls2.classList.remove('hidden'); ctrls2.classList.add('flex');
+        bottom1.classList.remove('flex'); bottom1.classList.add('hidden');
+        bottom2.classList.remove('hidden'); bottom2.classList.add('flex');
         slider.classList.add('hidden');
         stepGroup.classList.remove('hidden'); stepGroup.classList.add('flex');
-        statusLabel.innerText = '題型';
         autoWalkText.innerText = '自動走一圈';
         setBarnDifficulty('basic');
       }
@@ -752,6 +996,7 @@
         m.ropeRadiusM = r;
         m.sweptIntervals = [];
         m.prevCowAngle = null;
+        m.isSolved = false;
         draggableSlices = draggableSlices.filter(s => s.ownerMouseId !== m.id);
         updateResetSliceBtnState();
         updateFarmUI();
@@ -760,7 +1005,7 @@
       } else {
         ropeRadiusM = r;
         document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
-        document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+        document.getElementById('statusRopeText2').innerText = `${ropeRadiusM} m`;
         barnMaxSweptT = 0;
         draggableSlices = [];
         updateResetSliceBtnState();
@@ -773,12 +1018,17 @@
       updateResetSliceBtnState();
 
       if (currentMode === 'farm_inside') {
+        studentComparePicks = ['', '', ''];
+        studentCompareOps = ['>', '>'];
         farmMice.forEach(m => {
           m.sweptIntervals = [];
           m.prevCowAngle = null;
+          m.userInput = '';
+          m.isSolved = false;
           const slot = slots[m.slotKey];
           if (slot) m.cowAngle = (slot.minAng + slot.maxAng) / 2;
         });
+        updateFarmUI();
         document.getElementById('canvasHintText').innerHTML = `可點上方「+新增」比較多隻小立鼠${MOUSE_ICON_HTML}；繞完後將色塊拖至右側比對大小！`;
       } else {
         barnMaxSweptT = 0;
@@ -787,7 +1037,7 @@
         barnExploreStage = 'stretch';
         ropeRadiusM = 0;
         document.getElementById('ropeValueText').innerText = '0 m';
-        document.getElementById('statusRopeText').innerText = '0 m';
+        document.getElementById('statusRopeText2').innerText = '0 m';
         document.getElementById('canvasHintText').innerHTML = `👉 步驟 1：按住小立鼠${MOUSE_ICON_HTML}往右拉直繩子，決定要拉多長！`;
         updateStepIndicator(1);
       }
@@ -895,12 +1145,11 @@
       barnCornerBlocked = false;
 
       if (currentMode === 'farm_inside') {
-        // 讓畫面上所有小立鼠同步自動走完一圈，方便學生比較
         farmMice.forEach(m => {
           m.sweptIntervals = [];
         });
 
-        let progress = 0; // 0 ~ 1
+        let progress = 0;
         function stepAllMice() {
           if (progress <= 1) {
             farmMice.forEach(m => {
@@ -1000,22 +1249,14 @@
       ctx.moveTo(dividerX, 15);
       ctx.lineTo(dividerX, totalH - 15);
       ctx.stroke();
-
-      // 右側比對區淡浮水印提示
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('色塊大小比對區（可將扇形拖曳至此重疊比較）', dividerX + (totalW - dividerX) / 2, totalH - 18);
       ctx.restore();
     }
 
     function renderFarmInside() {
-      // 圍欄外框
       ctx.strokeStyle = '#8d5b2d';
       ctx.lineWidth = 8;
       ctx.strokeRect(farmRect.x, farmRect.y, farmRect.w, farmRect.h);
 
-      // 尺寸標示
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
@@ -1039,7 +1280,6 @@
       ctx.fillStyle = '#f8fafc';
       ctx.fillText('寬: 10m', labelX, labelY);
 
-      // 藍色吸附點
       Object.values(slots).forEach(s => {
         ctx.beginPath();
         ctx.arc(s.x, s.y, 6, 0, Math.PI * 2);
@@ -1050,10 +1290,8 @@
         ctx.stroke();
       });
 
-      // 排序繪製：非選取的先畫，目前選取的畫在最上層
       const orderedMice = [...farmMice].sort((a, b) => (a.id === activeMouseId ? 1 : b.id === activeMouseId ? -1 : 0));
 
-      // 第一層：先畫所有掃過面積，避免小立鼠本體被遮擋
       orderedMice.forEach(m => {
         const pal = MOUSE_PALETTES[m.paletteIdx];
         const rPx = m.ropeRadiusM * meterScale;
@@ -1071,7 +1309,6 @@
         }
       });
 
-      // 第二層：畫牽繩、木樁、小立鼠與編號標籤
       orderedMice.forEach(m => {
         const pal = MOUSE_PALETTES[m.paletteIdx];
         const isSelected = m.id === activeMouseId;
@@ -1079,7 +1316,6 @@
         const cowX = m.pegX + Math.cos(m.cowAngle) * rPx;
         const cowY = m.pegY + Math.sin(m.cowAngle) * rPx;
 
-        // 牽繩
         ctx.beginPath();
         ctx.moveTo(m.pegX, m.pegY);
         ctx.lineTo(cowX, cowY);
@@ -1087,7 +1323,6 @@
         ctx.lineWidth = isSelected ? 3.5 : 2.5;
         ctx.stroke();
 
-        // 木樁
         ctx.beginPath();
         ctx.arc(m.pegX, m.pegY, isSelected ? 10 : 8, 0, Math.PI * 2);
         ctx.fillStyle = pal.dotColor;
@@ -1096,7 +1331,6 @@
         ctx.lineWidth = isSelected ? 3 : 2;
         ctx.stroke();
 
-        // 選取外光圈
         if (isSelected) {
           ctx.beginPath();
           ctx.arc(cowX, cowY, 27, 0, Math.PI * 2);
@@ -1107,10 +1341,8 @@
           ctx.setLineDash([]);
         }
 
-        // 小立鼠
         drawLittleSquirrel(cowX, cowY, m.cowAngle + Math.PI / 2);
 
-        // 小立鼠頭頂編號名牌
         ctx.save();
         const tagText = `${pal.label} (${m.ropeRadiusM}m)`;
         ctx.font = 'bold 11px sans-serif';
@@ -1163,7 +1395,6 @@
         ctx.restore();
       }
 
-      // 司令台建築主體
       ctx.save();
       ctx.fillStyle = '#64748b';
       ctx.fillRect(barnRect.x, barnRect.y, barnRect.w, barnRect.h);
@@ -1460,7 +1691,6 @@
     }
 
     function handlePointerDown(px, py) {
-      // 1. 優先檢查是否點擊已抽出的比對色塊
       if (draggableSlices.length > 0) {
         for (let i = draggableSlices.length - 1; i >= 0; i--) {
           const slice = draggableSlices[i];
@@ -1485,10 +1715,8 @@
       }
 
       if (currentMode === 'farm_inside') {
-        // 優先檢測目前選取的小立鼠，再檢測其他小立鼠（方便直接點選切換）
         const orderedMice = [...farmMice].sort((a, b) => (a.id === activeMouseId ? -1 : b.id === activeMouseId ? 1 : 0));
 
-        // 2. 檢查是否點到任何木樁
         for (const m of orderedMice) {
           if (Math.hypot(px - m.pegX, py - m.pegY) < 30) {
             activeMouseId = m.id;
@@ -1499,7 +1727,6 @@
           }
         }
 
-        // 3. 檢查是否點到任何小立鼠本體
         for (const m of orderedMice) {
           const rPx = m.ropeRadiusM * meterScale;
           const cowX = m.pegX + Math.cos(m.cowAngle) * rPx;
@@ -1565,7 +1792,7 @@
 
         ropeRadiusM = m;
         document.getElementById('ropeValueText').innerText = `${ropeRadiusM} m`;
-        document.getElementById('statusRopeText').innerText = `${ropeRadiusM} m`;
+        document.getElementById('statusRopeText2').innerText = `${ropeRadiusM} m`;
         document.getElementById('canvasHintText').innerHTML = `目前繩長：${ropeRadiusM}m。放開手指即可開始繞圈活動！`;
         render();
         return;
@@ -1632,54 +1859,38 @@
       render();
     }
 
-    function verifyAnswer() {
-      const val = parseFloat(document.getElementById('userAnswer').value);
+    function verifyBarnAnswer() {
+      const val = parseFloat(document.getElementById('userAnswerBarn').value);
       if (isNaN(val)) {
         showModal('請輸入答案', '請先輸入您計算出的活動面積！', 'info');
         return;
       }
 
-      if (currentMode === 'farm_inside') {
-        const m = getActiveMouse();
-        if (!m) return;
-        const slot = slots[m.slotKey];
-        const pal = MOUSE_PALETTES[m.paletteIdx];
-        const r = m.ropeRadiusM;
-        const exact = r * r * 3.14 * slot.fraction;
-        if (Math.abs(val - exact) < 0.2) {
-          showModal(`🎉 ${pal.label}答對了！`, `位置：${slot.name}\n算式：${r} × ${r} × 3.14 × ${slot.fraction} = ${exact.toFixed(2)} 平方公尺`, 'success');
+      if (barnDifficulty === 'basic' || ropeRadiusM <= BARN_H_M) {
+        const r = ropeRadiusM;
+        const mainA = r * r * 3.14 * 0.75;
+        if (Math.abs(val - mainA) < 0.2) {
+          let desc = `🎉 完全正確！\n\n【詳細計算步驟】\n司令台左上角活動範圍為 3/4 圓：\n${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺`;
+          showModal('🎉 答對了！', desc, 'success');
         } else {
-          showModal('再試一次', `目前核對的是【${pal.label}】（位於${slot.name}，繩長 ${r}m）。\n提示：把色塊拉到右邊比對，確認是幾分之幾圓！`, 'error');
+          showModal('算式提醒', `【解題提示】\n1. 繩長是 ${r}m\n2. 活動範圍為 3/4 圓：${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺`, 'error');
         }
       } else {
-        if (barnDifficulty === 'basic' || ropeRadiusM <= BARN_H_M) {
-          const r = ropeRadiusM;
-          const mainA = r * r * 3.14 * 0.75;
-          if (Math.abs(val - mainA) < 0.2) {
-            let desc = `🎉 完全正確！\n\n【詳細計算步驟】\n司令台左上角活動範圍為 3/4 圓：\n${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺`;
-            showModal('🎉 答對了！', desc, 'success');
-          } else {
-            showModal('算式提醒', `【解題提示】\n1. 繩長是 ${r}m\n2. 活動範圍為 3/4 圓：${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺`, 'error');
-          }
+        const r = ropeRadiusM;
+        const remR = r - BARN_H_M;
+        const mainA = r * r * 3.14 * 0.75;
+        const remA = remR * remR * 3.14 * 0.25;
+        const totalA = mainA + remA;
+        if (Math.abs(val - totalA) < 0.2) {
+          let desc = `🎉 太厲害了！進階題完全正確！\n\n【詳細計算步驟】\n1. 主要綠色 3/4 圓 (半徑 ${r}m)：\n   ${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺\n2. 繞過角落折彎黃色 1/4 圓 (半徑 ${r} - 8 = ${remR}m)：\n   ${remR} × ${remR} × 3.14 × 1/4 = ${remA.toFixed(2)} 平方公尺\n總面積：${mainA.toFixed(2)} + ${remA.toFixed(2)} = ${totalA.toFixed(2)} 平方公尺`;
+          showModal('🎉 答對了！', desc, 'success');
         } else {
-          const r = ropeRadiusM;
-          const remR = r - BARN_H_M;
-          const mainA = r * r * 3.14 * 0.75;
-          const remA = remR * remR * 3.14 * 0.25;
-          const totalA = mainA + remA;
-          if (Math.abs(val - totalA) < 0.2) {
-            let desc = `🎉 太厲害了！進階題完全正確！\n\n【詳細計算步驟】\n1. 主要綠色 3/4 圓 (半徑 ${r}m)：\n   ${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)} 平方公尺\n2. 繞過角落折彎黃色 1/4 圓 (半徑 ${r} - 8 = ${remR}m)：\n   ${remR} × ${remR} × 3.14 × 1/4 = ${remA.toFixed(2)} 平方公尺\n總面積：${mainA.toFixed(2)} + ${remA.toFixed(2)} = ${totalA.toFixed(2)} 平方公尺`;
-            showModal('🎉 答對了！', desc, 'success');
-          } else {
-            showModal('算式提醒', `【進階解題提示】\n1. 繩長 ${r}m，司令台寬 8m，轉角折彎後還剩 ${r} - 8 = ${remR}m！\n2. 主要綠色活動範圍 (3/4 圓)：${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)}\n3. 角落折彎黃色活動範圍 (1/4 圓)：${remR} × ${remR} × 3.14 × 1/4 = ${remA.toFixed(2)}\n兩者相加即為答案！`, 'error');
-          }
+          showModal('算式提醒', `【進階解題提示】\n1. 繩長 ${r}m，司令台寬 8m，轉角折彎後還剩 ${r} - 8 = ${remR}m！\n2. 主要綠色活動範圍 (3/4 圓)：${r} × ${r} × 3.14 × 3/4 = ${mainA.toFixed(2)}\n3. 角落折彎黃色活動範圍 (1/4 圓)：${remR} × ${remR} × 3.14 × 1/4 = ${remA.toFixed(2)}\n兩者相加即為答案！`, 'error');
         }
       }
     }
 
-    function showModal(title, desc, type) {
-      document.getElementById('modalTitle').innerText = title;
-      document.getElementById('modalDesc').innerText = desc;
+    function setModalIcon(type) {
       const icon = document.getElementById('modalIcon');
       if (type === 'success') {
         icon.className = 'w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3 bg-emerald-500/20 text-emerald-400';
@@ -1688,6 +1899,14 @@
         icon.className = 'w-12 h-12 mx-auto rounded-full flex items-center justify-center text-xl mb-3 bg-amber-500/20 text-amber-400';
         icon.innerHTML = '<i class="fa-solid fa-lightbulb"></i>';
       }
+    }
+
+    function showModal(title, desc, type) {
+      document.getElementById('modalTitle').innerText = title;
+      const bodyEl = document.getElementById('modalBody');
+      bodyEl.className = 'text-xs md:text-sm text-slate-300 mb-5 leading-relaxed whitespace-pre-line text-left bg-slate-900/70 p-3.5 rounded-xl border border-slate-800';
+      bodyEl.innerText = desc;
+      setModalIcon(type);
       document.getElementById('modalBackdrop').classList.remove('hidden');
     }
 
